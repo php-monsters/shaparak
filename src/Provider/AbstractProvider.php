@@ -122,7 +122,7 @@ abstract class AbstractProvider implements ProviderContract
             'buttonLabel' => $this->getParameters('submit_label') ?
                 $this->getParameters('submit_label') :
                 __("shaparak::shaparak.goto_gate"),
-            'autoSubmit'  => boolval($this->getParameters('auto_submit')),
+            'autoSubmit'  => boolval($this->getParameters('auto_submit', true)),
         ]));
     }
 
