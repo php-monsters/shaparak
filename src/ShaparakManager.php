@@ -102,7 +102,7 @@ class ShaparakManager extends Manager implements Contracts\Factory
     protected function getConfig(string $driver): array
     {
         if (empty($this->runtimeConfig)) {
-            return $this->container['config']["shaparak.{$driver}"];
+            return $this->container['config']["shaparak.providers.{$driver}"];
         } else {
             return $this->runtimeConfig;
         }
