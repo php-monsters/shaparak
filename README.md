@@ -6,7 +6,7 @@ Here are a few short examples of what you can do:
 * create new transaction form your order model and generate bank form
 ```php
  $transaction = $order->createTransaction(Bank::MELLAT);
- $form = $transaction->generateForm();
+ $form = $transaction->getForm();
 ```
 * handle bank callback 
 ```php

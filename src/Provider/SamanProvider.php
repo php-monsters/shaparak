@@ -80,7 +80,7 @@ class SamanProvider extends AbstractProvider implements ProviderContract
     /**
      * @inheritDoc
      */
-    public function generateForm(): string
+    public function getForm(): string
     {
         $formParameters = $this->getFormParameters();
 

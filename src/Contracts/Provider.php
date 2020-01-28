@@ -33,7 +33,7 @@ interface Provider
      *
      * @return string
      */
-    public function generateForm(): string;
+    public function getForm(): string;
 
     /**
      * return parameters that require for generating goto gate form

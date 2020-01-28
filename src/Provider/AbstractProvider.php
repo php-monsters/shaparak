@@ -109,7 +109,7 @@ abstract class AbstractProvider implements ProviderContract
     /**
      * @inheritDoc
      */
-    abstract public function generateForm(): string;
+    abstract public function getForm(): string;
 
     /**
      * @inheritDoc
