@@ -109,7 +109,22 @@ abstract class AbstractProvider implements ProviderContract
     /**
      * @inheritDoc
      */
-    abstract public function getForm(): string;
+    abstract public function getFormParameters(): array;
+
+    /**
+     * @inheritDoc
+     */
+    public function getForm(): string
+    {
+        $formParameters = $this->getFormParameters();
+
+        return view('shaparak::goto-gate-form', array_merge($formParameters, [
+            'buttonLabel' => $this->getParameters('submit_label') ?
+                $this->getParameters('submit_label') :
+                __("shaparak::shaparak.goto_gate"),
+            'autoSubmit'  => boolval($this->getParameters('auto_submit')),
+        ]));
+    }
 
     /**
      * @inheritDoc
@@ -179,10 +194,6 @@ abstract class AbstractProvider implements ProviderContract
         return $this->parameters[$key] ?? $default;
     }
 
-    /**
-     * @inheritDoc
-     */
-    abstract public function getFormParameters(): array;
 
     /**
      * @return Transaction

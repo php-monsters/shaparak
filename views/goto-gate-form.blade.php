@@ -5,7 +5,7 @@
 
   <div class="control-group">
       <div class="controls">
-          <button type="submit" class="btn btn-success">{{ $submitLabel }}</button>
+          <button type="submit" class="btn btn-success">{{ $buttonLabel }}</button>
       </div>
   </div>
 </form>

@@ -80,21 +80,6 @@ class SamanProvider extends AbstractProvider implements ProviderContract
     /**
      * @inheritDoc
      */
-    public function getForm(): string
-    {
-        $formParameters = $this->getFormParameters();
-
-        return view('shaparak::goto-gate-form', array_merge($formParameters, [
-            'buttonLabel' => $this->getParameters('submit_label') ?
-                $this->getParameters('submit_label') :
-                __("shaparak::shaparak.goto_gate"),
-            'autoSubmit'  => boolval($this->getParameters('auto_submit')),
-        ]));
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function verifyTransaction(): bool
     {
         if ($this->getTransaction()->isReadyForVerify() == false) {
