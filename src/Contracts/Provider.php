@@ -6,6 +6,12 @@ namespace Asanpay\Shaparak\Contracts;
 interface Provider
 {
     /**
+     * return the provider name
+     * @return string
+     */
+    public function name(): string;
+
+    /**
      * Determines whether the provider supports reverse transaction
      *
      * @return bool

@@ -3,6 +3,7 @@
 namespace Asanpay\Shaparak;
 
 use Asanpay\Shaparak\Adapter\AbstractProvider;
+use Asanpay\Shaparak\Contracts\Transaction;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Manager;
 use InvalidArgumentException;

@@ -8,6 +8,8 @@ use Asanpay\Shaparak\Contracts\Provider as ProviderContract;
 
 class SamanProvider extends AbstractProvider implements ProviderContract
 {
+    const NAME = 'saman';
+
     protected $refundSupport = true;
 
     /**
