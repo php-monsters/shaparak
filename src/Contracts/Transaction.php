@@ -6,6 +6,13 @@ namespace Asanpay\Shaparak\Contracts;
 interface Transaction
 {
     /**
+     * return the callback url of the transaction process
+     *
+     * @return string
+     */
+    public function getCallbackUrl(): string;
+
+    /**
      * set gateway token of transaction
      *
      * @param string $token

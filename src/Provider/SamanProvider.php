@@ -3,6 +3,7 @@
 
 namespace Asanpay\Shaparak\Provider;
 
+use Illuminate\Support\Str;
 use SoapFault;
 use Asanpay\Shaparak\Contracts\Provider as ProviderContract;
 
@@ -23,7 +24,6 @@ class SamanProvider extends AbstractProvider implements ProviderContract
 
         $this->checkRequiredActionParameters([
             'terminal_id',
-            'redirect_url',
         ]);
 
         $sendParams = [
@@ -60,12 +60,11 @@ class SamanProvider extends AbstractProvider implements ProviderContract
      */
     public function getFormParameters(): array
     {
-        $this->checkRequiredActionParameters([
-            'terminal_id',
-            'redirect_url',
-        ]);
-
         $token = $this->requestToken();
+
+        $callbackUrl = Str::is('http*', $this->getParameters('callback_url')) ?
+            $this->getParameters('callback_url') :
+            $this->getTransaction()->getCallbackUrl();
 
         return [
             'gateway' => 'saman',
@@ -73,6 +72,7 @@ class SamanProvider extends AbstractProvider implements ProviderContract
             'action'  => $this->getUrlFor(self::URL_GATEWAY),
             'parameters' => [
                 'Token'   => $token,
+                'RedirectURL' => $callbackUrl,
             ]
         ];
     }
