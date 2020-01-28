@@ -52,8 +52,11 @@ class ShaparakManager extends Manager implements Contracts\Factory
      */
     protected function createSamanDriver()
     {
+        $config = $this->getConfig('saman');
+
         return $this->buildProvider(
-            SamanProvider::class
+            SamanProvider::class,
+            $config
         );
     }
 
@@ -63,12 +66,12 @@ class ShaparakManager extends Manager implements Contracts\Factory
      *
      * @param string $provider
      *
-     * @return \Asanpay\Shaparak\Contracts\Provider
+     * @param array $config
+     *
+     * @return Provider
      */
-    public function buildProvider($provider): Provider
+    public function buildProvider($provider, array $config): Provider
     {
-        $config =  $this->getConfig($provider);
-
         return new $provider(
             $this->transaction,
             $config,
@@ -99,7 +102,6 @@ class ShaparakManager extends Manager implements Contracts\Factory
     protected function getConfig(string $driver): array
     {
         if (empty($this->runtimeConfig)) {
-            $driver = lcfirst(str_replace('Provider', '', $driver));
             return $this->container['config']["shaparak.{$driver}"];
         } else {
             return $this->runtimeConfig;

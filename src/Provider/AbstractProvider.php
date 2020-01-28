@@ -29,8 +29,6 @@ abstract class AbstractProvider implements ProviderContract
     const URL_VERIFY  = 'verify';
     const URL_REFUND  = 'refund';
 
-    const NAME = 'AbstractProvider';
-
     /**
      * shaparak operation environment
      *
@@ -108,10 +106,6 @@ abstract class AbstractProvider implements ProviderContract
         $this->setParameters($configs);
     }
 
-    public function name(): string
-    {
-        return self::NAME;
-    }
     /**
      * @inheritDoc
      */
