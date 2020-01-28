@@ -60,7 +60,7 @@ class SamanProvider extends AbstractProvider implements ProviderContract
      */
     public function getFormParameters(): array
     {
-        $this->checkRequiredParameters([
+        $this->checkRequiredActionParameters([
             'terminal_id',
             'redirect_url',
         ]);
@@ -69,9 +69,11 @@ class SamanProvider extends AbstractProvider implements ProviderContract
 
         return [
             'gateway' => 'saman',
-            'Token'   => $token,
             'method'  => 'POST',
             'action'  => $this->getUrlFor(self::URL_GATEWAY),
+            'parameters' => [
+                'Token'   => $token,
+            ]
         ];
     }
 
@@ -99,7 +101,7 @@ class SamanProvider extends AbstractProvider implements ProviderContract
             throw new Exception('shaparak::shaparak.could_not_verify_payment');
         }
 
-        $this->checkRequiredParameters([
+        $this->checkRequiredActionParameters([
             'terminal_id',
             'State',
             'StateCode',
@@ -148,7 +150,7 @@ class SamanProvider extends AbstractProvider implements ProviderContract
             throw new Exception('shaparak::shaparak.could_not_refund_payment');
         }
 
-        $this->checkRequiredParameters([
+        $this->checkRequiredActionParameters([
             'RefNum',
             'terminal_id',
             'terminal_pass',

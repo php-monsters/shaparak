@@ -52,6 +52,8 @@ class ShaparakServiceProvider extends ServiceProvider
 
     protected function registerResources()
     {
+        $this->loadViewsFrom(__DIR__ . '/../views/', 'shaparak');
+
         $this->publishes([
             __DIR__ . '/../translations/' => resource_path('lang/vendor/shaparak'),
         ], 'translations');
@@ -61,6 +63,10 @@ class ShaparakServiceProvider extends ServiceProvider
 
     protected function registerPublishing()
     {
+        $this->publishes([
+            __DIR__ . '/../views/' => resource_path('/views/vendor/shaparak'),
+        ], 'views');
+
         $this->publishes([
             __DIR__ . '/../config/shaparak.php' => config_path('shaparak.php')
         ], 'config');
