@@ -2,6 +2,7 @@
 
 namespace Asanpay\Shaparak\Provider;
 
+use Illuminate\Support\Str;
 use SoapClient;
 use SoapFault;
 use GuzzleHttp\Client;
@@ -240,14 +241,13 @@ abstract class AbstractProvider implements ProviderContract
     }
 
     /**
-     * object to array
-     *
-     * @param $object
-     *
-     * @return array
+     * fetches callback url from parameters
+     * @return string
      */
-    protected function obj2array($object): array
+    protected function getCallbackUrl(): string
     {
-        return json_decode(json_encode($object), true);
+        return Str::is('http*', $this->getParameters('callback_url')) ?
+            $this->getParameters('callback_url') :
+            $this->getTransaction()->getCallbackUrl();
     }
 }

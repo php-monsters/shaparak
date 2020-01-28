@@ -62,17 +62,13 @@ class SamanProvider extends AbstractProvider implements ProviderContract
     {
         $token = $this->requestToken();
 
-        $callbackUrl = Str::is('http*', $this->getParameters('callback_url')) ?
-            $this->getParameters('callback_url') :
-            $this->getTransaction()->getCallbackUrl();
-
         return [
             'gateway' => 'saman',
             'method'  => 'POST',
             'action'  => $this->getUrlFor(self::URL_GATEWAY),
             'parameters' => [
                 'Token'   => $token,
-                'RedirectURL' => $callbackUrl,
+                'RedirectURL' => $this->getCallbackUrl(),
             ]
         ];
     }
