@@ -129,7 +129,7 @@ interface Transaction
      *
      * @return bool
      */
-    public function setCardNumber(string $cardNumber, bool $save = true): bool;
+    public function setCardNumber(string $cardNumber, bool $save = false): bool;
 
     /**
      * Set callback parameters from payment gateway
