@@ -25,6 +25,8 @@
     ],
     "require": {
         "php": ">=7.1.0",
+        "ext-curl": "*",
+        "ext-soap": "*",
         "ext-json": "*",
         "illuminate/support": "~5.6.0|^6.0|^7.0",
         "illuminate/view": "~5.6.0|^6.0|^7.0",
