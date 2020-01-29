@@ -9,6 +9,8 @@ use Asanpay\Shaparak\Contracts\Provider as ProviderContract;
 
 class PasargadProvider extends AbstractProvider implements ProviderContract
 {
+    protected $refundSupport = true;
+
     const URL_CHECK = 'check';
 
     /**
