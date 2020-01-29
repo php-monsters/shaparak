@@ -47,7 +47,7 @@ class SamanProvider extends AbstractProvider implements ProviderContract
                     throw new Exception('shaparak::saman.error_' . strval($response));
                 }
             } else {
-                throw new Exception('shaparak::shaparak.could_not_request_payment');
+                throw new Exception('shaparak::shaparak.token_failed');
             }
 
         } catch (SoapFault $e) {
