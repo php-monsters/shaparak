@@ -5,6 +5,7 @@ namespace Asanpay\Shaparak;
 use Asanpay\Shaparak\Adapter\AbstractProvider;
 use Asanpay\Shaparak\Contracts\Transaction;
 use Asanpay\Shaparak\Contracts\Provider;
+use Asanpay\Shaparak\Provider\ParsianProvider;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Manager;
 use InvalidArgumentException;
@@ -57,6 +58,21 @@ class ShaparakManager extends Manager implements Contracts\Factory
 
         return $this->buildProvider(
             SamanProvider::class,
+            $config
+        );
+    }
+
+    /**
+     * Create an instance of the specified driver.
+     *
+     * @return \Asanpay\Shaparak\Provider\ParsianProvider
+     */
+    protected function createParsianDriver()
+    {
+        $config = $this->getConfig('parsian');
+
+        return $this->buildProvider(
+            ParsianProvider::class,
             $config
         );
     }

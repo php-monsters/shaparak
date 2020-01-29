@@ -24,7 +24,10 @@ return [
         'saman' => [
             'terminal_id' => '',
             'terminal_pass' => '',
-         ]
+         ],
+        'parsian' => [
+            'pin' => '',
+        ]
     ],
 
     /*

@@ -100,8 +100,10 @@ class SamanProvider extends AbstractProvider implements ProviderContract
         try {
             $soapClient = $this->getSoapClient();
 
-            $response = $soapClient->VerifyTransaction($this->getParameters('RefNum'),
-                $this->getParameters('terminal_id'));
+            $response = $soapClient->VerifyTransaction(
+                $this->getParameters('RefNum'),
+                $this->getParameters('terminal_id')
+            );
 
             if (isset($response)) {
                 if ($response == $this->getTransaction()->getPayableAmount()) {
