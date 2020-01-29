@@ -11,7 +11,6 @@ class ParsianProvider extends AbstractProvider implements ProviderContract
 {
     const URL_SALE     = 'sale';
     const URL_CONFIRM  = 'confirm';
-    const URL_REVERSAL = 'reversal';
 
     protected $refundSupport = true;
 
@@ -52,7 +51,7 @@ class ParsianProvider extends AbstractProvider implements ProviderContract
                     throw new Exception('shaparak::saman.error_' . strval($response->SalePaymentRequestResult->Status));
                 }
             } else {
-                throw new Exception('shaparak::shaparak.could_not_request_payment');
+                throw new Exception('shaparak::shaparak.token_failed');
             }
 
         } catch (SoapFault $e) {
@@ -130,7 +129,7 @@ class ParsianProvider extends AbstractProvider implements ProviderContract
      */
     public function refundTransaction(): bool
     {
-        if ($this->refundSupport == false || $this->getTransaction()->isReadyForRefund() == false) {
+        if ($this->getTransaction()->isReadyForRefund() == false) {
             throw new Exception('shaparak::shaparak.could_not_refund_payment');
         }
 
@@ -145,7 +144,7 @@ class ParsianProvider extends AbstractProvider implements ProviderContract
                 'Token'        => $this->getParameters('Token'),
             ];
 
-            $soapClient = $this->getSoapClient(self::URL_REVERSAL);
+            $soapClient = $this->getSoapClient(self::URL_REFUND);
 
             $response = $soapClient->ReversalRequest(["requestData" => $sendParams]);
 
@@ -219,7 +218,7 @@ class ParsianProvider extends AbstractProvider implements ProviderContract
                     {
                         return 'https://pec.shaparak.ir/NewIPGServices/Confirm/ConfirmService.asmx?WSDL';
                     }
-                case self::URL_REVERSAL :
+                case self::URL_REFUND :
                     {
                         return 'https://pec.shaparak.ir/NewIPGServices/Reverse/ReversalService.asmx?WSDL';
                     }
@@ -238,7 +237,7 @@ class ParsianProvider extends AbstractProvider implements ProviderContract
                     {
                         return 'http://banktest.ir/gateway/parsian-confirm/ws?wsdl';
                     }
-                case self::URL_REVERSAL :
+                case self::URL_REFUND :
                     {
                         return 'http://banktest.ir/gateway/parsian-reverse/ws?wsdl';
                     }
