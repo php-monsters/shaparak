@@ -6,12 +6,7 @@ use Asanpay\Shaparak\Helper\CurlWrapper;
 use Illuminate\Support\Str;
 use SoapClient;
 use SoapFault;
-use GuzzleHttp\Client;
-use GuzzleHttp\ClientInterface;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Asanpay\Shaparak\Contracts\Transaction;
-use Illuminate\Support\Facades\Log;
 use Asanpay\Shaparak\Contracts\Provider as ProviderContract;
 
 /**
