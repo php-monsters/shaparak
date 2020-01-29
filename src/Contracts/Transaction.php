@@ -123,6 +123,15 @@ interface Transaction
     public function getPayableAmount(): int;
 
     /**
+     * save the pan/card number that used for paying the transaction
+     * @param string $cardNumber
+     * @param bool $save
+     *
+     * @return bool
+     */
+    public function setCardNumber(string $cardNumber, bool $save = true): bool;
+
+    /**
      * Set callback parameters from payment gateway
      *
      * @param array $parameters

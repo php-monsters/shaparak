@@ -83,7 +83,7 @@ class ParsianProvider extends AbstractProvider implements ProviderContract
     public function verifyTransaction(): bool
     {
         if ($this->getTransaction()->isReadyForVerify() == false) {
-            throw new Exception('shaparak::shaparak.could_not_verify_payment');
+            throw new Exception('shaparak::shaparak.could_not_verify_transaction');
         }
 
         $this->checkRequiredActionParameters([
@@ -117,7 +117,7 @@ class ParsianProvider extends AbstractProvider implements ProviderContract
                     throw new Exception('shaparak::parsian.error_' . strval($response->ConfirmPaymentResult->Status));
                 }
             } else {
-                throw new Exception('shaparak::shaparak.could_not_verify_payment');
+                throw new Exception('shaparak::shaparak.could_not_verify_transaction');
             }
 
         } catch (SoapFault $e) {

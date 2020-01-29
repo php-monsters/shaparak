@@ -76,6 +76,20 @@ class ShaparakManager extends Manager implements Contracts\Factory
         );
     }
 
+    /**
+     * Create an instance of the specified driver.
+     *
+     * @return \Asanpay\Shaparak\Provider\PasargadProvider
+     */
+    protected function createPasargadDriver()
+    {
+        $config = $this->getConfig('pasargad');
+
+        return $this->buildProvider(
+            PasargadProvider::class,
+            $config
+        );
+    }
 
     /**
      * Build a Shaparak provider instance.

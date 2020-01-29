@@ -28,6 +28,8 @@
         "ext-curl": "*",
         "ext-soap": "*",
         "ext-json": "*",
+        "ext-xml": "*",
+        "ext-simplexml": "*",
         "illuminate/support": "~5.6.0|^6.0|^7.0",
         "illuminate/view": "~5.6.0|^6.0|^7.0",
         "tartan/laravel-xlog": "^1.0"

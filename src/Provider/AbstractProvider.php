@@ -2,6 +2,7 @@
 
 namespace Asanpay\Shaparak\Provider;
 
+use Asanpay\Shaparak\Helper\CurlWrapper;
 use Illuminate\Support\Str;
 use SoapClient;
 use SoapFault;
@@ -38,18 +39,6 @@ abstract class AbstractProvider implements ProviderContract
     protected $environment;
 
     /**
-     * The HTTP request instance.
-     *
-     * @var \Illuminate\Http\Request
-     */
-    protected $request;
-
-    /**
-     * @var
-     */
-    protected $urls = [];
-
-    /**
      * The custom parameters to be sent with the request.
      *
      * @var array
@@ -57,9 +46,11 @@ abstract class AbstractProvider implements ProviderContract
     protected $parameters = [];
 
     /**
-     * @var array
+     * The SOAP client Client instance.
+     *
+     * @var SoapClient
      */
-    protected $soapOptions = [];
+    protected $soapClient;
 
     /**
      * @var Transaction
@@ -67,7 +58,7 @@ abstract class AbstractProvider implements ProviderContract
     protected $transaction;
 
     /**
-     * specifies if gateway supports transaction reverse or not
+     * specifies whether the gateway supports transaction reverse/refund or not
      * @var bool
      */
     protected $refundSupport = false;
@@ -75,9 +66,9 @@ abstract class AbstractProvider implements ProviderContract
     /**
      * The HTTP Client instance.
      *
-     * @var \GuzzleHttp\Client
+     * @var CurlWrapper
      */
-    protected $httpClient;
+    protected $curlClient;
 
     /**
      * The custom Guzzle/SoapClient configuration options.
@@ -98,11 +89,11 @@ abstract class AbstractProvider implements ProviderContract
     public function __construct(
         Transaction $transaction,
         array $configs = [],
-        string $environment,
+        string $environment = 'production',
         array $httpClientOptions = []
     ) {
-        $this->environment = $environment;
-        $this->transaction = $transaction;
+        $this->environment       = $environment;
+        $this->transaction       = $transaction;
         $this->httpClientOptions = $httpClientOptions;
         $this->setParameters($configs);
     }
@@ -135,7 +126,8 @@ abstract class AbstractProvider implements ProviderContract
     /**
      * @inheritDoc
      */
-    public function settleTransaction(): bool {
+    public function settleTransaction(): bool
+    {
         return true; // just some of gateways needed this method implementation
     }
 
@@ -226,8 +218,28 @@ abstract class AbstractProvider implements ProviderContract
      */
     protected function getSoapClient(string $action): SoapClient
     {
-        $soapOptions = $this->httpClientOptions ?? [];
+        $soapOptions = $this->httpClientOptions ? $this->httpClientOptions['soap'] : [];
+        // set soap options if require. see shaparak config
         return new SoapClient($this->getUrlFor($action), $soapOptions);
+    }
+
+    /**
+     * @param string $action
+     *
+     * @return SoapClient
+     * @throws SoapFault
+     */
+    protected function getCurlClient(): CurlWrapper
+    {
+        $httpOptions = $this->httpClientOptions ? $this->httpClientOptions['curl'] : [];
+        $curl = new CurlWrapper();
+        // set curl options if require. see shaparak config
+        if (!empty($httpOptions)) {
+            foreach ($httpOptions as $k => $v) {
+                $curl->addOption($k, $v);
+            }
+        }
+        return $curl;
     }
 
     /**
@@ -235,7 +247,7 @@ abstract class AbstractProvider implements ProviderContract
      *
      * @return string
      */
-    protected function slugify(string $string):string
+    protected function slugify(string $string): string
     {
         return trim(str_replace('-', '_', $string));
     }
@@ -249,5 +261,27 @@ abstract class AbstractProvider implements ProviderContract
         return Str::is('http*', $this->getParameters('callback_url')) ?
             $this->getParameters('callback_url') :
             $this->getTransaction()->getCallbackUrl();
+    }
+
+    /**
+     * fetches payable amount of the transaction
+     * @return int
+     */
+    protected function getAmount(): int
+    {
+        return (is_int($this->getParameters('amount')) && !empty($this->getParameters('amount'))) ?
+            $this->getParameters('amount') :
+            $this->getTransaction()->getPayableAmount();
+    }
+
+    /**
+     * fetches payable amount of the transaction
+     * @return int
+     */
+    protected function getGatewayOrderId(): int
+    {
+        return (is_int($this->getParameters('order_id')) && !empty($this->getParameters('order_id'))) ?
+            $this->getParameters('order_id') :
+            $this->getTransaction()->getGatewayOrderId();
     }
 }

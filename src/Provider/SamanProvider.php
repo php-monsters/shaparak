@@ -28,8 +28,8 @@ class SamanProvider extends AbstractProvider implements ProviderContract
 
         $sendParams = [
             'TermID'      => $this->getParameters('terminal_id'),
-            'ResNum'      => $transaction->getGatewayOrderId(),
-            'TotalAmount' => $transaction->getPayableAmount(),
+            'ResNum'      => $this->getGatewayOrderId(),
+            'TotalAmount' => $this->getAmount(),
         ];
 
         try {
@@ -79,7 +79,7 @@ class SamanProvider extends AbstractProvider implements ProviderContract
     public function verifyTransaction(): bool
     {
         if ($this->getTransaction()->isReadyForVerify() == false) {
-            throw new Exception('shaparak::shaparak.could_not_verify_payment');
+            throw new Exception('shaparak::shaparak.could_not_verify_transaction');
         }
 
         $this->checkRequiredActionParameters([
@@ -98,7 +98,7 @@ class SamanProvider extends AbstractProvider implements ProviderContract
         }
 
         try {
-            $soapClient = $this->getSoapClient();
+            $soapClient = $this->getSoapClient(self::URL_VERIFY);
 
             $response = $soapClient->VerifyTransaction(
                 $this->getParameters('RefNum'),
@@ -116,7 +116,7 @@ class SamanProvider extends AbstractProvider implements ProviderContract
                     throw new Exception('shaparak::saman.error_' . strval($response));
                 }
             } else {
-                throw new Exception('shaparak::shaparak.could_not_verify_payment');
+                throw new Exception('shaparak::shaparak.could_not_verify_transaction');
             }
 
         } catch (SoapFault $e) {
@@ -140,11 +140,9 @@ class SamanProvider extends AbstractProvider implements ProviderContract
         ]);
 
         try {
-            $soapClient = $this->getSoapClient();
+            $soapClient = $this->getSoapClient(self::URL_REFUND);
 
-            $refundAmount = ($this->getParameters('amount') && is_int($this->getParameters('amount'))) ?
-                $this->getParameters('amount') : // specific amount
-                $this->getTransaction()->getPayableAmount(); // total amount
+            $refundAmount = $this->getAmount(); // total amount
 
             $response = $soapClient->reverseTransaction1(
                 $this->getParameters('RefNum'),
@@ -208,7 +206,7 @@ class SamanProvider extends AbstractProvider implements ProviderContract
     /**
      * @inheritDoc
      */
-    public function getUrlFor(string $action): string
+    public function getUrlFor(string $action = null): string
     {
         if ($this->environment == 'production') {
             switch ($action) {
