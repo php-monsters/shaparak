@@ -94,7 +94,7 @@ class ShaparakManager extends Manager implements Contracts\Factory
     /**
      * Create an instance of the specified driver.
      *
-     * @return \Asanpay\Shaparak\Provider\PasargadProvider
+     * @return \Asanpay\Shaparak\Provider\MellatProvider
      */
     protected function createMellatDriver()
     {
@@ -102,6 +102,21 @@ class ShaparakManager extends Manager implements Contracts\Factory
 
         return $this->buildProvider(
             MellatProvider::class,
+            $config
+        );
+    }
+
+    /**
+     * Create an instance of the specified driver.
+     *
+     * @return \Asanpay\Shaparak\Provider\MelliProvider
+     */
+    protected function createMelliDriver()
+    {
+        $config = $this->getConfig('melli');
+
+        return $this->buildProvider(
+            MelliProvider::class,
             $config
         );
     }

@@ -27,8 +27,8 @@ return [
         |--------------------------------------------------------------------------
         */
         'saman' => [
-            'terminal_id' =>   env('SAMAN_TERMINAL_ID', ''),
-            'terminal_pass' => env('SAMAN_TERMINAL_PASS', ''),
+            'terminal_id' =>   env('SAMAN_TERMINAL_ID'),
+            'terminal_pass' => env('SAMAN_TERMINAL_PASS'),
          ],
         /*
         |--------------------------------------------------------------------------
@@ -44,8 +44,8 @@ return [
         |--------------------------------------------------------------------------
         */
         'pasargad' => [
-            'terminal_id'       => env('PASARGAD_TERMINAL_ID', ''),
-            'merchant_id'       => env('PASARGAD_MERCHANT_ID', ''),
+            'terminal_id'       => env('PASARGAD_TERMINAL_ID'),
+            'merchant_id'       => env('PASARGAD_MERCHANT_ID'),
             'certificate_path' => storage_path(env('PASARGAD_CERT_PATH', 'shaparak/pasargad/certificate.xml')),
         ],
         /*
@@ -54,9 +54,9 @@ return [
         |--------------------------------------------------------------------------
         */
         'mellat'   => [
-            'username'    => env('MELLAT_USERNAME', ''),
-            'password'    => env('MELLAT_PASSWORD', ''),
-            'terminal_id' => env('MELLAT_TERMINAL_ID', ''),
+            'username'    => env('MELLAT_USERNAME'),
+            'password'    => env('MELLAT_PASSWORD'),
+            'terminal_id' => env('MELLAT_TERMINAL_ID'),
         ],
         /*
         |--------------------------------------------------------------------------
@@ -64,9 +64,9 @@ return [
         |--------------------------------------------------------------------------
         */
         'melli'    => [
-            'merchant'        => env('MELLI_MERCHANT', ''),
-            'transaction_key' => env('MELLI_TRANS_KEY', ''),
-            'terminal_id'     => env('MELLI_TERMINAL_ID', ''),
+            'merchant_id'     => env('MELLI_MERCHANT_ID'),
+            'terminal_id'     => env('MELLI_TERMINAL_ID'),
+            'transaction_key' => env('MELLI_TRANS_KEY'),
         ],
     ],
 

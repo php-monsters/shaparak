@@ -30,6 +30,7 @@
         "ext-json": "*",
         "ext-xml": "*",
         "ext-simplexml": "*",
+        "ext-openssl": "*",
         "illuminate/support": "~5.6.0|^6.0|^7.0",
         "illuminate/view": "~5.6.0|^6.0|^7.0",
         "tartan/laravel-xlog": "^1.0"
