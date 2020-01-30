@@ -110,7 +110,7 @@ class PasargadProvider extends AbstractProvider implements ProviderContract
             'sign'
         );
 
-        $curl = $this->getCurlClient();
+        $curl = $this->getCurl();
 
         $response = $curl->post($this->getUrlFor(self::URL_VERIFY), $parameters);
 
@@ -184,7 +184,7 @@ class PasargadProvider extends AbstractProvider implements ProviderContract
             'sign'
         );
 
-        $curl = $this->getCurlClient();
+        $curl = $this->getCurl();
 
         $response = $curl->post($this->getUrlFor(self::URL_REFUND), $parameters);
 

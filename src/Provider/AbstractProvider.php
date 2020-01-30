@@ -224,7 +224,7 @@ abstract class AbstractProvider implements ProviderContract
      * @return SoapClient
      * @throws SoapFault
      */
-    protected function getCurlClient(): CurlWrapper
+    protected function getCurl(): CurlWrapper
     {
         $httpOptions = $this->httpClientOptions ? $this->httpClientOptions['curl'] : [];
         $curl = new CurlWrapper();
