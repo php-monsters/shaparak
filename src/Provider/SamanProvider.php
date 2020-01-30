@@ -3,7 +3,6 @@
 
 namespace Asanpay\Shaparak\Provider;
 
-use Illuminate\Support\Str;
 use SoapFault;
 use Asanpay\Shaparak\Contracts\Provider as ProviderContract;
 
@@ -93,7 +92,7 @@ class SamanProvider extends AbstractProvider implements ProviderContract
             'CID',
         ]);
 
-        if ($this->$this->getParameters('State') != 'OK') {
+        if ($this->getParameters('State') != 'OK') {
             throw new Exception('could not verify transaction with callback state: ' . $this->getParameters('State'));
         }
 
