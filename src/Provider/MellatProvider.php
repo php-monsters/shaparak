@@ -79,7 +79,7 @@ class MellatProvider extends AbstractProvider implements ProviderContract
             'method'     => 'post',
             'action'     => $this->getUrlFor(self::URL_GATEWAY),
             'parameters' => [
-                'refId' => $token,
+                'RefId' => $token,
             ],
         ];
     }
@@ -148,7 +148,7 @@ class MellatProvider extends AbstractProvider implements ProviderContract
             throw new Exception('shaparak::shaparak.could_not_inquiry_payment');
         }
 
-        $this->checkRequiredParameters([
+        $this->checkRequiredActionParameters([
             'terminal_id',
             'username',
             'password',
@@ -199,7 +199,7 @@ class MellatProvider extends AbstractProvider implements ProviderContract
             throw new Exception('shaparak::shaparak.could_not_settle_payment');
         }
 
-        $this->checkRequiredParameters([
+        $this->checkRequiredActionParameters([
             'terminal_id',
             'username',
             'password',
@@ -251,7 +251,7 @@ class MellatProvider extends AbstractProvider implements ProviderContract
             throw new Exception('shaparak::shaparak.could_not_refund_payment');
         }
 
-        $this->checkRequiredParameters([
+        $this->checkRequiredActionParameters([
             'terminal_id',
             'username',
             'password',

@@ -18,7 +18,7 @@ class PasargadProvider extends AbstractProvider implements ProviderContract
      */
     public function getFormParameters(): array
     {
-        $this->checkRequiredParameters([
+        $this->checkRequiredActionParameters([
             'terminal_id',
             'merchant_id',
             'certificate_path',
