@@ -82,6 +82,8 @@ interface Provider
      *
      * @param string $action
      *
+     * @throws \Asanpay\Shaparak\Provider\Exception
+     *
      * @return string
      */
     public function getUrlFor(string $action): string;
@@ -98,7 +100,7 @@ interface Provider
      *
      * @param array $parameters
      *
-     * @throws Exception
+     * @throws \Asanpay\Shaparak\Provider\Exception
      */
     public function checkRequiredActionParameters(array $parameters): void;
 }
