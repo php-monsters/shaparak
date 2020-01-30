@@ -71,7 +71,7 @@ class ParsianProvider extends AbstractProvider implements ProviderContract
             'method'     => 'get',
             'action'     => $this->getUrlFor(self::URL_GATEWAY),
             'parameters' => [
-                'au' => $token,
+                'token' => $token,
             ],
         ];
     }
