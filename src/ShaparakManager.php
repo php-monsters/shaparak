@@ -122,6 +122,21 @@ class ShaparakManager extends Manager implements Contracts\Factory
     }
 
     /**
+     * Create an instance of the specified driver.
+     *
+     * @return \Asanpay\Shaparak\Provider\SaderatProvider
+     */
+    protected function createSaderatDriver()
+    {
+        $config = $this->getConfig('saderat');
+
+        return $this->buildProvider(
+            SaderatProvider::class,
+            $config
+        );
+    }
+
+    /**
      * Build a Shaparak provider instance.
      *
      * @param string $provider
