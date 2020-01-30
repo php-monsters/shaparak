@@ -208,7 +208,7 @@ class MelliProvider extends AbstractProvider implements ProviderContract
             switch ($action) {
                 case self::URL_GATEWAY:
                     {
-                        return 'https://sadad.shaparak.ir/VPG/Purchase';
+                        return 'http://banktest.ir/gateway/melli/purchase';
                     }
                 case self::URL_TOKEN :
                     {
