@@ -150,5 +150,5 @@ interface Transaction
      *
      * @return bool
      */
-    public function setExtra(string $key, $value, bool $save = true): bool;
+    public function addExtra(string $key, $value, bool $save = true): bool;
 }
