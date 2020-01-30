@@ -50,14 +50,14 @@ class MelliProvider extends AbstractProvider implements ProviderContract
         $info     = $curl->getTransferInfo();
 
         if ($info['http_code'] == 200 && !empty($response)) {
-            $token = json_decode(trim($response));
+            $response = json_decode(trim($response));
 
             if ($response->ResCode == 0) {// got string token
-                $transaction->setGatewayToken($token, true); // update transaction reference id
+                $transaction->setGatewayToken($response->Token, true); // update transaction reference id
 
-                return $token;
+                return $response->Token;
             } else {
-                throw new Exception(strval($response->ResCode) . ' :: ' . @$response->Description);
+                throw new Exception('shaparak::melli.error_'. strval($response->ResCode));
             }
         } else {
             throw new Exception('shaparak::shaparak.token_failed');
@@ -135,7 +135,7 @@ class MelliProvider extends AbstractProvider implements ProviderContract
 
                 return true;
             } else {
-                throw new Exception(strval($response->ResCode) . ' :: ' . @$response->Description);
+                throw new Exception('shaparak::melli.error_'. strval($response->ResCode));
             }
         } else {
             throw new Exception('shaparak::shaparak.could_not_verify_transaction');
@@ -191,7 +191,6 @@ class MelliProvider extends AbstractProvider implements ProviderContract
     {
         if ($this->environment == 'production') {
             switch ($action) {
-
                 case self::URL_GATEWAY:
                     {
                         return 'https://sadad.shaparak.ir/VPG/Purchase';
