@@ -191,21 +191,7 @@ class MelliProvider extends AbstractProvider implements ProviderContract
     {
         if ($this->environment == 'production') {
             switch ($action) {
-                case self::URL_GATEWAY:
-                    {
-                        return 'https://sadad.shaparak.ir/VPG/Purchase';
-                    }
-                case self::URL_TOKEN :
-                    {
-                        return 'http://banktest.ir/gateway/melli/payment-request';
-                    }
-                case self::URL_VERIFY :
-                    {
-                        return 'http://banktest.ir/gateway/melli/verify';
-                    }
-            }
-        } else {
-            switch ($action) {
+
                 case self::URL_GATEWAY:
                     {
                         return 'https://sadad.shaparak.ir/VPG/Purchase';
@@ -217,6 +203,21 @@ class MelliProvider extends AbstractProvider implements ProviderContract
                 case self::URL_VERIFY :
                     {
                         return 'https://sadad.shaparak.ir/vpg/api/v0/Advice/Verify';
+                    }
+            }
+        } else {
+            switch ($action) {
+                case self::URL_GATEWAY:
+                    {
+                        return 'https://sadad.shaparak.ir/VPG/Purchase';
+                    }
+                case self::URL_TOKEN :
+                    {
+                        return 'http://banktest.ir/gateway/melli/payment-request';
+                    }
+                case self::URL_VERIFY :
+                    {
+                        return 'http://banktest.ir/gateway/melli/verify';
                     }
             }
         }
