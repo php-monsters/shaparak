@@ -123,6 +123,7 @@ abstract class AbstractProvider implements ProviderContract
      */
     public function settleTransaction(): bool
     {
+        // default behavior
         return $this->getTransaction()->setSettled(true);
     }
 

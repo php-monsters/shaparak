@@ -107,8 +107,7 @@ class ParsianProvider extends AbstractProvider implements ProviderContract
 
             if (isset($response->ConfirmPaymentResult, $response->ConfirmPaymentResult->Status)) {
                 if ($response->ConfirmPaymentResult->Status == 0) {
-                    $this->getTransaction()->setCardNumber($this->getParameters('CardNumberMasked'),
-                        false); // no save()
+                    //$this->getTransaction()->setCardNumber($this->getParameters('CardNumberMasked'), false); // no save()
                     $this->getTransaction()->setVerified(true); // save()
 
                     return true;
