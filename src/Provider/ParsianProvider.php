@@ -44,6 +44,7 @@ class ParsianProvider extends AbstractProvider implements ProviderContract
 
             if (isset($response->SalePaymentRequestResult, $response->SalePaymentRequestResult->Status, $response->SalePaymentRequestResult->Token)) {
                 if ($response->SalePaymentRequestResult->Status == 0) {
+                    $this->log("fetched token from gateway: {$response->SalePaymentRequestResult->Token}");
                     $this->getTransaction()->setGatewayToken($response->SalePaymentRequestResult->Token);
 
                     return $response->SalePaymentRequestResult->Token;

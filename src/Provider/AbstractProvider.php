@@ -8,6 +8,7 @@ use SoapClient;
 use SoapFault;
 use Asanpay\Shaparak\Contracts\Transaction;
 use Asanpay\Shaparak\Contracts\Provider as ProviderContract;
+use Tartan\Log\Facades\XLog;
 
 /**
  * Class AbstractProvider
@@ -278,5 +279,15 @@ abstract class AbstractProvider implements ProviderContract
         return (is_int($this->getParameters('order_id')) && !empty($this->getParameters('order_id'))) ?
             $this->getParameters('order_id') :
             $this->getTransaction()->getGatewayOrderId();
+    }
+
+    protected function log(string $message, array $params = [], string $level = 'debug'): void
+    {
+        $reflect = new ReflectionClass($this);
+        $provider = str_replace('Provider', '', $reflect->getShortName());
+
+        $message = "SHAPARAK - {$provider} -> " . $message;
+
+        forward_static_call_array(['XLog', $level], [$message, $params]);
     }
 }
