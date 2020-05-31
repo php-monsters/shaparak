@@ -9,8 +9,8 @@ use Asanpay\Shaparak\Contracts\Provider as ProviderContract;
 
 class ParsianProvider extends AbstractProvider implements ProviderContract
 {
-    const URL_SALE     = 'sale';
-    const URL_CONFIRM  = 'confirm';
+    const URL_SALE    = 'sale';
+    const URL_CONFIRM = 'confirm';
 
     protected $refundSupport = true;
 
@@ -207,40 +207,48 @@ class ParsianProvider extends AbstractProvider implements ProviderContract
         if ($this->environment == 'production') {
             switch ($action) {
                 case self::URL_GATEWAY:
-                    {
-                        return 'https://pec.shaparak.ir/NewIPG/';
-                    }
+                {
+                    return 'https://pec.shaparak.ir/NewIPG/';
+                }
                 case self::URL_SALE :
-                    {
-                        return 'https://pec.shaparak.ir/NewIPGServices/Sale/SaleService.asmx?WSDL';
-                    }
+                {
+                    return 'https://pec.shaparak.ir/NewIPGServices/Sale/SaleService.asmx?WSDL';
+                }
                 case self::URL_CONFIRM :
-                    {
-                        return 'https://pec.shaparak.ir/NewIPGServices/Confirm/ConfirmService.asmx?WSDL';
-                    }
+                {
+                    return 'https://pec.shaparak.ir/NewIPGServices/Confirm/ConfirmService.asmx?WSDL';
+                }
                 case self::URL_REFUND :
-                    {
-                        return 'https://pec.shaparak.ir/NewIPGServices/Reverse/ReversalService.asmx?WSDL';
-                    }
+                {
+                    return 'https://pec.shaparak.ir/NewIPGServices/Reverse/ReversalService.asmx?WSDL';
+                }
+                case self::URL_MULTIPLEX:
+                {
+                    return 'https://pec.shaparak.ir/NewIPGServices/MultiplexedSale/OnlineMultiplexedSalePaymentService.asmx?WSDL';
+                }
             }
         } else {
             switch ($action) {
                 case self::URL_GATEWAY:
-                    {
-                        return 'http://banktest.ir/gateway/parsian/NewIPG';
-                    }
+                {
+                    return 'http://banktest.ir/gateway/Parsian/NewIPGq';
+                }
                 case self::URL_SALE :
-                    {
-                        return 'http://banktest.ir/gateway/Parsian/Sale/SaleService.asmx?WSDL';
-                    }
+                {
+                    return 'http://banktest.ir/gateway/Parsian/NewIPGServices/Sale/SaleService.asmx?WSDL';
+                }
                 case self::URL_CONFIRM :
-                    {
-                        return 'http://banktest.ir/gateway/Parsian/Confirm/ConfirmService.asmx?WSDL';
-                    }
+                {
+                    return 'http://banktest.ir/gateway/Parsian/NewIPGServices/Confirm/ConfirmService.asmx?WSDL';
+                }
                 case self::URL_REFUND :
-                    {
-                        return 'http://banktest.ir/gateway/Parsian/Reverse/ReversalService.asmx?WSDL';
-                    }
+                {
+                    return 'http://banktest.ir/gateway/Parsian/NewIPGServices/Reverse/ReversalService.asmx?WSDL';
+                }
+                case self::URL_MULTIPLEX:
+                {
+                    return 'http://banktest.ir/gateway/Parsian/NewIPGServices/MultiplexedSale/OnlineMultiplexedSalePaymentService.asmx?WSDL';
+                }
             }
         }
     }
