@@ -227,19 +227,19 @@ class ParsianProvider extends AbstractProvider implements ProviderContract
             switch ($action) {
                 case self::URL_GATEWAY:
                     {
-                        return 'http://banktest.ir/gateway/parsian/gate';
+                        return 'http://banktest.ir/gateway/parsian/NewIPG';
                     }
                 case self::URL_SALE :
                     {
-                        return 'http://banktest.ir/gateway/parsian-sale/ws?wsdl';
+                        return 'http://banktest.ir/gateway/Parsian/Sale/SaleService.asmx?WSDL';
                     }
                 case self::URL_CONFIRM :
                     {
-                        return 'http://banktest.ir/gateway/parsian-confirm/ws?wsdl';
+                        return 'http://banktest.ir/gateway/Parsian/Confirm/ConfirmService.asmx?WSDL';
                     }
                 case self::URL_REFUND :
                     {
-                        return 'http://banktest.ir/gateway/parsian-reverse/ws?wsdl';
+                        return 'http://banktest.ir/gateway/Parsian/Reverse/ReversalService.asmx?WSDL';
                     }
             }
         }

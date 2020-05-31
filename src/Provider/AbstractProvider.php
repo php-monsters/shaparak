@@ -2,13 +2,14 @@
 
 namespace Asanpay\Shaparak\Provider;
 
+use Asanpay\Shaparak\Facades\Shaparak;
 use Asanpay\Shaparak\Helper\CurlWrapper;
 use Illuminate\Support\Str;
 use SoapClient;
 use SoapFault;
 use Asanpay\Shaparak\Contracts\Transaction;
 use Asanpay\Shaparak\Contracts\Provider as ProviderContract;
-use Tartan\Log\Facades\XLog;
+use ReflectionClass;
 
 /**
  * Class AbstractProvider
@@ -22,10 +23,11 @@ use Tartan\Log\Facades\XLog;
  */
 abstract class AbstractProvider implements ProviderContract
 {
-    const URL_GATEWAY = 'gateway';
-    const URL_TOKEN   = 'token';
-    const URL_VERIFY  = 'verify';
-    const URL_REFUND  = 'refund';
+    const URL_GATEWAY   = 'gateway';
+    const URL_TOKEN     = 'token';
+    const URL_VERIFY    = 'verify';
+    const URL_REFUND    = 'refund';
+    const URL_MULTIPLEX = 'multiplex';
 
     /**
      * shaparak operation environment
@@ -215,6 +217,7 @@ abstract class AbstractProvider implements ProviderContract
     protected function getSoapClient(string $action): SoapClient
     {
         $soapOptions = $this->httpClientOptions ? $this->httpClientOptions['soap'] : [];
+
         // set soap options if require. see shaparak config
         return new SoapClient($this->getUrlFor($action), $soapOptions);
     }
@@ -228,13 +231,14 @@ abstract class AbstractProvider implements ProviderContract
     protected function getCurl(): CurlWrapper
     {
         $httpOptions = $this->httpClientOptions ? $this->httpClientOptions['curl'] : [];
-        $curl = new CurlWrapper();
+        $curl        = new CurlWrapper();
         // set curl options if require. see shaparak config
         if (!empty($httpOptions)) {
             foreach ($httpOptions as $k => $v) {
                 $curl->addOption($k, $v);
             }
         }
+
         return $curl;
     }
 
@@ -283,11 +287,11 @@ abstract class AbstractProvider implements ProviderContract
 
     protected function log(string $message, array $params = [], string $level = 'debug'): void
     {
-        $reflect = new ReflectionClass($this);
-        $provider = str_replace('Provider', '', $reflect->getShortName());
+        $reflect  = new ReflectionClass($this);
+        $provider = strtolower(str_replace('Provider', '', $reflect->getShortName()));
 
-        $message = "SHAPARAK - {$provider} -> " . $message;
+        $message = $provider . ": " . $message;
 
-        forward_static_call_array(['XLog', $level], [$message, $params]);
+        Shaparak::log($message, $params, $level);
     }
 }

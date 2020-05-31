@@ -186,4 +186,16 @@ class ShaparakManager extends Manager implements Contracts\Factory
             return $this->runtimeConfig;
         }
     }
+
+    /**
+     * @param string $message
+     * @param array $params
+     * @param string $level
+     */
+    public static function log(string $message, array $params = [], string $level = 'debug'): void
+    {
+        $message = "SHAPARAK -> " . $message;
+
+        forward_static_call_array(['Tartan\Log\Facades\XLog', $level], [$message, $params]);
+    }
 }
