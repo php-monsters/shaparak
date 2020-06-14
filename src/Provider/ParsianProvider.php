@@ -49,7 +49,7 @@ class ParsianProvider extends AbstractProvider implements ProviderContract
 
                     return $response->SalePaymentRequestResult->Token;
                 } else {
-                    throw new Exception('shaparak::saman.error_' . strval($response->SalePaymentRequestResult->Status));
+                    throw new Exception('shaparak::parsian.error_' . strval($response->SalePaymentRequestResult->Status));
                 }
             } else {
                 throw new Exception('shaparak::shaparak.token_failed');
