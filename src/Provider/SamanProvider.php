@@ -1,17 +1,16 @@
 <?php
 
-
 namespace Asanpay\Shaparak\Provider;
 
 use SoapFault;
-use Asanpay\Shaparak\Contracts\Provider as ProviderContract;
 
-class SamanProvider extends AbstractProvider implements ProviderContract
+class SamanProvider extends AbstractProvider
 {
-    protected $refundSupport = true;
+    protected bool $refundSupport = true;
 
     /**
      * @inheritDoc
+     * @throws Exception
      */
     protected function requestToken(): string
     {
@@ -43,13 +42,12 @@ class SamanProvider extends AbstractProvider implements ProviderContract
                     $transaction->setGatewayToken($token, true); // update transaction reference id
 
                     return $token;
-                } else {
-                    throw new Exception('shaparak::saman.error_' . strval($response));
                 }
-            } else {
-                throw new Exception('shaparak::shaparak.token_failed');
+
+                throw new Exception(sprintf('shaparak::saman.error_%s', $response));
             }
 
+            throw new Exception('shaparak::shaparak.token_failed');
         } catch (SoapFault $e) {
             throw new Exception('SoapFault: ' . $e->getMessage() . ' #' . $e->getCode(), $e->getCode());
         }
@@ -57,28 +55,30 @@ class SamanProvider extends AbstractProvider implements ProviderContract
 
     /**
      * @inheritDoc
+     * @throws Exception
      */
     public function getFormParameters(): array
     {
         $token = $this->requestToken();
 
         return [
-            'gateway' => 'saman',
-            'method'  => 'POST',
-            'action'  => $this->getUrlFor(self::URL_GATEWAY),
+            'gateway'    => 'saman',
+            'method'     => 'POST',
+            'action'     => $this->getUrlFor(self::URL_GATEWAY),
             'parameters' => [
-                'Token'   => $token,
+                'Token'       => $token,
                 'RedirectURL' => $this->getCallbackUrl(),
-            ]
+            ],
         ];
     }
 
     /**
      * @inheritDoc
+     * @throws Exception
      */
     public function verifyTransaction(): bool
     {
-        if ($this->getTransaction()->isReadyForVerify() == false) {
+        if ($this->getTransaction()->isReadyForVerify() === false) {
             throw new Exception('shaparak::shaparak.could_not_verify_transaction');
         }
 
@@ -93,7 +93,7 @@ class SamanProvider extends AbstractProvider implements ProviderContract
             'CID',
         ]);
 
-        if ($this->getParameters('State') != 'OK') {
+        if ($this->getParameters('State') !== 'OK') {
             throw new Exception('could not verify transaction with callback state: ' . $this->getParameters('State'));
         }
 
@@ -106,19 +106,18 @@ class SamanProvider extends AbstractProvider implements ProviderContract
             );
 
             if (isset($response)) {
-                if ($response == $this->getTransaction()->getPayableAmount()) {
+                if ($response === $this->getTransaction()->getPayableAmount()) {
                     // double check the amount by transaction amount
                     $this->getTransaction()->setCardNumber($this->getParameters('SecurePan'), false); // no save()
                     $this->getTransaction()->setVerified(true); // save()
 
                     return true;
-                } else {
-                    throw new Exception('shaparak::saman.error_' . strval($response));
                 }
-            } else {
-                throw new Exception('shaparak::shaparak.could_not_verify_transaction');
+
+                throw new Exception('shaparak::saman.error_' . strval($response));
             }
 
+            throw new Exception('shaparak::shaparak.could_not_verify_transaction');
         } catch (SoapFault $e) {
             throw new Exception('SoapFault: ' . $e->getMessage() . ' #' . $e->getCode(), $e->getCode());
         }
@@ -126,10 +125,11 @@ class SamanProvider extends AbstractProvider implements ProviderContract
 
     /**
      * @inheritDoc
+     * @throws Exception
      */
     public function refundTransaction(): bool
     {
-        if ($this->refundSupport == false || $this->getTransaction()->isReadyForRefund() == false) {
+        if ($this->refundSupport === false || $this->getTransaction()->isReadyForRefund() === false) {
             throw new Exception('shaparak::shaparak.could_not_refund_payment');
         }
 
@@ -152,18 +152,16 @@ class SamanProvider extends AbstractProvider implements ProviderContract
             );
 
             if (isset($response)) {
-
                 if ($response == 1) { // check by transaction amount
                     $this->getTransaction()->setRefunded(true);
 
                     return true;
-                } else {
-                    throw new Exception('shaparak::saman.error_' . strval($response));
                 }
-            } else {
-                throw new Exception('shaparak::shaparak.could_not_refund_payment');
+
+                throw new Exception('shaparak::saman.error_' . strval($response));
             }
 
+            throw new Exception('shaparak::shaparak.could_not_refund_payment');
         } catch (SoapFault $e) {
             throw new Exception('SoapFault: ' . $e->getMessage() . ' #' . $e->getCode(), $e->getCode());
         }
@@ -183,15 +181,12 @@ class SamanProvider extends AbstractProvider implements ProviderContract
             return false;
         }
 
-        if ($this->getParameters('State') == 'OK') {
-            return true;
-        } else {
-            return false;
-        }
+        return $this->getParameters('State') === 'OK';
     }
 
     /**
      * @inheritDoc
+     * @throws Exception
      */
     public function getGatewayReferenceId(): string
     {
@@ -202,41 +197,40 @@ class SamanProvider extends AbstractProvider implements ProviderContract
         return $this->getParameters('RefNum');
     }
 
-
     /**
      * @inheritDoc
      */
     public function getUrlFor(string $action = null): string
     {
-        if ($this->environment == 'production') {
+        if ($this->environment === 'production') {
             switch ($action) {
                 case self::URL_GATEWAY:
-                    {
-                        return 'https://sep.shaparak.ir/Payment.aspx';
-                    }
+                {
+                    return 'https://sep.shaparak.ir/Payment.aspx';
+                }
                 case self::URL_TOKEN :
-                    {
-                        return 'https://sep.shaparak.ir/Payments/InitPayment.asmx?WSDL';
-                    }
+                {
+                    return 'https://sep.shaparak.ir/Payments/InitPayment.asmx?WSDL';
+                }
                 default:
-                    {
-                        return 'https://sep.shaparak.ir/payments/referencepayment.asmx?WSDL';
-                    }
+                {
+                    return 'https://sep.shaparak.ir/payments/referencepayment.asmx?WSDL';
+                }
             }
         } else {
             switch ($action) {
                 case self::URL_GATEWAY:
-                    {
-                        return 'http://banktest.ir/gateway/saman/gate';
-                    }
+                {
+                    return 'http://banktest.ir/gateway/saman/gate';
+                }
                 case self::URL_TOKEN :
-                    {
-                        return 'http://banktest.ir/gateway/saman/Payments/InitPayment?wsdl';
-                    }
+                {
+                    return 'http://banktest.ir/gateway/saman/Payments/InitPayment?wsdl';
+                }
                 default:
-                    {
-                        return 'http://banktest.ir/gateway/saman/payments/referencepayment?wsdl';
-                    }
+                {
+                    return 'http://banktest.ir/gateway/saman/payments/referencepayment?wsdl';
+                }
             }
         }
     }

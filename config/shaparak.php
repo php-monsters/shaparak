@@ -46,7 +46,7 @@ return [
         'pasargad' => [
             'terminal_id'       => env('PASARGAD_TERMINAL_ID'),
             'merchant_id'       => env('PASARGAD_MERCHANT_ID'),
-            'certificate_path' => storage_path(env('PASARGAD_CERT_PATH', 'shaparak/pasargad/certificate.xml')),
+            'certificate_path'  => env('PASARGAD_CERT_PATH', storage_path('shaparak/pasargad/certificate.xml')),
         ],
         /*
         |--------------------------------------------------------------------------

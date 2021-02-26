@@ -1,14 +1,15 @@
 <?php
 
-
 namespace Asanpay\Shaparak\Provider;
 
 use Asanpay\Shaparak\Contracts\Provider as ProviderContract;
 
-class MelliProvider extends AbstractProvider implements ProviderContract
+class MelliProvider extends AbstractProvider
 {
     /**
      * @inheritDoc
+     * @throws Exception
+     * @throws \Samuraee\EasyCurl\Exception
      */
     protected function requestToken(): string
     {
@@ -41,7 +42,7 @@ class MelliProvider extends AbstractProvider implements ProviderContract
             'OrderId'       => $orderId,
         ];
 
-        $jsonData = json_encode($sendParams);
+        $jsonData = json_encode($sendParams, JSON_THROW_ON_ERROR);
         $curl     = $this->getCurl();
 
         $curl->addHeader('Content-Type', 'application/json');
@@ -49,24 +50,25 @@ class MelliProvider extends AbstractProvider implements ProviderContract
         $response = $curl->rawPost($this->getUrlFor(self::URL_TOKEN), $jsonData);
         $info     = $curl->getTransferInfo();
 
-        if ($info['http_code'] == 200 && !empty($response)) {
+        if ((int) $info['http_code'] === 200 && !empty($response)) {
             $response = json_decode(trim($response));
 
             if ($response->ResCode == 0) {// got string token
                 $transaction->setGatewayToken($response->Token, true); // update transaction reference id
 
                 return $response->Token;
-            } else {
-                throw new Exception('shaparak::melli.error_'. strval($response->ResCode));
             }
-        } else {
-            throw new Exception('shaparak::shaparak.token_failed');
+
+            throw new Exception(sprintf('shaparak::melli.error_%s', $response->ResCode));
         }
 
+        throw new Exception('shaparak::shaparak.token_failed');
     }
 
     /**
      * @inheritDoc
+     * @throws Exception
+     * @throws \Samuraee\EasyCurl\Exception
      */
     public function getFormParameters(): array
     {
@@ -84,10 +86,12 @@ class MelliProvider extends AbstractProvider implements ProviderContract
 
     /**
      * @inheritDoc
+     * @throws Exception
+     * @throws \Samuraee\EasyCurl\Exception
      */
     public function verifyTransaction(): bool
     {
-        if ($this->getTransaction()->isReadyForVerify() == false) {
+        if ($this->getTransaction()->isReadyForVerify() === false) {
             throw new Exception('shaparak::shaparak.could_not_verify_transaction');
         }
 
@@ -100,7 +104,7 @@ class MelliProvider extends AbstractProvider implements ProviderContract
             'ResCode',
         ]);
 
-        if ($this->getParameters('ResCode') != 0) {
+        if ((int) $this->getParameters('ResCode') !== 0) {
             throw new Exception('could not verify transaction with callback state: ' . $this->getParameters('State'));
         }
 
@@ -114,7 +118,7 @@ class MelliProvider extends AbstractProvider implements ProviderContract
             'SignData' => $signature,
         ];
 
-        $jsonData = json_encode($sendParams);
+        $jsonData = json_encode($sendParams, JSON_THROW_ON_ERROR);
         $curl     = $this->getCurl();
 
         $curl->addHeader('Content-Type', 'application/json');
@@ -122,11 +126,10 @@ class MelliProvider extends AbstractProvider implements ProviderContract
         $response = $curl->rawPost($this->getUrlFor(self::URL_VERIFY), $jsonData);
         $info     = $curl->getTransferInfo();
 
-        if ($info['http_code'] == 200 && !empty($response)) {
-
+        if ((int) $info['http_code'] === 200 && !empty($response)) {
             $response = json_decode(trim($response));
 
-            if ($response->ResCode == 0 && $response->Amount == $this->getAmount()) {// got string token
+            if (is_numeric($response->ResCode) && (int)$response->ResCode === 0 && (int)$response->Amount === $this->getAmount()) {// got string token
                 foreach ($response as $k => $v) {
                     $this->getTransaction()->addExtra($k, $v, false);
                 }
@@ -134,13 +137,12 @@ class MelliProvider extends AbstractProvider implements ProviderContract
                 $this->getTransaction()->save();
 
                 return true;
-            } else {
-                throw new Exception('shaparak::melli.error_'. strval($response->ResCode));
             }
-        } else {
-            throw new Exception('shaparak::shaparak.could_not_verify_transaction');
+
+            throw new Exception(sprintf('shaparak::melli.error_%s', $response->ResCode));
         }
 
+        throw new Exception('shaparak::shaparak.could_not_verify_transaction');
     }
 
     public function refundTransaction(): bool
@@ -164,11 +166,7 @@ class MelliProvider extends AbstractProvider implements ProviderContract
             return false;
         }
 
-        if ($this->getParameters('ResCode') == 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return (int)$this->getParameters('ResCode') === 0;
     }
 
     /**
@@ -183,41 +181,40 @@ class MelliProvider extends AbstractProvider implements ProviderContract
         return $this->getParameters('Token');
     }
 
-
     /**
      * @inheritDoc
      */
     public function getUrlFor(string $action = null): string
     {
-        if ($this->environment == 'production') {
+        if ($this->environment === 'production') {
             switch ($action) {
                 case self::URL_GATEWAY:
-                    {
-                        return 'https://sadad.shaparak.ir/VPG/Purchase';
-                    }
+                {
+                    return 'https://sadad.shaparak.ir/VPG/Purchase';
+                }
                 case self::URL_TOKEN :
-                    {
-                        return 'https://sadad.shaparak.ir/vpg/api/v0/Request/PaymentRequest';
-                    }
+                {
+                    return 'https://sadad.shaparak.ir/vpg/api/v0/Request/PaymentRequest';
+                }
                 case self::URL_VERIFY :
-                    {
-                        return 'https://sadad.shaparak.ir/vpg/api/v0/Advice/Verify';
-                    }
+                {
+                    return 'https://sadad.shaparak.ir/vpg/api/v0/Advice/Verify';
+                }
             }
         } else {
             switch ($action) {
                 case self::URL_GATEWAY:
-                    {
-                        return 'http://banktest.ir/gateway/melli/purchase';
-                    }
+                {
+                    return 'http://banktest.ir/gateway/melli/purchase';
+                }
                 case self::URL_TOKEN :
-                    {
-                        return 'http://banktest.ir/gateway/melli/payment-request';
-                    }
+                {
+                    return 'http://banktest.ir/gateway/melli/payment-request';
+                }
                 case self::URL_VERIFY :
-                    {
-                        return 'http://banktest.ir/gateway/melli/verify';
-                    }
+                {
+                    return 'http://banktest.ir/gateway/melli/verify';
+                }
             }
         }
 

@@ -21,14 +21,14 @@ class ShaparakManager extends Manager implements Contracts\Factory
      *
      * @var array
      */
-    protected $runtimeConfig;
+    protected array $runtimeConfig;
 
     /**
      * transaction which should paid on the gateway
      *
      * @var Transaciton $transaction
      */
-    protected $transaction;
+    protected Transaciton $transaction;
 
     /**
      * Get a driver instance.
@@ -53,7 +53,7 @@ class ShaparakManager extends Manager implements Contracts\Factory
     /**
      * Create an instance of the specified driver.
      *
-     * @return \Asanpay\Shaparak\Provider\SamanProvider
+     * @return Provider
      */
     protected function createSamanDriver()
     {
@@ -68,7 +68,7 @@ class ShaparakManager extends Manager implements Contracts\Factory
     /**
      * Create an instance of the specified driver.
      *
-     * @return \Asanpay\Shaparak\Provider\ParsianProvider
+     * @return Provider
      */
     protected function createParsianDriver()
     {
@@ -83,7 +83,7 @@ class ShaparakManager extends Manager implements Contracts\Factory
     /**
      * Create an instance of the specified driver.
      *
-     * @return \Asanpay\Shaparak\Provider\PasargadProvider
+     * @return Provider
      */
     protected function createPasargadDriver()
     {
@@ -98,7 +98,7 @@ class ShaparakManager extends Manager implements Contracts\Factory
     /**
      * Create an instance of the specified driver.
      *
-     * @return \Asanpay\Shaparak\Provider\MellatProvider
+     * @return Provider
      */
     protected function createMellatDriver()
     {
@@ -113,7 +113,7 @@ class ShaparakManager extends Manager implements Contracts\Factory
     /**
      * Create an instance of the specified driver.
      *
-     * @return \Asanpay\Shaparak\Provider\MelliProvider
+     * @return Provider
      */
     protected function createMelliDriver()
     {
@@ -128,7 +128,7 @@ class ShaparakManager extends Manager implements Contracts\Factory
     /**
      * Create an instance of the specified driver.
      *
-     * @return \Asanpay\Shaparak\Provider\SaderatProvider
+     * @return Provider
      */
     protected function createSaderatDriver()
     {
@@ -182,9 +182,9 @@ class ShaparakManager extends Manager implements Contracts\Factory
     {
         if (empty($this->runtimeConfig)) {
             return $this->container['config']["shaparak.providers.{$driver}"];
-        } else {
-            return $this->runtimeConfig;
         }
+
+        return $this->runtimeConfig;
     }
 
     /**
@@ -196,6 +196,6 @@ class ShaparakManager extends Manager implements Contracts\Factory
     {
         $message = "SHAPARAK -> " . $message;
 
-        forward_static_call_array(['Tartan\Log\Facades\XLog', $level], [$message, $params]);
+        forward_static_call(['Tartan\Log\Facades\XLog', $level], $message, $params);
     }
 }

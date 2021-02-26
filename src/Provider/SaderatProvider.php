@@ -1,16 +1,18 @@
 <?php
 
-
 namespace Asanpay\Shaparak\Provider;
 
 use Asanpay\Shaparak\Contracts\Provider as ProviderContract;
 
-class SaderatProvider extends AbstractProvider implements ProviderContract
+class SaderatProvider extends AbstractProvider
 {
-    protected $refundSupport = true;
+    protected bool $refundSupport = true;
 
     /**
      * @inheritDoc
+     * @throws \Samuraee\EasyCurl\Exception
+     * @throws Exception
+     * @throws \JsonException
      */
     protected function requestToken(): string
     {
@@ -26,9 +28,8 @@ class SaderatProvider extends AbstractProvider implements ProviderContract
             'Amount'      => $this->getAmount(),
             'callbackUrl' => $this->getCallbackUrl(),
             'invoiceID'   => $this->getGatewayOrderId(),
-            'terminalID' => $this->getParameters('terminal_id'),
+            'terminalID'  => $this->getParameters('terminal_id'),
         ];
-
 
         $curl = $this->getCurl();
 
@@ -36,22 +37,22 @@ class SaderatProvider extends AbstractProvider implements ProviderContract
 
         $info = $curl->getTransferInfo();
 
-
-        if ($info['http_code'] == 200 && !empty($response)) {
-            $response = json_decode($response);
-            if ($response->Status == 0) {
+        if ((int)$info['http_code'] === 200 && !empty($response)) {
+            $response = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
+            if (isset($response['Status']) && $response['Status'] === 0) {
                 // got string token
-                $this->getTransaction()->setGatewayToken($response->Accesstoken,
-                    true); // update transaction reference id
+                $this->getTransaction()->setGatewayToken(
+                    $response['Accesstoken'],
+                    true
+                ); // update transaction reference id
 
-                return $response->Accesstoken;
-            } else {
-                throw new Exception('shaparak::saderat.error_' . strval($response->Status));
+                return $response['Accesstoken'];
             }
-        } else {
-            throw new Exception('shaparak::shaparak.token_failed');
+
+            throw new Exception(sprintf('shaparak::saderat.error_%s', $response->Status));
         }
 
+        throw new Exception('shaparak::shaparak.token_failed');
     }
 
     /**
@@ -106,7 +107,6 @@ class SaderatProvider extends AbstractProvider implements ProviderContract
 
         $info = $curl->getTransferInfo();
 
-
         if ($info['http_code'] == 200 && !empty($response)) {
             $response = json_decode($response);
             if ($response->Status == 'OK' || $response->Status == 'Duplicate') {
@@ -157,7 +157,6 @@ class SaderatProvider extends AbstractProvider implements ProviderContract
 
         $info = $curl->getTransferInfo();
 
-
         if ($info['http_code'] == 200 && !empty($response)) {
             $response = json_decode($response);
             if ($response->Status == 'OK' || $response->Status == 'Duplicate') {
@@ -206,7 +205,6 @@ class SaderatProvider extends AbstractProvider implements ProviderContract
         return $this->getParameters('RRN');
     }
 
-
     /**
      * @inheritDoc
      */
@@ -215,21 +213,21 @@ class SaderatProvider extends AbstractProvider implements ProviderContract
         if ($this->environment == 'production') {
             switch ($action) {
                 case self::URL_GATEWAY:
-                    {
-                        return 'https://mabna.shaparak.ir:8080/Pay';
-                    }
+                {
+                    return 'https://mabna.shaparak.ir:8080/Pay';
+                }
                 case self::URL_TOKEN :
-                    {
-                        return 'https://mabna.shaparak.ir:8081/V1/PeymentApi/GetToken';
-                    }
+                {
+                    return 'https://mabna.shaparak.ir:8081/V1/PeymentApi/GetToken';
+                }
                 case self::URL_VERIFY:
-                    {
-                        return 'https://mabna.shaparak.ir:8080/V1/PaymentApi/Advice';
-                    }
+                {
+                    return 'https://mabna.shaparak.ir:8080/V1/PaymentApi/Advice';
+                }
                 case self::URL_REFUND:
-                    {
-                        return 'https://mabna.shaparak.ir:8081/V1/PeymentApi/Rollback';
-                    }
+                {
+                    return 'https://mabna.shaparak.ir:8081/V1/PeymentApi/Rollback';
+                }
             }
         } else {
             throw new Exception('Banktest mock service for Saderat gateway has not implemented yet');

@@ -5,16 +5,27 @@ namespace Asanpay\Shaparak\Provider;
 
 use Asanpay\Shaparak\Helper\Pasargad\RSAKeyType;
 use Asanpay\Shaparak\Helper\Pasargad\RSAProcessor;
-use Asanpay\Shaparak\Contracts\Provider as ProviderContract;
 
-class PasargadProvider extends AbstractProvider implements ProviderContract
+class PasargadProvider extends AbstractProvider
 {
-    protected $refundSupport = true;
+    protected bool $refundSupport = true;
 
-    const URL_CHECK = 'check';
+    public const URL_CHECK = 'check';
+
+    /**
+     * @param string $certificatePath
+     *
+     * @return RSAProcessor
+     */
+    private function getProcessor(string $certificatePath = null): RSAProcessor
+    {
+        $path = $certificatePath ?: $this->getParameters('certificate_path');
+        return new RSAProcessor($path, RSAKeyType::XMLFile);
+    }
 
     /**
      * @inheritDoc
+     * @throws Exception
      */
     public function getFormParameters(): array
     {
@@ -23,8 +34,6 @@ class PasargadProvider extends AbstractProvider implements ProviderContract
             'merchant_id',
             'certificate_path',
         ]);
-
-        $processor = new RSAProcessor($this->getParameters('certificate_path'), RSAKeyType::XMLFile);
 
         $terminalCode    = $this->getParameters('terminal_id');
         $merchantCode    = $this->getParameters('merchant_id');
@@ -37,8 +46,9 @@ class PasargadProvider extends AbstractProvider implements ProviderContract
 
         $data = "#" . $merchantCode . "#" . $terminalCode . "#" . $invoiceNumber . "#" . $invoiceDate . "#" . $amount .
             "#" . $redirectAddress . "#" . $action . "#" . $timeStamp . "#";
+
         $data = sha1($data, true);
-        $data = $processor->sign($data); // digital signature
+        $data = $this->getProcessor()->sign($data); // digital signature
         $sign = base64_encode($data); // base64_encode
 
         return [
@@ -61,10 +71,11 @@ class PasargadProvider extends AbstractProvider implements ProviderContract
 
     /**
      * @inheritDoc
+     * @throws Exception|\Samuraee\EasyCurl\Exception
      */
     public function verifyTransaction(): bool
     {
-        if ($this->getTransaction()->isReadyForVerify() == false) {
+        if ($this->getTransaction()->isReadyForVerify() === false) {
             throw new Exception('shaparak::shaparak.could_not_verify_transaction');
         }
 
@@ -85,8 +96,6 @@ class PasargadProvider extends AbstractProvider implements ProviderContract
             throw new Exception('could not verify transaction with callback tref: ' . $this->getParameters('tref'));
         }
 
-        $processor = new RSAProcessor($this->getParameters('certificate_path'), RSAKeyType::XMLFile);
-
         $terminalCode  = $this->getParameters('terminal_id');
         $merchantCode  = $this->getParameters('merchant_id');
         $invoiceNumber = $this->getParameters('iN');
@@ -97,7 +106,7 @@ class PasargadProvider extends AbstractProvider implements ProviderContract
         $data = "#" . $merchantCode . "#" . $terminalCode . "#" . $invoiceNumber . "#" . $invoiceDate . "#" . $amount . "#" . $timeStamp . "#";
 
         $data = sha1($data, true);
-        $data = $processor->sign($data); // digital signature
+        $data = $this->getProcessor()->sign($data); // digital signature
         $sign = base64_encode($data); // base64_encode
 
         $parameters = compact(
@@ -116,35 +125,36 @@ class PasargadProvider extends AbstractProvider implements ProviderContract
 
         $info = $curl->getTransferInfo();
 
-        if ($info['http_code'] == 200) {
-            $result = $this->parseXML($response, [
+        if ((int) $info['http_code'] === 200) {
+            $result = self::parseXML($response, [
                 'invoiceNumber' => $this->getParameters('iN'),
                 'invoiceDate'   => $this->getParameters('iD'),
             ]);
         }
 
         if (isset($result, $result['actionResult'])) {
-            if ($result['actionResult']['result'] == "True") {
+            if ($result['actionResult']['result'] === "True") {
                 //@todo add card number to the transaction whenever Pasargad passed it on callback
                 //$this->getTransaction()->setCardNumber(CARD_PAN, false); // no save()
                 $this->getTransaction()->setVerified();
 
                 return true;
-            } else {
-                $message = $result['actionResult']['resultMessage'] ?? 'shaparak::shaparak.verification_failed';
-                throw new Exception($message);
             }
-        } else {
-            throw new Exception('shaparak::shaparak.could_not_verify_transaction');
+
+            $message = $result['actionResult']['resultMessage'] ?? 'shaparak::shaparak.verification_failed';
+            throw new Exception($message);
         }
+
+        throw new Exception('shaparak::shaparak.could_not_verify_transaction');
     }
 
     /**
      * @inheritDoc
+     * @throws Exception|\Samuraee\EasyCurl\Exception
      */
     public function refundTransaction(): bool
     {
-        if ($this->getTransaction()->isReadyForRefund() == false) {
+        if ($this->getTransaction()->isReadyForRefund() === false) {
             throw new Exception('shaparak::shaparak.could_not_refund_transaction');
         }
 
@@ -157,8 +167,6 @@ class PasargadProvider extends AbstractProvider implements ProviderContract
             'tref',
         ]);
 
-        $processor = new RSAProcessor($this->getParameters('certificate_path'), RSAKeyType::XMLFile);
-
         $terminalCode  = $this->getParameters('terminal_id');
         $merchantCode  = $this->getParameters('merchant_id');
         $invoiceNumber = $this->getParameters('iN');
@@ -170,7 +178,7 @@ class PasargadProvider extends AbstractProvider implements ProviderContract
         $data = "#" . $merchantCode . "#" . $terminalCode . "#" . $invoiceNumber . "#" . $invoiceDate . "#" . $amount . "#" . $action . "#" . $timeStamp . "#";
 
         $data = sha1($data, true);
-        $data = $processor->sign($data); // digital signature
+        $data = $this->getProcessor()->sign($data); // digital signature
         $sign = base64_encode($data); // base64_encode
 
         $parameters = compact(
@@ -190,27 +198,27 @@ class PasargadProvider extends AbstractProvider implements ProviderContract
 
         $info = $curl->getTransferInfo();
 
-        if ($info['http_code'] == 200) {
-            $result = $this->parseXML($response, [
+        if ((int) $info['http_code'] === 200) {
+            $result = self::parseXML($response, [
                 'invoiceNumber' => $this->getParameters('iN'),
                 'invoiceDate'   => $this->getParameters('iD'),
             ]);
         }
 
         if (isset($result, $result['actionResult'])) {
-            if ($result['actionResult']['result'] == "True") {
+            if ($result['actionResult']['result'] === "True") {
                 //@todo add card number to the transaction whenever Pasargad passed it on callback
                 //$this->getTransaction()->setCardNumber(CARD_PAN, false); // no save()
                 $this->getTransaction()->setRefunded();
 
                 return true;
-            } else {
-                $message = $result['actionResult']['resultMessage'] ?? 'shaparak::shaparak.refund_failed';
-                throw new Exception($message);
             }
-        } else {
-            throw new Exception('shaparak::shaparak.could_not_refund_transaction');
+
+            $message = $result['actionResult']['resultMessage'] ?? 'shaparak::shaparak.refund_failed';
+            throw new Exception($message);
         }
+
+        throw new Exception('shaparak::shaparak.could_not_refund_transaction');
     }
 
     /**
@@ -230,13 +238,14 @@ class PasargadProvider extends AbstractProvider implements ProviderContract
 
         if (!empty($this->getParameters('tref'))) {
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
      * @inheritDoc
+     * @throws Exception
      */
     public function getGatewayReferenceId(): string
     {
@@ -253,7 +262,7 @@ class PasargadProvider extends AbstractProvider implements ProviderContract
      */
     public function getUrlFor(string $action): string
     {
-        if ($this->environment == 'production') {
+        if ($this->environment === 'production') {
             switch ($action) {
                 case self::URL_GATEWAY:
                     {
@@ -297,7 +306,9 @@ class PasargadProvider extends AbstractProvider implements ProviderContract
     /**
      * XML parser
      *
-     * @param $data
+     * @param string $data
+     *
+     * @param array $extra
      *
      * @return array
      */
@@ -316,18 +327,18 @@ class PasargadProvider extends AbstractProvider implements ProviderContract
         foreach ($values as $key => $val) {
             switch ($val['type']) {
                 case 'open':
-                    array_push($hash_stack, $val['tag']);
+                    $hash_stack[] = $val['tag'];
                     break;
                 case 'close':
                     array_pop($hash_stack);
                     break;
                 case 'complete':
-                    array_push($hash_stack, $val['tag']);
+                    $hash_stack[] = $val['tag'];
                     if (!isset($val['value'])) {
                         $val['value'] = $temp[$val['tag']];
                     }
 
-                    @eval("\$ret['" . implode($hash_stack, "']['") . "'] = '{$val['value']}';");
+                    @eval("\$ret['" . implode("']['", $hash_stack) . "'] = '{$val['value']}';");
                     array_pop($hash_stack);
                     break;
             }

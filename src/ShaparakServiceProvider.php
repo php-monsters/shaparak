@@ -21,7 +21,7 @@ class ShaparakServiceProvider extends ServiceProvider
     /**
      * Get the services provided by the provider.
      *
-     * @return array
+     * @return void
      */
     public function register()
     {

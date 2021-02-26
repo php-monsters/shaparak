@@ -3,7 +3,7 @@
 namespace Asanpay\Shaparak\Provider;
 
 use Asanpay\Shaparak\Facades\Shaparak;
-use Asanpay\Shaparak\Helper\CurlWrapper;
+use Samuraee\EasyCurl\EasyCurl;
 use Illuminate\Support\Str;
 use SoapClient;
 use SoapFault;
@@ -15,66 +15,51 @@ use ReflectionClass;
  * Class AbstractProvider
  *
  * @author    Aboozar Ghaffari
- * @package   Shaparak
  * @copyright 2018 asanpay.com
+ * @package   Shaparak
  * @package   Asanpay\Shaparak
  * @version   v1.0
  * @license   https://github.com/asanpay/shaparak/blob/master/LICENSE
  */
 abstract class AbstractProvider implements ProviderContract
 {
-    const URL_GATEWAY   = 'gateway';
-    const URL_TOKEN     = 'token';
-    const URL_VERIFY    = 'verify';
-    const URL_REFUND    = 'refund';
-    const URL_MULTIPLEX = 'multiplex';
+    public const URL_GATEWAY   = 'gateway';
+    public const URL_TOKEN     = 'token';
+    public const URL_VERIFY    = 'verify';
+    public const URL_REFUND    = 'refund';
+    public const URL_MULTIPLEX = 'multiplex';
 
     /**
      * shaparak operation environment
      *
      * @var string
      */
-    protected $environment;
+    protected string $environment;
 
     /**
      * The custom parameters to be sent with the request.
      *
      * @var array
      */
-    protected $parameters = [];
-
-    /**
-     * The SOAP client Client instance.
-     *
-     * @var SoapClient
-     */
-    protected $soapClient;
+    protected array $parameters = [];
 
     /**
      * @var Transaction
      */
-    protected $transaction;
+    protected Transaction $transaction;
 
     /**
      * specifies whether the gateway supports transaction reverse/refund or not
      * @var bool
      */
-    protected $refundSupport = false;
-
-    /**
-     * The HTTP Client instance.
-     *
-     * @var CurlWrapper
-     */
-    protected $curlClient;
+    protected bool $refundSupport = false;
 
     /**
      * The custom Guzzle/SoapClient configuration options.
      *
      * @var array
      */
-    protected $httpClientOptions = [];
-
+    protected array $httpClientOptions = [];
 
     /**
      * AdapterAbstract constructor.
@@ -109,10 +94,8 @@ abstract class AbstractProvider implements ProviderContract
         $formParameters = $this->getFormParameters();
 
         return view('shaparak::goto-gate-form', array_merge($formParameters, [
-            'buttonLabel' => $this->getParameters('submit_label') ?
-                $this->getParameters('submit_label') :
-                __("shaparak::shaparak.goto_gate"),
-            'autoSubmit'  => boolval($this->getParameters('auto_submit', true)),
+            'buttonLabel' => $this->getParameters('submit_label') ?: __("shaparak::shaparak.goto_gate"),
+            'autoSubmit'  => (bool)$this->getParameters('auto_submit', true),
         ]));
     }
 
@@ -150,7 +133,6 @@ abstract class AbstractProvider implements ProviderContract
      */
     abstract public function canContinueWithCallbackParameters(): bool;
 
-
     /**
      * @inheritDoc
      */
@@ -186,7 +168,6 @@ abstract class AbstractProvider implements ProviderContract
         return $this->parameters[$key] ?? $default;
     }
 
-
     /**
      * @return Transaction
      */
@@ -202,7 +183,7 @@ abstract class AbstractProvider implements ProviderContract
     {
         $parameters = array_map('strtolower', $parameters);
         foreach ($parameters as $parameter) {
-            if (!array_key_exists($parameter, $this->parameters) || trim($this->parameters[$parameter]) == '') {
+            if (!array_key_exists($parameter, $this->parameters) || trim($this->parameters[$parameter]) === '') {
                 throw new Exception("Parameters array must have a not null value for key: '$parameter'");
             }
         }
@@ -212,7 +193,7 @@ abstract class AbstractProvider implements ProviderContract
      * @param string $action
      *
      * @return SoapClient
-     * @throws SoapFault
+     * @throws SoapFault|Exception
      */
     protected function getSoapClient(string $action): SoapClient
     {
@@ -223,15 +204,13 @@ abstract class AbstractProvider implements ProviderContract
     }
 
     /**
-     * @param string $action
-     *
-     * @return SoapClient
-     * @throws SoapFault
+     * return a Curl Wrapper
+     * @return EasyCurl
      */
-    protected function getCurl(): CurlWrapper
+    protected function getCurl(): EasyCurl
     {
         $httpOptions = $this->httpClientOptions ? $this->httpClientOptions['curl'] : [];
-        $curl        = new CurlWrapper();
+        $curl        = new EasyCurl();
         // set curl options if require. see shaparak config
         if (!empty($httpOptions)) {
             foreach ($httpOptions as $k => $v) {
@@ -240,16 +219,6 @@ abstract class AbstractProvider implements ProviderContract
         }
 
         return $curl;
-    }
-
-    /**
-     * @param string $string
-     *
-     * @return string
-     */
-    protected function slugify(string $string): string
-    {
-        return trim(str_replace('-', '_', $string));
     }
 
     /**

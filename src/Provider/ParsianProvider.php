@@ -1,21 +1,19 @@
 <?php
 
-
 namespace Asanpay\Shaparak\Provider;
 
-use Illuminate\Support\Str;
 use SoapFault;
-use Asanpay\Shaparak\Contracts\Provider as ProviderContract;
 
-class ParsianProvider extends AbstractProvider implements ProviderContract
+class ParsianProvider extends AbstractProvider
 {
-    const URL_SALE    = 'sale';
-    const URL_CONFIRM = 'confirm';
+    public const URL_SALE    = 'sale';
+    public const URL_CONFIRM = 'confirm';
 
-    protected $refundSupport = true;
+    protected bool $refundSupport = true;
 
     /**
      * @inheritDoc
+     * @throws Exception
      */
     protected function requestToken(): string
     {
@@ -34,7 +32,7 @@ class ParsianProvider extends AbstractProvider implements ProviderContract
             'Amount'         => $transaction->getPayableAmount(),
             'OrderId'        => $transaction->getGatewayOrderId(),
             'CallBackUrl'    => $this->getCallbackUrl(),
-            'AdditionalData' => strval($this->getParameters('additional_date')),
+            'AdditionalData' => (string)$this->getParameters('additional_date'),
         ];
 
         try {
@@ -42,19 +40,21 @@ class ParsianProvider extends AbstractProvider implements ProviderContract
 
             $response = $soapClient->SalePaymentRequest(["requestData" => $sendParams]);
 
-            if (isset($response->SalePaymentRequestResult, $response->SalePaymentRequestResult->Status, $response->SalePaymentRequestResult->Token)) {
-                if ($response->SalePaymentRequestResult->Status == 0) {
+            if (isset($response->SalePaymentRequestResult,
+                $response->SalePaymentRequestResult->Status,
+                $response->SalePaymentRequestResult->Token)) {
+                if ((int)$response->SalePaymentRequestResult->Status === 0) {
                     $this->log("fetched token from gateway: {$response->SalePaymentRequestResult->Token}");
                     $this->getTransaction()->setGatewayToken($response->SalePaymentRequestResult->Token);
 
                     return $response->SalePaymentRequestResult->Token;
-                } else {
-                    throw new Exception('shaparak::parsian.error_' . strval($response->SalePaymentRequestResult->Status));
                 }
-            } else {
-                throw new Exception('shaparak::shaparak.token_failed');
+
+                throw new Exception(sprintf('shaparak::parsian.error_%s',
+                    $response->SalePaymentRequestResult->Status));
             }
 
+            throw new Exception('shaparak::shaparak.token_failed');
         } catch (SoapFault $e) {
             throw new Exception('SoapFault: ' . $e->getMessage() . ' #' . $e->getCode(), $e->getCode());
         }
@@ -62,6 +62,7 @@ class ParsianProvider extends AbstractProvider implements ProviderContract
 
     /**
      * @inheritDoc
+     * @throws Exception
      */
     public function getFormParameters(): array
     {
@@ -79,10 +80,11 @@ class ParsianProvider extends AbstractProvider implements ProviderContract
 
     /**
      * @inheritDoc
+     * @throws Exception
      */
     public function verifyTransaction(): bool
     {
-        if ($this->getTransaction()->isReadyForVerify() == false) {
+        if ($this->getTransaction()->isReadyForVerify() === false) {
             throw new Exception('shaparak::shaparak.could_not_verify_transaction');
         }
 
@@ -92,8 +94,10 @@ class ParsianProvider extends AbstractProvider implements ProviderContract
             'Status',
         ]);
 
-        if ($this->getParameters('Status') != 0) {
-            throw new Exception('could not verify transaction with callback state: ' . $this->getParameters('Status'));
+        if ((int)$this->getParameters('Status') !== 0) {
+            throw new Exception(
+                'could not verify transaction with callback state: ' . $this->getParameters('Status')
+            );
         }
 
         try {
@@ -107,18 +111,19 @@ class ParsianProvider extends AbstractProvider implements ProviderContract
             $response = $soapClient->ConfirmPayment(["requestData" => $sendParams]);
 
             if (isset($response->ConfirmPaymentResult, $response->ConfirmPaymentResult->Status)) {
-                if ($response->ConfirmPaymentResult->Status == 0) {
+                if ((int)$response->ConfirmPaymentResult->Status === 0) {
                     //$this->getTransaction()->setCardNumber($this->getParameters('CardNumberMasked'), false); // no save()
                     $this->getTransaction()->setVerified(true); // save()
 
                     return true;
-                } else {
-                    throw new Exception('shaparak::parsian.error_' . strval($response->ConfirmPaymentResult->Status));
                 }
-            } else {
-                throw new Exception('shaparak::shaparak.could_not_verify_transaction');
+
+                throw new Exception(
+                    sprintf('shaparak::parsian.error_%s', $response->ConfirmPaymentResult->Status)
+                );
             }
 
+            throw new Exception('shaparak::shaparak.could_not_verify_transaction');
         } catch (SoapFault $e) {
             throw new Exception('SoapFault: ' . $e->getMessage() . ' #' . $e->getCode(), $e->getCode());
         }
@@ -126,10 +131,11 @@ class ParsianProvider extends AbstractProvider implements ProviderContract
 
     /**
      * @inheritDoc
+     * @throws Exception
      */
     public function refundTransaction(): bool
     {
-        if ($this->getTransaction()->isReadyForRefund() == false) {
+        if ($this->getTransaction()->isReadyForRefund() === false) {
             throw new Exception('shaparak::shaparak.could_not_refund_payment');
         }
 
@@ -149,17 +155,18 @@ class ParsianProvider extends AbstractProvider implements ProviderContract
             $response = $soapClient->ReversalRequest(["requestData" => $sendParams]);
 
             if (isset($response->ReversalRequestResult, $response->ReversalRequestResult->Status)) {
-                if ($response->ReversalRequestResult->Status == 0) {
+                if ((int)$response->ReversalRequestResult->Status === 0) {
                     $this->getTransaction()->setRefunded();
 
                     return true;
-                } else {
-                    throw new Exception('shaparak::parsian.error_' . strval($response->ReversalRequestResult->Status));
                 }
-            } else {
-                throw new Exception('larapay::parsian.errors.invalid_response');
+
+                throw new Exception(
+                    sprintf('shaparak::parsian.error_%s', $response->ReversalRequestResult->Status)
+                );
             }
 
+            throw new Exception('larapay::parsian.errors.invalid_response');
         } catch (SoapFault $e) {
             throw new Exception('SoapFault: ' . $e->getMessage() . ' #' . $e->getCode(), $e->getCode());
         }
@@ -179,15 +186,12 @@ class ParsianProvider extends AbstractProvider implements ProviderContract
             return false;
         }
 
-        if ($this->getParameters('Status') == 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return (int)$this->getParameters('Status') === 0;
     }
 
     /**
      * @inheritDoc
+     * @throws Exception
      */
     public function getGatewayReferenceId(): string
     {
@@ -198,13 +202,12 @@ class ParsianProvider extends AbstractProvider implements ProviderContract
         return $this->getParameters('RRN');
     }
 
-
     /**
      * @inheritDoc
      */
     public function getUrlFor(string $action): string
     {
-        if ($this->environment == 'production') {
+        if ($this->environment === 'production') {
             switch ($action) {
                 case self::URL_GATEWAY:
                 {

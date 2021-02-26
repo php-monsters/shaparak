@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Asanpay\Shaparak\Contracts;
 
 interface Provider

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Asanpay\Shaparak\Contracts;
-
 
 interface Factory
 {
@@ -10,7 +8,7 @@ interface Factory
      * Get an Shetab provider implementation.
      *
      * @param  string  $driver
-     * @return \Asanpay\Shaparak\Contracts\Provider
+     * @return Provider
      */
-    public function driver($driver = null);
+    public function driver($driver = null): Provider;
 }

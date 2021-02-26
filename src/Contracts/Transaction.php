@@ -2,7 +2,6 @@
 
 namespace Asanpay\Shaparak\Contracts;
 
-
 interface Transaction
 {
     /**

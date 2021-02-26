@@ -24,15 +24,17 @@
         }
     ],
     "require": {
-        "php": ">=7.1.0",
+        "php": ">=7.4",
         "ext-curl": "*",
-        "ext-soap": "*",
         "ext-json": "*",
-        "ext-xml": "*",
-        "ext-simplexml": "*",
         "ext-openssl": "*",
-        "illuminate/support": "~5.6.0|^6.0|^7.0",
-        "illuminate/view": "~5.6.0|^6.0|^7.0",
+        "ext-simplexml": "*",
+        "ext-soap": "*",
+        "ext-xml": "*",
+        "ext-bcmath": "*",
+        "illuminate/support": ">=8.0",
+        "illuminate/view": ">=8.0",
+        "samuraee/easycurl": "^1.0",
         "tartan/laravel-xlog": "^1.0"
     },
     "require-dev": {
