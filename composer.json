@@ -35,12 +35,11 @@
         "illuminate/support": ">=8.0",
         "illuminate/view": ">=8.0",
         "samuraee/easycurl": "^1.0",
-        "tartan/laravel-xlog": "^1.0"
+        "tartan/laravel-xlog": "^1.2"
     },
     "require-dev": {
-        "mockery/mockery": "^1.0",
-        "orchestra/testbench": "^3.8|^4.0|^5.0",
-        "phpunit/phpunit": "^7.5|^8.0"
+        "mockery/mockery": "^1.4.2",
+        "phpunit/phpunit": "^9.5"
     },
     "autoload-dev": {
         "psr-4": {
