@@ -2,6 +2,7 @@
 
 namespace Asanpay\Shaparak;
 
+use Asanpay\Shaparak\Provider\AsanPardakhtProvider;
 use Asanpay\Shaparak\Provider\MellatProvider;
 use Asanpay\Shaparak\Provider\MelliProvider;
 use Asanpay\Shaparak\Provider\PasargadProvider;
@@ -136,6 +137,21 @@ class ShaparakManager extends Manager implements Contracts\Factory
 
         return $this->buildProvider(
             SaderatProvider::class,
+            $config
+        );
+    }
+
+    /**
+     * Create an instance of the specified driver.
+     *
+     * @return Provider
+     */
+    protected function createAsanPardakhtDriver()
+    {
+        $config = $this->getConfig('adanardakht');
+
+        return $this->buildProvider(
+            AsanPardakhtProvider::class,
             $config
         );
     }

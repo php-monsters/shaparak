@@ -285,19 +285,19 @@ class PasargadProvider extends AbstractProvider
             switch ($action) {
                 case self::URL_GATEWAY:
                     {
-                        return 'http://banktest.ir/gateway/pasargad/gateway';
+                        return 'https://banktest.ir/gateway/pasargad/gateway';
                     }
                 case self::URL_CHECK:
                     {
-                        return 'http://banktest.ir/gateway/pasargad/CheckTransactionResult';
+                        return 'https://banktest.ir/gateway/pasargad/CheckTransactionResult';
                     }
                 case self::URL_VERIFY:
                     {
-                        return 'http://banktest.ir/gateway/pasargad/VerifyPayment';
+                        return 'https://banktest.ir/gateway/pasargad/VerifyPayment';
                     }
                 case self::URL_REFUND:
                     {
-                        return 'http://banktest.ir/gateway/pasargad/doRefund';
+                        return 'https://banktest.ir/gateway/pasargad/doRefund';
                     }
             }
         }

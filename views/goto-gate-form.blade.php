@@ -1,6 +1,8 @@
 <form id="goto_gate_form" class="form-horizontal goto-gate-form goto-{{$gateway}}-form" method="{{ $method }}" action="{{ $action }}">
     @foreach($parameters as $field => $value)
-    <input type="hidden" name="{{ $field }}" value="{{ $value }}" />
+        @if(!is_null($value))
+            <input type="hidden" name="{{ $field }}" value="{{ $value }}" />
+        @endif
     @endforeach
 
   <div class="control-group">

@@ -72,14 +72,12 @@ class MellatProvider extends AbstractProvider
      */
     public function getFormParameters(): array
     {
-        $token = $this->requestToken();
-
         return [
             'gateway'    => 'mellat',
             'method'     => 'post',
             'action'     => $this->getUrlFor(self::URL_GATEWAY),
             'parameters' => [
-                'RefId' => $token,
+                'RefId' => $this->requestToken(),
             ],
         ];
     }
@@ -349,11 +347,11 @@ class MellatProvider extends AbstractProvider
             switch ($action) {
                 case self::URL_GATEWAY:
                     {
-                        return 'http://banktest.ir/gateway/mellat/gate';
+                        return 'https://banktest.ir/gateway/mellat/gate';
                     }
                 default:
                     {
-                        return 'http://banktest.ir/gateway/mellat/ws?wsdl';
+                        return 'https://banktest.ir/gateway/mellat/ws?wsdl';
                     }
             }
         }

@@ -205,15 +205,15 @@ class MelliProvider extends AbstractProvider
             switch ($action) {
                 case self::URL_GATEWAY:
                 {
-                    return 'http://banktest.ir/gateway/melli/purchase';
+                    return 'https://banktest.ir/gateway/melli/purchase';
                 }
                 case self::URL_TOKEN :
                 {
-                    return 'http://banktest.ir/gateway/melli/payment-request';
+                    return 'https://banktest.ir/gateway/melli/payment-request';
                 }
                 case self::URL_VERIFY :
                 {
-                    return 'http://banktest.ir/gateway/melli/verify';
+                    return 'https://banktest.ir/gateway/melli/verify';
                 }
             }
         }
