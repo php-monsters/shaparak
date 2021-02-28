@@ -11,6 +11,9 @@ use SoapFault;
 class AsanPardakhtProvider extends AbstractProvider
 {
     public const URL_UTILS = 'utils';
+    public const URL_STATUS = 'status';
+    public const URL_TIME = 'time';
+    public const URL_HOST = 'hostinfo';
 
     protected bool $refundSupport = true;
 
@@ -253,6 +256,11 @@ class AsanPardakhtProvider extends AbstractProvider
         }
     }
 
+    private function refundTransactionData(): array
+    {
+
+    }
+
     /**
      * @inheritDoc
      * @throws Exception
@@ -263,44 +271,34 @@ class AsanPardakhtProvider extends AbstractProvider
             throw new RefundException('shaparak::shaparak.could_not_refund_payment');
         }
 
-        $this->checkRequiredActionParameters([
-            'terminal_id',
-            'username',
-            'password',
-            'RefId',
-            'ResCode',
-            'SaleOrderId',
-            'SaleReferenceId',
-            'CardHolderInfo',
-        ]);
-
         try {
-            $sendParams = [
-                'terminalId'      => (int)$this->getParameters('terminal_id'),
-                'userName'        => $this->getParameters('username'),
-                'userPassword'    => $this->getParameters('password'),
-                'orderId'         => (int)$this->getParameters('SaleOrderId'), // same as SaleOrderId
-                'saleOrderId'     => (int)$this->getParameters('SaleOrderId'),
-                'saleReferenceId' => (int)$this->getParameters('SaleReferenceId'),
-            ];
+            $sendParams = $this->verifyTransactionData();
 
             $soapClient = $this->getSoapClient(self::URL_REFUND);
 
-            $response = $soapClient->bpReversalRequest($sendParams);
-
-            if (isset($response->return) && is_numeric($response->return)) {
-                if ((int)$response->return === 0 || (int)$response->return === 45) {
-                    $this->getTransaction()->setRefunded();
-
-                    return true;
-                }
-
-                throw new Exception('shaparak::mellat.error_' . strval($response->return));
+            $response = $soapClient->CancelVerification($sendParams);
+            if (!$response) {
+                throw new RefundException('Error in AsanPardakht refundTransaction');
             }
 
-            throw new Exception('shaparak::mellat.errors.invalid_response');
+            if (isset($response->CancelVerificationResult)) {
+                $resultCode = (int)$response->CancelVerificationResult;
+
+                if ($resultCode !== 700) {
+                    throw new RefundException(
+                        sprintf('shaparak::asanpardakht.Refund.error_%s', $resultCode)
+                    );
+                }
+
+                $this->getTransaction()->setRefunded(true); // save()
+
+                return true;
+            }
+
+            throw new RefundException('shaparak::shaparak.refund_failed');
         } catch (SoapFault $e) {
-            throw new Exception('SoapFault: ' . $e->getMessage() . ' #' . $e->getCode(), $e->getCode());
+            $this->log($e->getMessage(), [], 'error');
+            throw new SettlementException('SoapFault: ' . $e->getMessage() . ' #' . $e->getCode(), $e->getCode());
         }
     }
 
@@ -356,6 +354,18 @@ class AsanPardakhtProvider extends AbstractProvider
                 {
                     return 'https://ipgsoap.asanpardakht.ir/paygate/internalutils.asmx?wsdl';
                 }
+                case self::URL_HOST:
+                {
+                    return 'https://ipgsoap.asanpardakht.ir/utils/hostinfo.asmx?wsdl';
+                }
+                case self::URL_TIME:
+                {
+                    return 'https://ipgsoap.asanpardakht.ir/paygate/servertime.asmx?wsdl';
+                }
+                case self::URL_STATUS:
+                {
+                    return 'https://ipgsoap.asanpardakht.ir/paygate/statuswatch.asmx?wsdl';
+                }
                 default:
                 {
                     return 'https://ipgsoap.asanpardakht.ir/paygate/merchantservices.asmx?wsdl';
@@ -370,6 +380,18 @@ class AsanPardakhtProvider extends AbstractProvider
                 case self::URL_UTILS:
                 {
                     return 'https://banktest.ir/gateway/asanpardakht/paygate/internalutils.asmx?wsdl';
+                }
+                case self::URL_HOST:
+                {
+                    return 'https://banktest.ir/gateway/asanpardakht/utils/hostinfo.asmx?wsdl';
+                }
+                case self::URL_TIME:
+                {
+                    return 'https://banktest.ir/gateway/asanpardakht/paygate/servertime.asmx?wsdl';
+                }
+                case self::URL_STATUS:
+                {
+                    return 'https://banktest.ir/gateway/asanpardakht/paygate/statuswatch.asmx?wsdl';
                 }
                 default:
                 {
