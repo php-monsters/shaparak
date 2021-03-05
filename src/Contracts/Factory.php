@@ -10,5 +10,5 @@ interface Factory
      * @param  string  $driver
      * @return Provider
      */
-    public function driver($driver = null): Provider;
+    public function driver($driver = null);
 }

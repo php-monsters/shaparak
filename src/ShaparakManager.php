@@ -27,7 +27,7 @@ class ShaparakManager extends Manager implements Contracts\Factory
     /**
      * transaction which should paid on the gateway
      *
-     * @var Transaciton $transaction
+     * @var Asanpay\Shaparak\Contracts\Transaction $transaction
      */
     protected Transaciton $transaction;
 
