@@ -23,7 +23,7 @@ class RSAProcessor
         $xmlObj = null;
         $keyType = is_null($keyType) ? null : strtolower($keyType);
 
-        if ($keyType === RSAKeyType::XMLFile) {
+        if ((int) $keyType === RSAKeyType::XMLFile) {
             $xmlObj = simplexml_load_string(file_get_contents($xmlRsaKey));
         } else {
             $xmlObj = simplexml_load_string($xmlRsaKey);
