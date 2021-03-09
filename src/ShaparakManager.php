@@ -27,16 +27,16 @@ class ShaparakManager extends Manager implements Contracts\Factory
     /**
      * transaction which should paid on the gateway
      *
-     * @var Asanpay\Shaparak\Contracts\Transaction $transaction
+     * @var Transaction $transaction
      */
-    protected Transaciton $transaction;
+    protected Transaction $transaction;
 
     /**
      * Get a driver instance.
      *
      * @param string $driver driver name
      * @param Transaction $transaction
-     * @param array $config runtime configuration for the driver instead of reading from config file
+     * @param array $config  runtime configuration for the driver instead of reading from config file
      *
      * @return mixed
      */
