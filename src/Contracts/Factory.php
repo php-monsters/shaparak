@@ -2,13 +2,17 @@
 
 namespace Asanpay\Shaparak\Contracts;
 
+use InvalidArgumentException;
+
 interface Factory
 {
     /**
-     * Get an Shetab provider implementation.
+     * Get a Shetab provider instance.
      *
-     * @param  string  $driver
-     * @return Provider
+     * @param  string|null  $driver
+     * @return mixed
+     *
+     * @throws \InvalidArgumentException
      */
     public function driver($driver = null);
 }
