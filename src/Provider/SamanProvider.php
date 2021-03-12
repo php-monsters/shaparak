@@ -106,7 +106,7 @@ class SamanProvider extends AbstractProvider
             );
 
             if (isset($response)) {
-                if ($response === $this->getTransaction()->getPayableAmount()) {
+                if ($response > 0 && ($response - $this->getTransaction()->getPayableAmount() < PHP_FLOAT_EPSILON)) {
                     // double check the amount by transaction amount
                     $this->getTransaction()->setCardNumber($this->getParameters('SecurePan'), false); // no save()
                     $this->getTransaction()->setVerified(true); // save()
