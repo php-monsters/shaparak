@@ -134,7 +134,7 @@ class AsanPardakhtRestProvider extends AbstractProvider
      */
     public function transactionData(): array
     {
-        $transactionResult = $this->getTransaction()->getCallBackParameters();
+        $transactionResult = $this->getTransaction()->gateway_callback_params;
 
         $payGateTranID = $transactionResult['payGateTranID'];
 
