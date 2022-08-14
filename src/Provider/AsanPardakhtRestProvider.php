@@ -308,10 +308,10 @@ class AsanPardakhtRestProvider extends AbstractProvider
                     return 'https://asan.shaparak.ir';
                 }
 
-//                default:
-//                {
-//                    return '';
-//                }
+                default:
+                {
+                    return '';
+                }
             }
         } else {
             switch ($action) {
