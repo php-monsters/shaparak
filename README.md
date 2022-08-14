@@ -85,9 +85,9 @@ If you discover any security related issues, please email aboozar.ghf@gmail.com 
 
 This component is developed by the following person(s) and a bunch of [awesome contributors](https://github.com/iamtartan/laravel-online-payment/graphs/contributors).
 
-[![Aboozar Ghaffari](https://avatars2.githubusercontent.com/u/502961?v=3&s=130)](https://github.com/iamtartan) | [![Milad Kianmehr](https://avatars3.githubusercontent.com/u/4578704?v=3&s=130)](https://github.com/miladkian)
---- | --- | 
-[Aboozar Ghaffari](https://github.com/iamtartan) | [Milad Kianmehr](https://github.com/miladkian)
+[![Aboozar Ghaffari](https://avatars2.githubusercontent.com/u/502961?v=3&s=130)](https://github.com/iamtartan) | [![Milad Kianmehr](https://avatars3.githubusercontent.com/u/4578704?v=3&s=130)](https://github.com/miladkian) | [![Maryam Nabiyan](https://avatars.githubusercontent.com/u/47553919?s=120&v=4)](https://github.com/maryamnbyn)
+--- | --- |  --- |
+[Aboozar Ghaffari](https://github.com/iamtartan) | [Milad Kianmehr](https://github.com/miladkian) | [Maryam Nabiyan](https://github.com/maryamnbyn)
 
 
 ## Support This Project
