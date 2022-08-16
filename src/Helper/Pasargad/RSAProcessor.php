@@ -1,5 +1,5 @@
 <?php
-namespace Asanpay\Shaparak\Helper\Pasargad;
+namespace PhpMonsters\Shaparak\Helper\Pasargad;
 
 /**
  * Class RSAProcessor

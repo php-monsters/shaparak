@@ -1,6 +1,6 @@
 <?php
 
-namespace Asanpay\Shaparak\Contracts;
+namespace PhpMonsters\Shaparak\Contracts;
 
 interface Provider
 {
@@ -81,7 +81,7 @@ interface Provider
      *
      * @param string $action
      *
-     * @throws \Asanpay\Shaparak\Provider\Exception
+     * @throws \PhpMonsters\Shaparak\Provider\Exception
      *
      * @return string
      */
@@ -99,7 +99,7 @@ interface Provider
      *
      * @param array $parameters
      *
-     * @throws \Asanpay\Shaparak\Provider\Exception
+     * @throws \PhpMonsters\Shaparak\Provider\Exception
      */
     public function checkRequiredActionParameters(array $parameters): void;
 }

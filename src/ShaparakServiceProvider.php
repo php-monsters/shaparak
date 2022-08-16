@@ -1,9 +1,9 @@
 <?php
 
-namespace Asanpay\Shaparak;
+namespace PhpMonsters\Shaparak;
 
 use Illuminate\Support\ServiceProvider;
-use Asanpay\Shaparak\Contracts\Factory;
+use PhpMonsters\Shaparak\Contracts\Factory;
 
 class ShaparakServiceProvider extends ServiceProvider
 {

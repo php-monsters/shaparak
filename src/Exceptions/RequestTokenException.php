@@ -1,8 +1,8 @@
 <?php
 
-namespace Asanpay\Shaparak\Exceptions;
+namespace PhpMonsters\Shaparak\Exceptions;
 
-use Asanpay\Shaparak\Exception;
+use PhpMonsters\Shaparak\Exception;
 
 class RequestTokenException extends Exception
 {

@@ -1,9 +1,9 @@
 <?php
 
-namespace Asanpay\Shaparak\Provider;
+namespace PhpMonsters\Shaparak\Provider;
 
 use SoapFault;
-use Asanpay\Shaparak\Contracts\Provider as ProviderContract;
+use PhpMonsters\Shaparak\Contracts\Provider as ProviderContract;
 
 class MellatProvider extends AbstractProvider
 {

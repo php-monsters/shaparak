@@ -1,8 +1,8 @@
 <?php
 
-namespace Asanpay\Shaparak\Provider;
+namespace PhpMonsters\Shaparak\Provider;
 
-use Asanpay\Shaparak\Contracts\Provider as ProviderContract;
+use PhpMonsters\Shaparak\Contracts\Provider as ProviderContract;
 
 class MelliProvider extends AbstractProvider
 {

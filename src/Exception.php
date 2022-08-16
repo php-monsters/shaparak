@@ -1,4 +1,4 @@
 <?php
-namespace Asanpay\Shaparak;
+namespace PhpMonsters\Shaparak;
 
 class Exception extends \Exception {}

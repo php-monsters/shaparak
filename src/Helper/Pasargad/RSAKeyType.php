@@ -1,10 +1,10 @@
 <?php
 
-namespace Asanpay\Shaparak\Helper\Pasargad;
+namespace PhpMonsters\Shaparak\Helper\Pasargad;
 
 /**
  * Class RSAKeyType
- * @package Asanpay\Shaparak\Helper\Pasargad
+ * @package PhpMonsters\Shaparak\Helper\Pasargad
  */
 class RSAKeyType
 {

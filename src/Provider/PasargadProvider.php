@@ -1,10 +1,10 @@
 <?php
 
 
-namespace Asanpay\Shaparak\Provider;
+namespace PhpMonsters\Shaparak\Provider;
 
-use Asanpay\Shaparak\Helper\Pasargad\RSAKeyType;
-use Asanpay\Shaparak\Helper\Pasargad\RSAProcessor;
+use PhpMonsters\Shaparak\Helper\Pasargad\RSAKeyType;
+use PhpMonsters\Shaparak\Helper\Pasargad\RSAProcessor;
 
 class PasargadProvider extends AbstractProvider
 {

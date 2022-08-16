@@ -1,6 +1,6 @@
 <?php
 
-namespace Asanpay\Shaparak\Provider;
+namespace PhpMonsters\Shaparak\Provider;
 
 use SoapFault;
 
@@ -114,7 +114,7 @@ class SamanProvider extends AbstractProvider
                     return true;
                 }
 
-                throw new Exception('shaparak::saman.error_' . strval($response));
+                throw new Exception('shaparak::saman.error_' . (string)$response);
             }
 
             throw new Exception('shaparak::shaparak.could_not_verify_transaction');

@@ -1,6 +1,6 @@
 <?php
 
-namespace Asanpay\Shaparak\Provider;
+namespace PhpMonsters\Shaparak\Provider;
 
 use SoapFault;
 

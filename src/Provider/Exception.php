@@ -1,11 +1,11 @@
 <?php
 
-namespace Asanpay\Shaparak\Provider;
+namespace PhpMonsters\Shaparak\Provider;
 
 /**
  * Class Exception
- * @package Asanpay\Shaparak\Adapter
+ * @package PhpMonsters\Shaparak\Adapter
  */
-class Exception extends \Asanpay\Shaparak\Exception
+class Exception extends \PhpMonsters\Shaparak\Exception
 {
 }

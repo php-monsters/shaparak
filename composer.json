@@ -1,5 +1,5 @@
 {
-    "name": "asanpay/shaparak",
+    "name": "php-monsters/shaparak",
     "description": "Iranian payment gateways handler for laravel based applications",
     "keywords": [
         "payment",
@@ -21,6 +21,10 @@
         {
             "name": "Milad Kianmehr",
             "email": "milad.kian@gmail.com"
+        },
+        {
+            "name": "Maryam Nabiyan",
+            "email": "maryam.nbyn@gmail.com"
         }
     ],
     "require": {
@@ -43,12 +47,12 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Asanpay\\Shaparak\\Tests\\": "tests/"
+            "PhpMonsters\\Shaparak\\Tests\\": "tests/"
         }
     },
     "autoload": {
         "psr-4": {
-            "Asanpay\\Shaparak\\": "src/"
+            "PhpMonsters\\Shaparak\\": "src/"
         }
     },
     "config": {

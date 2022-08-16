@@ -1,6 +1,6 @@
 <?php
 
-namespace Asanpay\Shaparak\Contracts;
+namespace PhpMonsters\Shaparak\Contracts;
 
 interface Transaction
 {

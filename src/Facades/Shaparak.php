@@ -1,13 +1,13 @@
 <?php
 
-namespace Asanpay\Shaparak\Facades;
+namespace PhpMonsters\Shaparak\Facades;
 
 use Illuminate\Support\Facades\Facade;
-use Asanpay\Shaparak\Contracts\Factory;
+use PhpMonsters\Shaparak\Contracts\Factory;
 
 /**
- * @method static \Asanpay\Shaparak\Contracts\Provider driver(string $driver = null)
- * @see \Asanpay\Shaparak\ShaparakManager
+ * @method static \PhpMonsters\Shaparak\Contracts\Provider driver(string $driver = null)
+ * @see \PhpMonsters\Shaparak\ShaparakManager
  */
 class Shaparak extends Facade
 {
