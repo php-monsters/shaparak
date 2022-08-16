@@ -6,17 +6,19 @@ Shaparak integrated all Iranian/Shetab payment gateways to one component.
 - [BankTest](http://banktest.ir) is a sandbox service for all Iranian online payment gateways
 - [بانک تست](http://banktest.ir) یک سرویس شبیه ساز درگاه های پرداخت آنلاین ایرانی برای اهداف توسعه و تست نرم افزار می باشد
 
+## Support This Project
+
+Pleas support the package by giving it :star: and contributing to its development.
 
 ## Currently supported PSPs:
 
 - Mellat Bank Gateway - درگاه بانک ملت (به پرداخت ملت) لاراول
 - Saman Bank Gateway - درگاه بانک سامان (پرداخت الکترونیک سامان) لاراول
-- Saderat Bank Gateway - درگاه بانک صادرات (مبناکارت آریا) لاراول
+- Saderat Bank Gateway - درگاه بانک صادرات (پرداخت الکترونیک سپهر) لاراول
 - Pasargad Bank Gateway - درگاه بانک پاسارگاد (پرداخت الکترونیک پاسارگاد) لاراول
 - Parsian Bank Gateway - درگاه بانک پارسیان (تجارت الکترونیک پارسیان) لاراول
 - Melli Bank Gateway - درگاه بانک ملی (سداد) لاراول
 - ...
-- Other gateways, coming soon... لطفا شما هم در تکمیل پکیج مشارکت کنید
 
 ## Requirements
 Shaparak require PHP 7.1+
@@ -67,9 +69,6 @@ This component is developed by the following person(s) and a bunch of [awesome c
 --- | --- |
 [Aboozar Ghaffari](https://github.com/iamtartan) | [Maryam Nabiyan](https://github.com/maryamnbyn)
 
-## Support This Project
-
-Please give :star: star to the package and contribute in package development.
 
 ## License
 
