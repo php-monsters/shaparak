@@ -8,7 +8,7 @@ Shaparak integrated all Iranian/Shetab payment gateways to one component.
 
 ## Support This Project
 
-Pleas support the package by giving it :star: and contributing to its development.
+Please support the package by giving it :star: and contributing to its development.
 
 ## Currently supported PSPs:
 
