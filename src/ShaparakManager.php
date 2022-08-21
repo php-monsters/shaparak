@@ -227,6 +227,6 @@ class ShaparakManager extends Manager implements Contracts\Factory
     {
         $message = "SHAPARAK -> " . $message;
 
-        forward_static_call(['Tartan\Log\Facades\XLog', $level], $message, $params);
+        forward_static_call(['PhpMonsters\Log\Facades\XLog', $level], $message, $params);
     }
 }
