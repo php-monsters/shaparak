@@ -221,15 +221,15 @@ class SamanProvider extends AbstractProvider
             switch ($action) {
                 case self::URL_GATEWAY:
                 {
-                    return 'https://banktest.ir/gateway/saman/gate';
+                    return $this->bankTestBaseUrl . '/saman/sep.shaparak.ir/payment.aspx';
                 }
                 case self::URL_TOKEN :
                 {
-                    return 'https://banktest.ir/gateway/saman/Payments/InitPayment?wsdl';
+                    return $this->bankTestBaseUrl . '/saman/sep.shaparak.ir/payments/initpayment.asmx?wsdl';
                 }
                 default:
                 {
-                    return 'https://banktest.ir/gateway/saman/payments/referencepayment?wsdl';
+                    return $this->bankTestBaseUrl . '/saman/sep.shaparak.ir/payments/referencepayment.asmx?wsdl';
                 }
             }
         }

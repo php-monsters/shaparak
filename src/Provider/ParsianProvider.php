@@ -234,25 +234,26 @@ class ParsianProvider extends AbstractProvider
             switch ($action) {
                 case self::URL_GATEWAY:
                 {
-                    return 'https://banktest.ir/gateway/Parsian/NewIPGq';
+                    return $this->bankTestBaseUrl . '/gateway/Parsian/NewIPGq';
                 }
                 case self::URL_SALE :
                 {
-                    return 'https://banktest.ir/gateway/Parsian/NewIPGServices/Sale/SaleService.asmx?WSDL';
+                    return $this->bankTestBaseUrl . '/gateway/Parsian/NewIPGServices/Sale/SaleService.asmx?WSDL';
                 }
                 case self::URL_CONFIRM :
                 {
-                    return 'https://banktest.ir/gateway/Parsian/NewIPGServices/Confirm/ConfirmService.asmx?WSDL';
+                    return $this->bankTestBaseUrl . '/gateway/Parsian/NewIPGServices/Confirm/ConfirmService.asmx?WSDL';
                 }
                 case self::URL_REFUND :
                 {
-                    return 'https://banktest.ir/gateway/Parsian/NewIPGServices/Reverse/ReversalService.asmx?WSDL';
+                    return $this->bankTestBaseUrl . '/gateway/Parsian/NewIPGServices/Reverse/ReversalService.asmx?WSDL';
                 }
                 case self::URL_MULTIPLEX:
                 {
-                    return 'https://banktest.ir/gateway/Parsian/NewIPGServices/MultiplexedSale/OnlineMultiplexedSalePaymentService.asmx?WSDL';
+                    return $this->bankTestBaseUrl . '/gateway/Parsian/NewIPGServices/MultiplexedSale/OnlineMultiplexedSalePaymentService.asmx?WSDL';
                 }
             }
         }
+        throw new Exception("could not find url for {$action} action");
     }
 }

@@ -214,7 +214,7 @@ class SaderatProvider extends AbstractProvider
             switch ($action) {
                 case self::URL_GATEWAY:
                 {
-                    return 'https://mabna.shaparak.ir:8080/Pay';
+                    return 'https://sepehr.shaparak.ir:8080/Pay';
                 }
                 case self::URL_TOKEN :
                 {
@@ -222,15 +222,31 @@ class SaderatProvider extends AbstractProvider
                 }
                 case self::URL_VERIFY:
                 {
-                    return 'https://mabna.shaparak.ir:8080/V1/PaymentApi/Advice';
+                    return 'https://sepehr.shaparak.ir:8081/V1/PeymentApi/Advice';
                 }
                 case self::URL_REFUND:
                 {
-                    return 'https://mabna.shaparak.ir:8081/V1/PeymentApi/Rollback';
+                    return 'https://sepehr.shaparak.ir:8081/V1/PeymentApi/Rollback';
                 }
             }
         } else {
-            throw new Exception('Banktest mock service for Saderat gateway has not implemented yet');
+            switch ($action) {
+                case self::URL_GATEWAY: {
+                    return $this->bankTestBaseUrl . '/saderat/sepehr.shaparak.ir/Pay';
+                }
+                case self::URL_TOKEN: {
+                    return $this->bankTestBaseUrl . '/saderat/sepehr.shaparak.ir/V1/PeymentApi/GetToken';
+                }
+                case self::URL_VERIFY:
+                {
+                    return $this->bankTestBaseUrl . '/saderat/sepehr.shaparak.ir/V1/PeymentApi/Advice';
+                }
+                case self::URL_REFUND:
+                {
+                    return $this->bankTestBaseUrl . '/saderat/sepehr.shaparak.ir/V1/PeymentApi/Rollback';
+                }
+            }
         }
+        throw new Exception("could not find url for {$action} action");
     }
 }
