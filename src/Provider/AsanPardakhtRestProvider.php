@@ -1,10 +1,10 @@
 <?php
 
-namespace Asanpay\Shaparak\Provider;
+namespace PhpMonsters\Shaparak\Provider;
 
-use Asanpay\Shaparak\Exceptions\RequestTokenException;
-use Asanpay\Shaparak\Exceptions\SettlementException;
-use Asanpay\Shaparak\Exceptions\VerificationException;
+use PhpMonsters\Shaparak\Exceptions\RequestTokenException;
+use PhpMonsters\Shaparak\Exceptions\SettlementException;
+use PhpMonsters\Shaparak\Exceptions\VerificationException;
 use Illuminate\Support\Facades\Http;
 
 class AsanPardakhtRestProvider extends AbstractProvider
@@ -148,7 +148,7 @@ class AsanPardakhtRestProvider extends AbstractProvider
      * @inheritDoc
      * @throws VerificationException|Exception
      */
-    public function verifyTransaction(): bool
+    protected function verifyTransaction(): bool
     {
         $this->checkRequiredActionParameters([
             'ReturningParams',
@@ -261,7 +261,7 @@ class AsanPardakhtRestProvider extends AbstractProvider
      * @inheritDoc
      * @throws Exception
      */
-    public function refundTransaction(): bool
+    protected function refundTransaction(): bool
     {
     }
 

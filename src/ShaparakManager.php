@@ -1,20 +1,21 @@
 <?php
 
-namespace Asanpay\Shaparak;
+namespace PhpMonsters\Shaparak;
 
-use Asanpay\Shaparak\Provider\AsanPardakhtProvider;
-use Asanpay\Shaparak\Provider\AsanPardakhtRestProvider;
-use Asanpay\Shaparak\Provider\MellatProvider;
-use Asanpay\Shaparak\Provider\MelliProvider;
-use Asanpay\Shaparak\Provider\PasargadProvider;
-use Asanpay\Shaparak\Provider\SaderatProvider;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Manager;
 use InvalidArgumentException;
-use Asanpay\Shaparak\Contracts\Transaction;
-use Asanpay\Shaparak\Contracts\Provider;
-use Asanpay\Shaparak\Provider\SamanProvider;
-use Asanpay\Shaparak\Provider\ParsianProvider;
+use PhpMonsters\Shaparak\Contracts\Provider;
+use PhpMonsters\Shaparak\Contracts\Transaction;
+use PhpMonsters\Shaparak\Provider\AsanPardakhtProvider;
+use PhpMonsters\Shaparak\Provider\AsanPardakhtRestProvider;
+use PhpMonsters\Shaparak\Provider\MellatProvider;
+use PhpMonsters\Shaparak\Provider\MelliProvider;
+use PhpMonsters\Shaparak\Provider\ParsianProvider;
+use PhpMonsters\Shaparak\Provider\PasargadProvider;
+use PhpMonsters\Shaparak\Provider\SaderatProvider;
+use PhpMonsters\Shaparak\Provider\SamanProvider;
+use PhpMonsters\Shaparak\Provider\ZarinpalProvider;
 
 class ShaparakManager extends Manager implements Contracts\Factory
 {
@@ -33,11 +34,23 @@ class ShaparakManager extends Manager implements Contracts\Factory
     protected Transaction $transaction;
 
     /**
+     * @param string $message
+     * @param array $params
+     * @param string $level
+     */
+    public static function log(string $message, array $params = [], string $level = 'debug'): void
+    {
+        $message = "SHAPARAK -> " . $message;
+
+        forward_static_call(['PhpMonsters\Log\Facades\XLog', $level], $message, $params);
+    }
+
+    /**
      * Get a driver instance.
      *
      * @param string $driver driver name
      * @param Transaction $transaction
-     * @param array $config  runtime configuration for the driver instead of reading from config file
+     * @param array $config runtime configuration for the driver instead of reading from config file
      *
      * @return mixed
      */
@@ -53,6 +66,18 @@ class ShaparakManager extends Manager implements Contracts\Factory
     }
 
     /**
+     * Get the default driver name.
+     *
+     * @return string
+     *
+     * @throws InvalidArgumentException
+     */
+    public function getDefaultDriver()
+    {
+        throw new InvalidArgumentException('No Shaparak driver was specified.');
+    }
+
+    /**
      * Create an instance of the specified driver.
      *
      * @return Provider
@@ -64,6 +89,41 @@ class ShaparakManager extends Manager implements Contracts\Factory
         return $this->buildProvider(
             SamanProvider::class,
             $config
+        );
+    }
+
+    /**
+     * get provider configuration runtime array or config based configuration
+     *
+     * @param string $driver
+     *
+     * @return array
+     */
+    protected function getConfig(string $driver): array
+    {
+        if (empty($this->runtimeConfig)) {
+            return $this->container['config']["shaparak.providers.{$driver}"];
+        }
+
+        return $this->runtimeConfig;
+    }
+
+    /**
+     * Build a Shaparak provider instance.
+     *
+     * @param string $provider
+     *
+     * @param array $config
+     *
+     * @return Provider
+     */
+    public function buildProvider($provider, array $config): Provider
+    {
+        return new $provider(
+            $this->transaction,
+            $config,
+            Arr::get($config, 'mode', config('shaparak.mode', 'production')),
+            Arr::get($config, 'httpClientOptions', [])
         );
     }
 
@@ -96,6 +156,7 @@ class ShaparakManager extends Manager implements Contracts\Factory
             $config
         );
     }
+
     /**
      * Create an instance of the specified driver.
      *
@@ -172,61 +233,17 @@ class ShaparakManager extends Manager implements Contracts\Factory
     }
 
     /**
-     * Build a Shaparak provider instance.
-     *
-     * @param string $provider
-     *
-     * @param array $config
+     * Create an instance of the specified driver.
      *
      * @return Provider
      */
-    public function buildProvider($provider, array $config): Provider
+    protected function createZarinpalDriver()
     {
-        return new $provider(
-            $this->transaction,
-            $config,
-            Arr::get($config, 'mode', config('shaparak.mode', 'production')),
-            Arr::get($config, 'httpClientOptions', [])
+        $config = $this->getConfig('zarinpal');
+
+        return $this->buildProvider(
+            ZarinpalProvider::class,
+            $config
         );
-    }
-
-    /**
-     * Get the default driver name.
-     *
-     * @return string
-     *
-     * @throws InvalidArgumentException
-     */
-    public function getDefaultDriver()
-    {
-        throw new InvalidArgumentException('No Shaparak driver was specified.');
-    }
-
-    /**
-     * get provider configuration runtime array or config based configuration
-     *
-     * @param string $driver
-     *
-     * @return array
-     */
-    protected function getConfig(string $driver): array
-    {
-        if (empty($this->runtimeConfig)) {
-            return $this->container['config']["shaparak.providers.{$driver}"];
-        }
-
-        return $this->runtimeConfig;
-    }
-
-    /**
-     * @param string $message
-     * @param array $params
-     * @param string $level
-     */
-    public static function log(string $message, array $params = [], string $level = 'debug'): void
-    {
-        $message = "SHAPARAK -> " . $message;
-
-        forward_static_call(['PhpMonsters\Log\Facades\XLog', $level], $message, $params);
     }
 }

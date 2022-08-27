@@ -82,7 +82,7 @@ class ParsianProvider extends AbstractProvider
      * @inheritDoc
      * @throws Exception
      */
-    public function verifyTransaction(): bool
+    protected function verifyTransaction(): bool
     {
         if ($this->getTransaction()->isReadyForVerify() === false) {
             throw new Exception('shaparak::shaparak.could_not_verify_transaction');
@@ -133,7 +133,7 @@ class ParsianProvider extends AbstractProvider
      * @inheritDoc
      * @throws Exception
      */
-    public function refundTransaction(): bool
+    protected function refundTransaction(): bool
     {
         if ($this->getTransaction()->isReadyForRefund() === false) {
             throw new Exception('shaparak::shaparak.could_not_refund_payment');

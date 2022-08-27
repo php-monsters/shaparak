@@ -76,7 +76,7 @@ class SamanProvider extends AbstractProvider
      * @inheritDoc
      * @throws Exception
      */
-    public function verifyTransaction(): bool
+    protected function verifyTransaction(): bool
     {
         if ($this->getTransaction()->isReadyForVerify() === false) {
             throw new Exception('shaparak::shaparak.could_not_verify_transaction');
@@ -107,7 +107,7 @@ class SamanProvider extends AbstractProvider
 
             if (isset($response)) {
                 if ($response > 0 && ($response - $this->getTransaction()->getPayableAmount() < PHP_FLOAT_EPSILON)) {
-                    // double check the amount by transaction amount
+                    // double-check the amount by transaction amount
                     $this->getTransaction()->setCardNumber($this->getParameters('SecurePan'), false); // no save()
                     $this->getTransaction()->setVerified(true); // save()
 
@@ -127,7 +127,7 @@ class SamanProvider extends AbstractProvider
      * @inheritDoc
      * @throws Exception
      */
-    public function refundTransaction(): bool
+    protected function refundTransaction(): bool
     {
         if ($this->refundSupport === false || $this->getTransaction()->isReadyForRefund() === false) {
             throw new Exception('shaparak::shaparak.could_not_refund_payment');

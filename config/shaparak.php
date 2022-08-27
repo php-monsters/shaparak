@@ -16,6 +16,8 @@ return [
     */
     'mode' => env('SHAPARAK_MODE', 'production'),
 
+    'banktest_base_url' => 'https://sandbox.banktest.ir',
+
     'log' => [
         'prefix' => 'SHAPARAK->',
     ],

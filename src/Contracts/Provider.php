@@ -53,7 +53,7 @@ interface Provider
      *
      * @return bool
      */
-    public function verifyTransaction(): bool;
+    protected function verifyTransaction(): bool;
 
     /**
      * for handling after verify methods like settle in Mellat gateway
@@ -67,7 +67,7 @@ interface Provider
      *
      * @return bool
      */
-    public function refundTransaction(): bool;
+    protected function refundTransaction(): bool;
 
     /**
      * fetch bak gateway reference id from callback parameters
