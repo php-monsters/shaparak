@@ -82,6 +82,14 @@ return [
             'terminal_id'     => env('MELLI_TERMINAL_ID'),
             'transaction_key' => env('MELLI_TRANS_KEY'),
         ],
+        /*
+        |--------------------------------------------------------------------------
+        | Zarinpal gateway configuration
+        |--------------------------------------------------------------------------
+        */
+        'zarinpal'    => [
+            'merchant_id'     => env('MELLI_MERCHANT_ID'),
+        ],
     ],
 
     /*
