@@ -8,7 +8,6 @@ use InvalidArgumentException;
 use PhpMonsters\Shaparak\Contracts\Provider;
 use PhpMonsters\Shaparak\Contracts\Transaction;
 use PhpMonsters\Shaparak\Provider\AsanPardakhtProvider;
-use PhpMonsters\Shaparak\Provider\AsanPardakhtRestProvider;
 use PhpMonsters\Shaparak\Provider\MellatProvider;
 use PhpMonsters\Shaparak\Provider\MelliProvider;
 use PhpMonsters\Shaparak\Provider\ParsianProvider;
@@ -138,21 +137,6 @@ class ShaparakManager extends Manager implements Contracts\Factory
 
         return $this->buildProvider(
             ParsianProvider::class,
-            $config
-        );
-    }
-
-    /**
-     * Create an instance of the specified driver.
-     *
-     * @return Provider
-     */
-    protected function createAsanPardakhtRestDriver()
-    {
-        $config = $this->getConfig('adanardakht');
-
-        return $this->buildProvider(
-            AsanPardakhtRestProvider::class,
             $config
         );
     }
