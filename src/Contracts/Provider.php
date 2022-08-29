@@ -53,7 +53,7 @@ interface Provider
      *
      * @return bool
      */
-    protected function verifyTransaction(): bool;
+    public function verifyTransaction(): bool;
 
     /**
      * for handling after verify methods like settle in Mellat gateway
@@ -67,7 +67,7 @@ interface Provider
      *
      * @return bool
      */
-    protected function refundTransaction(): bool;
+    public function refundTransaction(): bool;
 
     /**
      * fetch bak gateway reference id from callback parameters
@@ -81,9 +81,9 @@ interface Provider
      *
      * @param string $action
      *
+     * @return string
      * @throws \PhpMonsters\Shaparak\Provider\Exception
      *
-     * @return string
      */
     public function getUrlFor(string $action): string;
 

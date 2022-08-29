@@ -76,11 +76,10 @@ abstract class AbstractProvider implements ProviderContract
      */
     public function __construct(
         Transaction $transaction,
-        array       $configs = [],
-        string      $environment = 'production',
-        array       $httpClientOptions = []
-    )
-    {
+        array $configs = [],
+        string $environment = 'production',
+        array $httpClientOptions = []
+    ) {
         $this->environment = $environment;
         $this->transaction = $transaction;
         $this->httpClientOptions = $httpClientOptions;
@@ -95,10 +94,13 @@ abstract class AbstractProvider implements ProviderContract
     {
         $formParameters = $this->getFormParameters();
 
-        return view('shaparak::goto-gate-form', array_merge($formParameters, [
-            'buttonLabel' => $this->getParameters('submit_label') ?: __("shaparak::shaparak.goto_gate"),
-            'autoSubmit' => (bool)$this->getParameters('auto_submit', true),
-        ]));
+        return view(
+            'shaparak::goto-gate-form',
+            array_merge($formParameters, [
+                'buttonLabel' => $this->getParameters('submit_label') ?: __("shaparak::shaparak.goto_gate"),
+                'autoSubmit' => (bool)$this->getParameters('auto_submit', true),
+            ])
+        );
     }
 
     /**
@@ -136,7 +138,7 @@ abstract class AbstractProvider implements ProviderContract
     /**
      * @inheritDoc
      */
-    abstract protected function verifyTransaction(): bool;
+    abstract public function verifyTransaction(): bool;
 
     /**
      * @inheritDoc
@@ -158,7 +160,7 @@ abstract class AbstractProvider implements ProviderContract
     /**
      * @inheritDoc
      */
-    abstract protected function refundTransaction(): bool;
+    abstract public function refundTransaction(): bool;
 
     /**
      * @inheritDoc
@@ -184,6 +186,7 @@ abstract class AbstractProvider implements ProviderContract
     public function checkRequiredActionParameters(array $parameters): void
     {
         $parameters = array_map('strtolower', $parameters);
+
         foreach ($parameters as $parameter) {
             if (!array_key_exists($parameter, $this->parameters) || trim($this->parameters[$parameter]) === '') {
                 throw new Exception("Parameters array must have a not null value for key: '$parameter'");

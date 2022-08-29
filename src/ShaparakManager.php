@@ -116,7 +116,7 @@ class ShaparakManager extends Manager implements Contracts\Factory
      *
      * @return Provider
      */
-    public function buildProvider($provider, array $config): Provider
+    public function buildProvider(string $provider, array $config): Provider
     {
         return new $provider(
             $this->transaction,

@@ -2,7 +2,9 @@
 
 namespace PhpMonsters\Shaparak\Provider;
 
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Http;
+use PhpMonsters\Shaparak\Exceptions\RefundException;
 use PhpMonsters\Shaparak\Exceptions\RequestTokenException;
 use PhpMonsters\Shaparak\Exceptions\SettlementException;
 use PhpMonsters\Shaparak\Exceptions\VerificationException;
@@ -161,15 +163,20 @@ class AsanPardakhtProvider extends AbstractProvider
         return Http::acceptJson()->withHeaders([
             'usr' => $this->getParameters('username'),
             'pwd' => $this->getParameters('password'),
+        ])->withOptions([
+            'timeout' => 15,
         ])->$method(
             $url,
             $params
         );
     }
 
+
     /**
-     * @inheritDoc
-     * @throws VerificationException|Exception
+     * @return bool
+     * @throws Exception
+     * @throws RefundException
+     * @throws VerificationException
      */
     public function verifyTransaction(): bool
     {
@@ -181,25 +188,24 @@ class AsanPardakhtProvider extends AbstractProvider
         }
 
         try {
-            $response = $this->sendParamToAp(
-                [
-                    'localInvoiceId' => $this->getTransaction()->getGatewayOrderId(),
-                    'merchantConfigurationId' => $this->getParameters('terminal_id'),
-                ],
-                $this->getUrlFor(self::URL_VERIFY),
-                self::POST_METHOD
-            );
+            $response = $this->generateComplementaryOperation(self::URL_VERIFY);
 
-            if ($response->successful() && $response->status() === 200) {
-                $this->getTransaction()->setVerified(true); // save()
-                return true;
+            if ($response !== true) {
+                throw new VerificationException(
+                    sprintf('shaparak::asanpardakht.Verification.error_%s', $response->status())
+                );
             }
 
-            throw new VerificationException(
-                sprintf('shaparak::asanpardakht.Verification.error_%s', $response->status())
-            );
+            return true;
+        } catch (GuzzleException $e) {
+            $this->log($e->getMessage(), [], 'error');
+            $this->log('reverse transaction for: ', $this->getTransaction()->toArray());
+
+            $this->refundTransaction();
+            $this->log('The transaction was reversed for: ', $this->getTransaction()->toArray());
         } catch (\Exception $e) {
             $this->log($e->getMessage(), [], 'error');
+
             throw new VerificationException(
                 'verifyTransaction: ' . $e->getMessage() . ' #' . $e->getCode(),
                 $e->getCode()
@@ -216,7 +222,7 @@ class AsanPardakhtProvider extends AbstractProvider
         $this->checkRequiredActionParameters([
             'username',
             'password',
-            'PayGateTranID',
+            'token',
             'terminal_id',
         ]);
 
@@ -225,13 +231,13 @@ class AsanPardakhtProvider extends AbstractProvider
             'merchantConfigurationId' => $this->getParameters('terminal_id'),
         ], $this->getUrlFor(self::URL_RESULT), self::GET_METHOD);
 
+
         if ($response->successful() && $response->status() === 200 && !empty($response->body())) {
             $this->getTransaction()->setCallBackParameters($response->json(), false);
             $this->getTransaction()->setReferenceId($response->json('refID'));
 
             return true;
         } else {
-            //todo: handle error page
             throw new Exception(sprintf('shaparak::asanpardakhtRest.error_%s', $response->status()));
         }
     }
@@ -249,7 +255,6 @@ class AsanPardakhtProvider extends AbstractProvider
         $this->checkRequiredActionParameters([
             'username',
             'password',
-            'PayGateTranID',
             'terminal_id',
         ]);
 
@@ -258,19 +263,15 @@ class AsanPardakhtProvider extends AbstractProvider
         }
 
         try {
-            $response = $this->sendParamToAp(      [
-                'payGateTranId' => $this->getParameters('payGateTranID'),
-                'MerchantConfigurationId' => $this->getParameters('terminal_id'),
-            ], $this->getUrlFor(self::URL_SETTLEMENT), self::POST_METHOD);
+            $response = $this->generateComplementaryOperation(self::URL_SETTLEMENT);
 
-            if ($response->successful() && $response->status() === 200) {
-                $this->getTransaction()->setSettled(true); // save()
-                return true;
+            if ($response !== true) {
+                throw new SettlementException(
+                    sprintf('shaparak::asanpardakht.Settlement.error_%s', $response->status())
+                );
             }
 
-            throw new SettlementException(
-                sprintf('shaparak::asanpardakht.Verification.error_%s', $response->status())
-            );
+            return true;
         } catch (\Exception $e) {
             $this->log($e->getMessage(), [], 'error');
             throw new SettlementException(
@@ -284,9 +285,40 @@ class AsanPardakhtProvider extends AbstractProvider
     /**
      * @inheritDoc
      * @throws Exception
+     * @throws RefundException
      */
     public function refundTransaction(): bool
     {
+        $this->checkRequiredActionParameters([
+            'username',
+            'password',
+            'terminal_id',
+        ]);
+
+        if ($this->getTransaction()->isReadyForRefund() === false) {
+            throw new RefundException('shaparak::shaparak.could_not_refund_payment');
+        }
+
+        try {
+            do {
+                for ($i = 1; $i <= 5; $i++) {
+                    $response = $this->generateComplementaryOperation(self::URL_REFUND);
+
+                    if ($response === true) {
+                        $this->getTransaction()->setRefunded(true);
+
+                        return true;
+                    }
+                }
+            } while ($response === true);
+        } catch (\Exception $e) {
+            $this->log($e->getMessage(), [], 'error');
+
+            throw new RefundException(
+                'refundTransaction: ' . $e->getMessage() . ' #' . $e->getCode(),
+                $e->getCode()
+            );
+        }
     }
 
     /**
@@ -297,12 +329,10 @@ class AsanPardakhtProvider extends AbstractProvider
         try {
             $this->checkRequiredActionParameters([
                 'ReturningParams',
-                'localInvoiceID',
             ]);
         } catch (\Exception $e) {
             return false;
         }
-
         if (!empty($this->getParameters('ReturningParams'))) {
             return true;
         }
@@ -310,12 +340,39 @@ class AsanPardakhtProvider extends AbstractProvider
         return false;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function getGatewayReferenceId(): string
     {
-        if (!isset($this->getTransaction()->gateway_ref_id)) {
+        if (is_null($this->getTransaction()->getReferenceId())) {
             return $this->getParameters('saleOrderId');
         }
 
-        return $this->getTransaction()->gateway_ref_id;
+        return $this->getTransaction()->getReferenceId();
+    }
+
+    /**
+     * @param $method
+     * @return bool|object
+     * @throws Exception
+     */
+    public function generateComplementaryOperation($method): object|bool
+    {
+        $response = $this->sendParamToAp(
+            [
+                'payGateTranId' => $this->getTransaction()->getCallbackParams()['payGateTranID'],
+                'merchantConfigurationId' => $this->getParameters('terminal_id'),
+            ],
+            $this->getUrlFor($method),
+            self::POST_METHOD
+        );
+        if ($response->status() === 200) {
+            $this->getTransaction()->setVerified(true);
+
+            return true;
+        }
+
+        return $response;
     }
 }
