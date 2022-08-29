@@ -2,7 +2,6 @@
 
 namespace PhpMonsters\Shaparak\Provider;
 
-use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Http;
 use PhpMonsters\Shaparak\Exceptions\RefundException;
 use PhpMonsters\Shaparak\Exceptions\RequestTokenException;
@@ -197,12 +196,6 @@ class AsanPardakhtProvider extends AbstractProvider
             }
 
             return true;
-        } catch (GuzzleException $e) {
-            $this->log($e->getMessage(), [], 'error');
-            $this->log('reverse transaction for: ', $this->getTransaction()->toArray());
-
-            $this->refundTransaction();
-            $this->log('The transaction was reversed for: ', $this->getTransaction()->toArray());
         } catch (\Exception $e) {
             $this->log($e->getMessage(), [], 'error');
 
