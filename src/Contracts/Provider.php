@@ -2,6 +2,8 @@
 
 namespace PhpMonsters\Shaparak\Contracts;
 
+use PhpMonsters\Shaparak\Provider\Exception;
+
 interface Provider
 {
     /**
@@ -9,14 +11,14 @@ interface Provider
      *
      * @return bool
      */
-    public function refundSupport(): bool;
+    function refundSupport(): bool;
 
     /**
      * @param array $parameters operation parameters
      *
      * @return Provider
      */
-    public function setParameters(array $parameters = []): Provider;
+    function setParameters(array $parameters = []): Provider;
 
     /**
      * @param string|null $key
@@ -25,56 +27,56 @@ interface Provider
      *
      * @return mixed
      */
-    public function getParameters(string $key = null, $default = null);
+    function getParameters(string $key = null, $default = null);
 
     /**
      * return rendered goto gate form
      *
      * @return string
      */
-    public function getForm(): string;
+    function getForm(): string;
 
     /**
      * return parameters that require for generating goto gate form
      *
      * @return array
      */
-    public function getFormParameters(): array;
+    function getFormParameters(): array;
 
     /**
      * get the transaction
      *
      * @return Transaction
      */
-    public function getTransaction(): Transaction;
+    function getTransaction(): Transaction;
 
     /**
      * verify transaction
      *
      * @return bool
      */
-    public function verifyTransaction(): bool;
+    function verifyTransaction(): bool;
 
     /**
      * for handling after verify methods like settle in Mellat gateway
      *
      * @return mixed
      */
-    public function settleTransaction(): bool;
+    function settleTransaction(): bool;
 
     /**
      * reverse/refund transaction if supported by the provider
      *
      * @return bool
      */
-    public function refundTransaction(): bool;
+    function refundTransaction(): bool;
 
     /**
      * fetch bak gateway reference id from callback parameters
      *
      * @return string
      */
-    public function getGatewayReferenceId(): string;
+    function getGatewayReferenceId(): string;
 
     /**
      * get the Url of different parts of a payment process of the gateway
@@ -82,24 +84,24 @@ interface Provider
      * @param string $action
      *
      * @return string
-     * @throws \PhpMonsters\Shaparak\Provider\Exception
+     * @throws Exception
      *
      */
-    public function getUrlFor(string $action): string;
+    function getUrlFor(string $action): string;
 
     /**
      * Specifies whether it is possible to continue payment process with the return parameters from the bank gateway
      *
      * @return bool
      */
-    public function canContinueWithCallbackParameters(): bool;
+    function canContinueWithCallbackParameters(): bool;
 
     /**
      * check for required parameters
      *
      * @param array $parameters
      *
-     * @throws \PhpMonsters\Shaparak\Provider\Exception
+     * @throws Exception
      */
-    public function checkRequiredActionParameters(array $parameters): void;
+    function checkRequiredActionParameters(array $parameters): void;
 }
