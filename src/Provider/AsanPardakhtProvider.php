@@ -190,10 +190,9 @@ class AsanPardakhtProvider extends AbstractProvider
             $response = $this->generateComplementaryOperation(self::URL_VERIFY);
 
             if ($response !== true) {
-                throw new VerificationException(
-                    sprintf('shaparak::asanpardakht.Verification.error_%s', $response->status())
-                );
+                throw new Exception('shaparak::asanpardakht.could_not_verify_transaction');
             }
+            $this->getTransaction()->setVerified(true);
 
             return true;
         } catch (\Exception $e) {
@@ -223,7 +222,6 @@ class AsanPardakhtProvider extends AbstractProvider
             'localInvoiceId' => $this->getTransaction()->getGatewayOrderId(),
             'merchantConfigurationId' => $this->getParameters('terminal_id'),
         ], $this->getUrlFor(self::URL_RESULT), self::GET_METHOD);
-
 
         if ($response->successful() && $response->status() === 200 && !empty($response->body())) {
             $this->getTransaction()->setCallBackParameters($response->json(), false);
@@ -259,9 +257,7 @@ class AsanPardakhtProvider extends AbstractProvider
             $response = $this->generateComplementaryOperation(self::URL_SETTLEMENT);
 
             if ($response !== true) {
-                throw new SettlementException(
-                    sprintf('shaparak::asanpardakht.Settlement.error_%s', $response->status())
-                );
+                throw new Exception('shaparak::asanpardakht.could_not_settlement_transaction');
             }
 
             return true;
@@ -293,18 +289,15 @@ class AsanPardakhtProvider extends AbstractProvider
         }
 
         try {
-            do {
-                for ($i = 1; $i <= 5; $i++) {
-                    $response = $this->generateComplementaryOperation(self::URL_REFUND);
+            $response = $this->generateComplementaryOperation(self::URL_REFUND);
 
-                    if ($response === true) {
-                        $this->getTransaction()->setRefunded(true);
+            if ($response !== true) {
+                throw new Exception('shaparak::asanpardakht.could_not_refund_transaction');
+            }
 
-                        return true;
-                    }
-                }
-            } while ($response === true);
-            return false;
+            $this->getTransaction()->setRefunded(true);
+
+            return true;
         } catch (\Exception $e) {
             $this->log($e->getMessage(), [], 'error');
 
@@ -348,10 +341,10 @@ class AsanPardakhtProvider extends AbstractProvider
 
     /**
      * @param $method
-     * @return bool|object
+     * @return bool
      * @throws Exception
      */
-    protected function generateComplementaryOperation($method): object|bool
+    protected function generateComplementaryOperation($method): bool
     {
         $response = $this->sendParamToAp(
             [
@@ -361,12 +354,11 @@ class AsanPardakhtProvider extends AbstractProvider
             $this->getUrlFor($method),
             self::POST_METHOD
         );
-        if ($response->status() === 200) {
-            $this->getTransaction()->setVerified(true);
 
+        if ($response->sucessful() === 200) {
             return true;
         }
 
-        return $response;
+        return false;
     }
 }
