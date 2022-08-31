@@ -138,12 +138,12 @@ abstract class AbstractProvider implements ProviderContract
     /**
      * @inheritDoc
      */
-    abstract protected function verifyTransaction(): bool;
+    abstract public function verifyTransaction(): bool;
 
     /**
      * @inheritDoc
      */
-    protected function settleTransaction(): bool
+    public function settleTransaction(): bool
     {
         // default behavior
         return $this->getTransaction()->setSettled(true);
@@ -160,12 +160,12 @@ abstract class AbstractProvider implements ProviderContract
     /**
      * @inheritDoc
      */
-    abstract protected function refundTransaction(): bool;
+    abstract public function refundTransaction(): bool;
 
     /**
      * @inheritDoc
      */
-    abstract protected function getGatewayReferenceId(): string;
+    abstract public function getGatewayReferenceId(): string;
 
     /**
      * @inheritDoc

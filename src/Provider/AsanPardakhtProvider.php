@@ -95,7 +95,7 @@ class AsanPardakhtProvider extends AbstractProvider
      * @throws Exception
      * @throws RequestTokenException
      */
-    protected function requestToken(): string
+    public function requestToken(): string
     {
         $transaction = $this->getTransaction();
 
@@ -130,7 +130,7 @@ class AsanPardakhtProvider extends AbstractProvider
      * @return array
      * @throws Exception
      */
-    private function requestTokenData(): array
+    public function requestTokenData(): array
     {
         $this->checkRequiredActionParameters([
             'terminal_id',
@@ -170,14 +170,13 @@ class AsanPardakhtProvider extends AbstractProvider
         );
     }
 
-
     /**
      * @return bool
      * @throws Exception
      * @throws RefundException
      * @throws VerificationException
      */
-    protected function verifyTransaction(): bool
+    public function verifyTransaction(): bool
     {
         // required parameters will be checked by getTransactionResult method
         $this->getTransactionResult();
@@ -241,7 +240,7 @@ class AsanPardakhtProvider extends AbstractProvider
      * @throws Exception
      * @throws SettlementException
      */
-    protected function settleTransaction(): bool
+    public function settleTransaction(): bool
     {
         $this->checkRequiredActionParameters([
             'username',
@@ -278,7 +277,7 @@ class AsanPardakhtProvider extends AbstractProvider
      * @throws Exception
      * @throws RefundException
      */
-    protected function refundTransaction(): bool
+    public function refundTransaction(): bool
     {
         $this->checkRequiredActionParameters([
             'username',
@@ -332,7 +331,7 @@ class AsanPardakhtProvider extends AbstractProvider
     /**
      * @inheritDoc
      */
-    protected function getGatewayReferenceId(): string
+    public function getGatewayReferenceId(): string
     {
         if (is_null($this->getTransaction()->getReferenceId())) {
             return $this->getParameters('saleOrderId');
