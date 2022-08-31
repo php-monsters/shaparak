@@ -260,6 +260,8 @@ class AsanPardakhtProvider extends AbstractProvider
                 throw new Exception('shaparak::asanpardakht.could_not_settlement_transaction');
             }
 
+            $this->getTransaction()->setSettled(true);
+
             return true;
         } catch (\Exception $e) {
             $this->log($e->getMessage(), [], 'error');
@@ -355,7 +357,7 @@ class AsanPardakhtProvider extends AbstractProvider
             self::POST_METHOD
         );
 
-        if ($response->sucessful() === 200) {
+        if ($response->sucessful()) {
             return true;
         }
 
