@@ -37,7 +37,7 @@ class ZarinpalProvider extends AbstractProvider
             'merchant_id',
         ]);
 
-        $response = Http::retry(3, 100)->acceptJson()->post($this->getUrlFor(self::URL_TOKEN), [
+        $response = Http::acceptJson()->post($this->getUrlFor(self::URL_TOKEN), [
             'merchant_id' => $this->getParameters('merchant_id'),
             'callback_url' => $this->getCallbackUrl(),
             'amount' => $this->getAmount(),
@@ -147,7 +147,7 @@ class ZarinpalProvider extends AbstractProvider
             throw new Exception('could not verify transaction with callback state: ' . $this->getParameters('State'));
         }
 
-        $response = Http::retry(3, 100)->acceptJson()->post($this->getUrlFor(self::URL_VERIFY), [
+        $response = Http::acceptJson()->post($this->getUrlFor(self::URL_VERIFY), [
             'merchant_id' => $this->getParameters('merchant_id'),
             'authority' => $this->getParameters('authority'),
             'amount' => $this->getAmount(),
