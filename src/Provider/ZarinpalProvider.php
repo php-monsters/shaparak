@@ -29,9 +29,7 @@ class ZarinpalProvider extends AbstractProvider
      */
     protected function requestToken(): string
     {
-        $transaction = $this->getTransaction();
-
-        if ($transaction->isReadyForTokenRequest() === false) {
+        if ($this->getTransaction()->isReadyForTokenRequest() === false) {
             throw new Exception('transaction is not ready for requesting token from payment gateway');
         }
 
@@ -120,7 +118,7 @@ class ZarinpalProvider extends AbstractProvider
      * @inheritDoc
      * @throws Exception
      */
-    public function getGatewayReferenceId(): string
+    protected function getGatewayReferenceId(): string
     {
         $this->checkRequiredActionParameters([
             'Authority',

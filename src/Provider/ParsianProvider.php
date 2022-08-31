@@ -193,7 +193,7 @@ class ParsianProvider extends AbstractProvider
      * @inheritDoc
      * @throws Exception
      */
-    public function getGatewayReferenceId(): string
+    protected function getGatewayReferenceId(): string
     {
         $this->checkRequiredActionParameters([
             'RRN',

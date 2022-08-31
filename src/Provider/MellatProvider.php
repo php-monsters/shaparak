@@ -190,7 +190,7 @@ class MellatProvider extends AbstractProvider
      *
      * @throws Exception
      */
-    public function settleTransaction(): bool
+    protected function settleTransaction(): bool
     {
         if ($this->getTransaction()->isReadyForSettle() === false) {
             throw new Exception('shaparak::shaparak.could_not_settle_payment');
@@ -317,7 +317,7 @@ class MellatProvider extends AbstractProvider
      * @inheritDoc
      * @throws Exception
      */
-    public function getGatewayReferenceId(): string
+    protected function getGatewayReferenceId(): string
     {
         $this->checkRequiredActionParameters([
             'RefId',

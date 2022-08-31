@@ -11,6 +11,7 @@ class PasargadProvider extends AbstractProvider
     public const URL_CHECK = 'check';
     public const UPDATE_SUBPAYMENT = 'UpdateInvoiceSubPayment';
     public const GET_SUBPAYMENT = 'GetSubPaymentsReport';
+    protected const GET_TOKEN_ACTION = 1003;
     protected bool $refundSupport = true;
 
     /**
@@ -25,6 +26,34 @@ class PasargadProvider extends AbstractProvider
             'certificate_path',
         ]);
 
+        return [
+            'gateway' => 'pasargad',
+            'method' => 'GET',
+            'action' => $this->getUrlFor(self::URL_GATEWAY),
+            'parameters' => [
+                'n' => $this->requestToken()
+            ],
+        ];
+    }
+
+    /**
+     * @inheritDoc
+     * @throws Exception
+     */
+    protected function requestToken(): string
+    {
+        $transaction = $this->getTransaction();
+
+        if ($transaction->isReadyForTokenRequest() === false) {
+            throw new Exception('transaction is not ready for requesting token from payment gateway');
+        }
+
+        $this->checkRequiredActionParameters([
+            'terminal_id',
+            'merchant_id',
+            'certificate_path',
+        ]);
+
         $terminalCode = $this->getParameters('terminal_id');
         $merchantCode = $this->getParameters('merchant_id');
         $redirectAddress = $this->getCallbackUrl();
@@ -32,31 +61,60 @@ class PasargadProvider extends AbstractProvider
         $amount = $this->getAmount();
         $timeStamp = date("Y/m/d H:i:s");
         $invoiceDate = date("Y/m/d H:i:s", strtotime($this->getTransaction()->created_at));
-        $action = 1003; // sell code
 
-        $data = "#" . $merchantCode . "#" . $terminalCode . "#" . $invoiceNumber . "#" . $invoiceDate . "#" . $amount .
-            "#" . $redirectAddress . "#" . $action . "#" . $timeStamp . "#";
+        $sign = $this->createTokenSignature($merchantCode, $terminalCode, $invoiceNumber, $invoiceDate, $amount, $redirectAddress, $timeStamp);
 
-        $data = sha1($data, true);
-        $data = $this->getProcessor()->sign($data); // digital signature
-        $sign = base64_encode($data); // base64_encode
-
-        return [
-            'gateway' => 'pasargad',
-            'method' => 'POST',
-            'action' => $this->getUrlFor(self::URL_GATEWAY),
-            'parameters' => [
-                'invoiceNumber' => $invoiceNumber,
+        $response = Http::retry(3, 100)
+            ->acceptJson()
+            ->withHeaders([
+                'Sign' => $sign,
+            ])
+            ->post($this->getUrlFor(self::URL_TOKEN), [
+                'invoicenumber' => $invoiceNumber,
                 'invoiceDate' => $invoiceDate,
                 'amount' => $amount,
+                'timeStamp' => $timeStamp,
+                'action' => self::GET_TOKEN_ACTION,
                 'terminalCode' => $terminalCode,
                 'merchantCode' => $merchantCode,
-                'timeStamp' => $timeStamp,
-                'action' => $action,
-                'sign' => $sign,
                 'redirectAddress' => $redirectAddress,
-            ],
-        ];
+                'subpaymentlist' => $this->getParameters('subpaymentlist')
+            ]);
+
+        if ($response->sucessful()) {
+            if ((int)$response->json('IsSuccess') === true) {
+                return $response->json('token');
+            }
+
+            $this->log($response->json('Message'), $response->json(), 'error');
+            throw new Exception(
+                $response->json($response->json('Message'))
+            );
+        }
+
+        throw new Exception('shaparak::shaparak.token_failed');
+    }
+
+    /**
+     * @param $merchantCode
+     * @param $terminalCode
+     * @param $invoiceNumber
+     * @param string $invoiceDate
+     * @param int $amount
+     * @param string $redirectAddress
+     * @param string $timeStamp
+     * @return string
+     */
+    private function createTokenSignature($merchantCode, $terminalCode, $invoiceNumber, string $invoiceDate, int $amount,
+                                          string $redirectAddress, string $timeStamp): string
+    {
+        $sign = "#" . $merchantCode . "#" . $terminalCode . "#" . $invoiceNumber . "#" . $invoiceDate . "#" . $amount .
+            "#" . $redirectAddress . "#" . self::GET_TOKEN_ACTION . "#" . $timeStamp . "#";
+
+        $data = "#" . $merchantCode . "#" . $terminalCode . "#" . $invoiceNumber . "#" . $invoiceDate . "#" . $amount . "#" . $timeStamp . "#";
+        $sign = sha1($sign, true);
+        $sign = $this->getProcessor()->sign($sign); // digital signature
+        return base64_encode($sign); // base64_encode
     }
 
     /**
@@ -159,7 +217,7 @@ class PasargadProvider extends AbstractProvider
      * @inheritDoc
      * @throws Exception
      */
-    public function getGatewayReferenceId(): string
+    protected function getGatewayReferenceId(): string
     {
         $this->checkRequiredActionParameters([
             'tref',

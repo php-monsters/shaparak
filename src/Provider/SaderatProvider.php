@@ -2,8 +2,6 @@
 
 namespace PhpMonsters\Shaparak\Provider;
 
-use PhpMonsters\Shaparak\Contracts\Provider as ProviderContract;
-
 class SaderatProvider extends AbstractProvider
 {
     protected bool $refundSupport = true;
@@ -196,7 +194,7 @@ class SaderatProvider extends AbstractProvider
     /**
      * @inheritDoc
      */
-    public function getGatewayReferenceId(): string
+    protected function getGatewayReferenceId(): string
     {
         $this->checkRequiredActionParameters([
             'RRN',

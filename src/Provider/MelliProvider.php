@@ -172,7 +172,7 @@ class MelliProvider extends AbstractProvider
     /**
      * @inheritDoc
      */
-    public function getGatewayReferenceId(): string
+    protected function getGatewayReferenceId(): string
     {
         $this->checkRequiredActionParameters([
             'Token',

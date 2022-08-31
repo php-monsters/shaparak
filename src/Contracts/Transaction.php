@@ -150,4 +150,10 @@ interface Transaction
      * @return bool
      */
     public function addExtra(string $key, $value, bool $save = true): bool;
+
+    /**
+     * get reference ID of the
+     * @return mixed
+     */
+    public function getReferenceId(): mixed;
 }
