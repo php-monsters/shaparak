@@ -17,19 +17,25 @@ interface Transaction
      * @param string $token
      * @param bool $save
      *
-     * @return mixed
+     * @return bool
      */
     public function setGatewayToken(string $token, bool $save = true): bool;
 
     /**
-     * set reference ID of transaction
+     * set reference ID of transaction شناسه/کد پیگیری
      *
      * @param string $referenceId
      * @param bool $save
      *
-     * @return mixed
+     * @return bool
      */
     public function setReferenceId(string $referenceId, bool $save = true): bool;
+
+    /**
+     * get reference ID of the
+     * @return string
+     */
+    public function getReferenceId(): string;
 
     /**
      * return an order id for the transaction to requesting a payment token from the gateway
@@ -150,10 +156,4 @@ interface Transaction
      * @return bool
      */
     public function addExtra(string $key, $value, bool $save = true): bool;
-
-    /**
-     * get reference ID of the
-     * @return mixed
-     */
-    public function getReferenceId(): mixed;
 }
