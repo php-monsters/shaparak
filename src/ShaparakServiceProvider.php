@@ -55,7 +55,7 @@ class ShaparakServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__ . '/../views/', 'shaparak');
 
         $this->publishes([
-            __DIR__ . '/../translations/' => resource_path('lang/vendor/shaparak'),
+            __DIR__ . '/../translations/' => base_path('/lang/vendor/shaparak'),
         ], 'translations');
 
         $this->loadTranslationsFrom(__DIR__ . '/../translations', 'shaparak');
