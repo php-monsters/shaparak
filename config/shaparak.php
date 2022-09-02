@@ -31,7 +31,7 @@ return [
         'asanpardakht' => [
             'username' => env('AP_USERNAME'),
             'password' => env('AP_PASSWORD'),
-            'merchant_id' => env('AP_MERCHANT_ID'),
+            'terminal_id' => env('AP_MERCHANT_ID'),
             'key' => env('AP_KEY'),
             'iv' => env('AP_IV'),
         ],
@@ -88,7 +88,7 @@ return [
         |--------------------------------------------------------------------------
         */
         'zarinpal'    => [
-            'merchant_id'     => env('MELLI_MERCHANT_ID'),
+            'merchant_id'     => env('ZARINPAL_MERCHANT_ID'),
         ],
     ],
 
