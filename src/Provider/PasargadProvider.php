@@ -217,7 +217,7 @@ class PasargadProvider extends AbstractProvider
      * @inheritDoc
      * @throws Exception
      */
-    protected function getGatewayReferenceId(): string
+    public function getGatewayReferenceId(): string
     {
         $this->checkRequiredActionParameters([
             'tref',
@@ -230,7 +230,7 @@ class PasargadProvider extends AbstractProvider
      * @inheritDoc
      * @throws Exception|\Samuraee\EasyCurl\Exception
      */
-    protected function verifyTransaction(): bool
+    public function verifyTransaction(): bool
     {
         if ($this->getTransaction()->isReadyForVerify() === false) {
             throw new Exception('shaparak::shaparak.could_not_verify_transaction');
@@ -353,7 +353,7 @@ class PasargadProvider extends AbstractProvider
      * @inheritDoc
      * @throws Exception|\Samuraee\EasyCurl\Exception
      */
-    protected function refundTransaction(): bool
+    public function refundTransaction(): bool
     {
         if ($this->getTransaction()->isReadyForRefund() === false) {
             throw new Exception('shaparak::shaparak.could_not_refund_transaction');

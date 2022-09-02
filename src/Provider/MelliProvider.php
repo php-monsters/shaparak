@@ -89,7 +89,7 @@ class MelliProvider extends AbstractProvider
      * @throws Exception
      * @throws \Samuraee\EasyCurl\Exception
      */
-    protected function verifyTransaction(): bool
+    public function verifyTransaction(): bool
     {
         if ($this->getTransaction()->isReadyForVerify() === false) {
             throw new Exception('shaparak::shaparak.could_not_verify_transaction');
@@ -145,7 +145,7 @@ class MelliProvider extends AbstractProvider
         throw new Exception('shaparak::shaparak.could_not_verify_transaction');
     }
 
-    protected function refundTransaction(): bool
+    public function refundTransaction(): bool
     {
         // TODO: Implement refundTransaction() method.
         throw new Exception('melli gateway does not support refund action');
@@ -172,7 +172,7 @@ class MelliProvider extends AbstractProvider
     /**
      * @inheritDoc
      */
-    protected function getGatewayReferenceId(): string
+    public function getGatewayReferenceId(): string
     {
         $this->checkRequiredActionParameters([
             'Token',

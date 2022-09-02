@@ -76,7 +76,7 @@ class SamanProvider extends AbstractProvider
      * @inheritDoc
      * @throws Exception
      */
-    protected function verifyTransaction(): bool
+    public function verifyTransaction(): bool
     {
         if ($this->getTransaction()->isReadyForVerify() === false) {
             throw new Exception('shaparak::shaparak.could_not_verify_transaction');
@@ -127,7 +127,7 @@ class SamanProvider extends AbstractProvider
      * @inheritDoc
      * @throws Exception
      */
-    protected function refundTransaction(): bool
+    public function refundTransaction(): bool
     {
         if ($this->refundSupport === false || $this->getTransaction()->isReadyForRefund() === false) {
             throw new Exception('shaparak::shaparak.could_not_refund_payment');

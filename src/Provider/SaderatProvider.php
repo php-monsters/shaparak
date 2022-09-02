@@ -74,7 +74,7 @@ class SaderatProvider extends AbstractProvider
     /**
      * @inheritDoc
      */
-    protected function verifyTransaction(): bool
+    public function verifyTransaction(): bool
     {
         if ($this->getTransaction()->isReadyForVerify() == false) {
             throw new Exception('shaparak::shaparak.could_not_verify_transaction');
@@ -124,7 +124,7 @@ class SaderatProvider extends AbstractProvider
     /**
      * @inheritDoc
      */
-    protected function refundTransaction(): bool
+    public function refundTransaction(): bool
     {
         if ($this->getTransaction()->isReadyForRefund() == false) {
             throw new Exception('shaparak::shaparak.could_not_refund_transaction');
@@ -194,7 +194,7 @@ class SaderatProvider extends AbstractProvider
     /**
      * @inheritDoc
      */
-    protected function getGatewayReferenceId(): string
+    public function getGatewayReferenceId(): string
     {
         $this->checkRequiredActionParameters([
             'RRN',

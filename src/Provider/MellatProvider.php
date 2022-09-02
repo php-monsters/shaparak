@@ -86,7 +86,7 @@ class MellatProvider extends AbstractProvider
      * @inheritDoc
      * @throws Exception
      */
-    protected function verifyTransaction(): bool
+    public function verifyTransaction(): bool
     {
         if ($this->getTransaction()->isReadyForVerify() === false) {
             throw new Exception('shaparak::shaparak.could_not_verify_transaction');
@@ -190,7 +190,7 @@ class MellatProvider extends AbstractProvider
      *
      * @throws Exception
      */
-    protected function settleTransaction(): bool
+    public function settleTransaction(): bool
     {
         if ($this->getTransaction()->isReadyForSettle() === false) {
             throw new Exception('shaparak::shaparak.could_not_settle_payment');
@@ -242,7 +242,7 @@ class MellatProvider extends AbstractProvider
      * @inheritDoc
      * @throws Exception
      */
-    protected function refundTransaction(): bool
+    public function refundTransaction(): bool
     {
         if ($this->getTransaction()->isReadyForRefund() === false) {
             throw new Exception('shaparak::shaparak.could_not_refund_payment');
@@ -317,7 +317,7 @@ class MellatProvider extends AbstractProvider
      * @inheritDoc
      * @throws Exception
      */
-    protected function getGatewayReferenceId(): string
+    public function getGatewayReferenceId(): string
     {
         $this->checkRequiredActionParameters([
             'RefId',
