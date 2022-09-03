@@ -44,7 +44,7 @@ class ZarinpalProvider extends AbstractProvider
             'description' => $this->getParameters('description')
         ]);
 
-        if ($response->sucessful()) {
+        if ($response->successful()) {
             if ((int)$response->json('data.code') === 100) {
                 return $response->json('data.authority');
             }
@@ -153,7 +153,7 @@ class ZarinpalProvider extends AbstractProvider
             'amount' => $this->getAmount(),
         ]);
 
-        if ($response->sucessful()) {
+        if ($response->successful()) {
             if ((int)$response->json('data.code') === 100 || (int)$response->json('data.code') === 101) {
                 $this->getTransaction()->setVerified(true); // save()
                 return true;

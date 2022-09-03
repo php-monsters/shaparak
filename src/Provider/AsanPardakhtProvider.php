@@ -179,7 +179,6 @@ class AsanPardakhtProvider extends AbstractProvider
     public function verifyTransaction(): bool
     {
         // required parameters will be checked by getTransactionResult method
-        $this->getTransactionResult();
 
         if ($this->getTransaction()->isReadyForVerify() === false) {
             throw new Exception('shaparak::shaparak.could_not_verify_transaction');
@@ -213,10 +212,8 @@ class AsanPardakhtProvider extends AbstractProvider
         $this->checkRequiredActionParameters([
             'username',
             'password',
-            'token',
             'terminal_id',
         ]);
-
         $response = $this->sendParamToAp([
             'localInvoiceId' => $this->getTransaction()->getGatewayOrderId(),
             'merchantConfigurationId' => $this->getParameters('terminal_id'),
@@ -356,7 +353,7 @@ class AsanPardakhtProvider extends AbstractProvider
             self::POST_METHOD
         );
 
-        if ($response->sucessful()) {
+        if ($response->successful()) {
             return true;
         }
 

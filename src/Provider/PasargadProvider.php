@@ -62,7 +62,15 @@ class PasargadProvider extends AbstractProvider
         $timeStamp = date("Y/m/d H:i:s");
         $invoiceDate = date("Y/m/d H:i:s", strtotime($this->getTransaction()->created_at));
 
-        $sign = $this->createTokenSignature($merchantCode, $terminalCode, $invoiceNumber, $invoiceDate, $amount, $redirectAddress, $timeStamp);
+        $sign = $this->createTokenSignature(
+            $merchantCode,
+            $terminalCode,
+            $invoiceNumber,
+            $invoiceDate,
+            $amount,
+            $redirectAddress,
+            $timeStamp
+        );
 
         $response = Http::retry(3, 100)
             ->acceptJson()
@@ -81,7 +89,7 @@ class PasargadProvider extends AbstractProvider
                 'subpaymentlist' => $this->getParameters('subpaymentlist')
             ]);
 
-        if ($response->sucessful()) {
+        if ($response->successful()) {
             if ((int)$response->json('IsSuccess') === true) {
                 return $response->json('token');
             }
@@ -105,9 +113,15 @@ class PasargadProvider extends AbstractProvider
      * @param string $timeStamp
      * @return string
      */
-    private function createTokenSignature($merchantCode, $terminalCode, $invoiceNumber, string $invoiceDate, int $amount,
-                                          string $redirectAddress, string $timeStamp): string
-    {
+    private function createTokenSignature(
+        $merchantCode,
+        $terminalCode,
+        $invoiceNumber,
+        string $invoiceDate,
+        int $amount,
+        string $redirectAddress,
+        string $timeStamp
+    ): string {
         $sign = "#" . $merchantCode . "#" . $terminalCode . "#" . $invoiceNumber . "#" . $invoiceDate . "#" . $amount .
             "#" . $redirectAddress . "#" . self::GET_TOKEN_ACTION . "#" . $timeStamp . "#";
 
@@ -247,8 +261,10 @@ class PasargadProvider extends AbstractProvider
 
         // update transaction reference number
         if (!empty($this->getParameters('tref'))) {
-            $this->getTransaction()->setGatewayToken($this->getParameters('tref'),
-                true); // update transaction reference id
+            $this->getTransaction()->setGatewayToken(
+                $this->getParameters('tref'),
+                true
+            ); // update transaction reference id
         } else {
             throw new Exception('could not verify transaction with callback tref: ' . $this->getParameters('tref'));
         }
