@@ -90,7 +90,7 @@ abstract class AbstractProvider implements ProviderContract
     /**
      * @inheritDoc
      */
-    public function getForm(): string
+    public function getForm(): \Illuminate\View\View
     {
         $formParameters = $this->getFormParameters();
 

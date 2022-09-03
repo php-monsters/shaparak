@@ -2,6 +2,7 @@
 
 namespace PhpMonsters\Shaparak\Contracts;
 
+use Illuminate\View\View;
 use PhpMonsters\Shaparak\Provider\Exception;
 
 interface Provider
@@ -32,9 +33,9 @@ interface Provider
     /**
      * return rendered goto gate form
      *
-     * @return string
+     * @return View
      */
-    function getForm(): string;
+    function getForm(): View;
 
     /**
      * return parameters that require for generating goto gate form
