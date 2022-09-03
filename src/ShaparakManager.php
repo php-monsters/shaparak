@@ -208,7 +208,7 @@ class ShaparakManager extends Manager implements Contracts\Factory
      */
     protected function createAsanPardakhtDriver()
     {
-        $config = $this->getConfig('adanardakht');
+        $config = $this->getConfig('asanpardakht');
 
         return $this->buildProvider(
             AsanPardakhtProvider::class,
