@@ -214,6 +214,7 @@ class AsanPardakhtProvider extends AbstractProvider
             'password',
             'terminal_id',
         ]);
+
         $response = $this->sendParamToAp([
             'localInvoiceId' => $this->getTransaction()->getGatewayOrderId(),
             'merchantConfigurationId' => $this->getParameters('terminal_id'),
