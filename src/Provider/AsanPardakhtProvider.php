@@ -356,7 +356,7 @@ class AsanPardakhtProvider extends AbstractProvider
             self::POST_METHOD
         );
 
-        if ($response->sucessful()) {
+        if ($response->successful()) {
             return true;
         }
 
