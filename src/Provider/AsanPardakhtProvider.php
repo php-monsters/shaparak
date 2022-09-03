@@ -8,6 +8,9 @@ use PhpMonsters\Shaparak\Exceptions\RequestTokenException;
 use PhpMonsters\Shaparak\Exceptions\SettlementException;
 use PhpMonsters\Shaparak\Exceptions\VerificationException;
 
+/**
+ * AsanPardakhtProvider class
+ */
 class AsanPardakhtProvider extends AbstractProvider
 {
     public const URL_RESULT = 'result';
