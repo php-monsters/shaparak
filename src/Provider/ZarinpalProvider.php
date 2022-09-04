@@ -179,11 +179,12 @@ class ZarinpalProvider extends AbstractProvider
         return false;
     }
 
-    private function getDescription(): string{
-        $desciption = $this->getTransaction()->description;
-        if (empty($desciption)) {
-            $desciption = sprintf("Payment for Order ID: %s", $this->getTransaction()->id);
+    private function getDescription(): string
+    {
+        $description = $this->getTransaction()->description;
+        if (empty($description)) {
+            $description = sprintf("Payment for Order ID: %s", $this->getTransaction()->id);
         }
-        return $desciption;
+        return $description;
     }
 }
