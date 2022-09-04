@@ -114,7 +114,7 @@ class ZarinpalProvider extends AbstractProvider
             return false;
         }
 
-        return $this->getParameters('State') === 'OK';
+        return $this->getParameters('Status') === 'OK';
     }
 
     /**
@@ -146,8 +146,8 @@ class ZarinpalProvider extends AbstractProvider
             'authority',
         ]);
 
-        if ($this->getParameters('State') !== 'OK') {
-            throw new Exception('could not verify transaction with callback state: ' . $this->getParameters('State'));
+        if ($this->getParameters('Status') !== 'OK') {
+            throw new Exception('could not verify transaction with callback status: ' . $this->getParameters('Status'));
         }
 
         $response = Http::acceptJson()->post($this->getUrlFor(self::URL_VERIFY), [
