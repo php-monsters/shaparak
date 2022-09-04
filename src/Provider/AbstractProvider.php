@@ -150,6 +150,15 @@ abstract class AbstractProvider implements ProviderContract
     }
 
     /**
+     * @inheritDoc
+     */
+    public function accomplishTransaction(): bool
+    {
+        // default behavior
+        return $this->getTransaction()->setAccomplished(true);
+    }
+
+    /**
      * @return Transaction
      */
     public function getTransaction(): Transaction

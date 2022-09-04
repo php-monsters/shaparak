@@ -108,7 +108,7 @@ class ZarinpalProvider extends AbstractProvider
         try {
             $this->checkRequiredActionParameters([
                 'Authority',
-                'State',
+                'Status',
             ]);
         } catch (\Exception $e) {
             return false;
