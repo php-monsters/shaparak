@@ -20,6 +20,7 @@ class ZarinpalProvider extends AbstractProvider
             'gateway' => 'zarinpal',
             'method' => 'GET',
             'action' => $this->getUrlFor(self::URL_GATEWAY) . '/' . $token,
+            'parameters' => [],
         ];
     }
 
@@ -41,7 +42,7 @@ class ZarinpalProvider extends AbstractProvider
             'merchant_id' => $this->getParameters('merchant_id'),
             'callback_url' => $this->getCallbackUrl(),
             'amount' => $this->getAmount(),
-            'description' => $this->getParameters('description')
+            'description' => $this->getDescription(),
         ]);
 
         if ($response->successful()) {
@@ -53,6 +54,8 @@ class ZarinpalProvider extends AbstractProvider
             throw new Exception(
                 $response->json('errors.code') . ' ' . $response->json('errors.message')
             );
+        } else {
+            $this->log($response->body());
         }
 
         throw new Exception('shaparak::shaparak.token_failed');
@@ -174,5 +177,13 @@ class ZarinpalProvider extends AbstractProvider
     public function refundTransaction(): bool
     {
         return false;
+    }
+
+    private function getDescription(): string{
+        $desciption = $this->getTransaction()->description;
+        if (empty($desciption)) {
+            $desciption = sprintf("Payment for Order ID: %s", $this->getTransaction()->id);
+        }
+        return $desciption;
     }
 }
