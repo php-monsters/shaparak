@@ -18,7 +18,15 @@ class AsanPardakhtProvider extends AbstractProvider
     public const POST_METHOD = 'post';
     public const URL_SETTLEMENT = 'settlement';
 
+    /**
+     * @var bool
+     */
     protected bool $refundSupport = true;
+
+    /**
+     * @var bool
+     */
+    protected bool $settlementSupport = true;
 
     /**
      * @return array

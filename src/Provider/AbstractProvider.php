@@ -56,6 +56,12 @@ abstract class AbstractProvider implements ProviderContract
     protected bool $refundSupport = false;
 
     /**
+     * specifies whether the gateway supports transaction settlement or not
+     * @var bool
+     */
+    protected bool $settlementSupport = false;
+
+    /**
      * The custom Guzzle/SoapClient configuration options.
      *
      * @var array
@@ -71,10 +77,10 @@ abstract class AbstractProvider implements ProviderContract
     /**
      * AdapterAbstract constructor.
      *
-     * @param Transaction $transaction
-     * @param array $configs
-     * @param string $environment Shaparak module mode
-     * @param array $httpClientOptions
+     * @param  Transaction  $transaction
+     * @param  array  $configs
+     * @param  string  $environment  Shaparak module mode
+     * @param  array  $httpClientOptions
      */
     public function __construct(
         Transaction $transaction,
@@ -100,7 +106,7 @@ abstract class AbstractProvider implements ProviderContract
             'shaparak::goto-gate-form',
             array_merge($formParameters, [
                 'buttonLabel' => $this->getParameters('submit_label') ?: __("shaparak::shaparak.goto_gate"),
-                'autoSubmit' => (bool)$this->getParameters('auto_submit', true),
+                'autoSubmit' => (bool) $this->getParameters('auto_submit', true),
             ])
         );
     }
@@ -185,6 +191,14 @@ abstract class AbstractProvider implements ProviderContract
     /**
      * @inheritDoc
      */
+    public function settlementSupport(): bool
+    {
+        return $this->settlementSupport;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function checkRequiredActionParameters(array $parameters): void
     {
         $parameters = array_map('strtolower', $parameters);
@@ -197,7 +211,7 @@ abstract class AbstractProvider implements ProviderContract
     }
 
     /**
-     * @param string $action
+     * @param  string  $action
      *
      * @return SoapClient
      * @throws SoapFault|Exception
@@ -271,7 +285,7 @@ abstract class AbstractProvider implements ProviderContract
         $reflect = new ReflectionClass($this);
         $provider = strtolower(str_replace('Provider', '', $reflect->getShortName()));
 
-        $message = $provider . ": " . $message;
+        $message = $provider.": ".$message;
 
         Shaparak::log($message, $params, $level);
     }
