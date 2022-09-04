@@ -18,7 +18,15 @@ class AsanPardakhtProvider extends AbstractProvider
     public const POST_METHOD = 'post';
     public const URL_SETTLEMENT = 'settlement';
 
+    /**
+     * @var bool
+     */
     protected bool $refundSupport = true;
+
+    /**
+     * @var bool
+     */
+    protected bool $settlementSupport = true;
 
     /**
      * @return array
@@ -65,28 +73,44 @@ class AsanPardakhtProvider extends AbstractProvider
                 {
                     return 'https:///ipgrest.asanpardakht.ir/v1/Settlement';
                 }
+                case self::URL_REFUND:
+                {
+                    return 'https:///ipgrest.asanpardakht.ir/v1/Reverse';
+                }
+                case self::URL_CANSEL:
+                {
+                    return 'https:///ipgrest.asanpardakht.ir/v1/Cancel';
+                }
             }
         } else {
             switch ($action) {
                 case self::URL_GATEWAY:
                 {
-                    return $this->bankTestBaseUrl . '/ap/asan.shaparak.ir';
+                    return $this->bankTestBaseUrl.'/ap/asan.shaparak.ir';
                 }
                 case self::URL_TOKEN:
                 {
-                    return $this->bankTestBaseUrl . '/ap/ipgrest.asanpardakht.ir/v1/Token';
+                    return $this->bankTestBaseUrl.'/ap/ipgrest.asanpardakht.ir/v1/Token';
                 }
                 case self::URL_VERIFY:
                 {
-                    return $this->bankTestBaseUrl . '/ap/ipgrest.asanpardakht.ir/v1/Verify';
+                    return $this->bankTestBaseUrl.'/ap/ipgrest.asanpardakht.ir/v1/Verify';
                 }
                 case self::URL_RESULT:
                 {
-                    return $this->bankTestBaseUrl . '/ap/ipgrest.asanpardakht.ir/v1/TranResult';
+                    return $this->bankTestBaseUrl.'/ap/ipgrest.asanpardakht.ir/v1/TranResult';
                 }
                 case self::URL_SETTLEMENT:
                 {
-                    return $this->bankTestBaseUrl . '/ap/ipgrest.asanpardakht.ir/v1/Settlement';
+                    return $this->bankTestBaseUrl.'/ap/ipgrest.asanpardakht.ir/v1/Settlement';
+                }
+                case self::URL_REFUND:
+                {
+                    return $this->bankTestBaseUrl.'/ap/ipgrest.asanpardakht.ir/v1/Reverse';
+                }
+                case self::URL_CANSEL:
+                {
+                    return $this->bankTestBaseUrl.'/ap/ipgrest.asanpardakht.ir/v1/Cancel';
                 }
             }
         }
@@ -148,16 +172,16 @@ class AsanPardakhtProvider extends AbstractProvider
             'merchantConfigurationId' => $this->getParameters('terminal_id'),
             'localInvoiceId' => $this->getGatewayOrderId(),
             'amountInRials' => $this->getAmount(),
-            'localDate' => $this->getParameters('local_date') . ' ' . $this->getParameters('local_time'),
+            'localDate' => $this->getParameters('local_date').' '.$this->getParameters('local_time'),
             'callbackURL' => $this->getCallbackUrl(),
             'paymentId' => 0,
         ];
     }
 
     /**
-     * @param array $params
-     * @param string $url
-     * @param string $method
+     * @param  array  $params
+     * @param  string  $url
+     * @param  string  $method
      * @return mixed
      */
     public function sendParamToAp(array $params, string $url, string $method): mixed
@@ -200,7 +224,7 @@ class AsanPardakhtProvider extends AbstractProvider
             $this->log($e->getMessage(), [], 'error');
 
             throw new VerificationException(
-                'verifyTransaction: ' . $e->getMessage() . ' #' . $e->getCode(),
+                'verifyTransaction: '.$e->getMessage().' #'.$e->getCode(),
                 $e->getCode()
             );
         }
@@ -228,9 +252,8 @@ class AsanPardakhtProvider extends AbstractProvider
             $this->getTransaction()->setReferenceId($response->json('refID'));
 
             return true;
-        } else {
-            throw new Exception(sprintf('shaparak::asanpardakhtRest.error_%s', $response->status()));
         }
+        return false;
     }
 
     /**
@@ -266,7 +289,7 @@ class AsanPardakhtProvider extends AbstractProvider
         } catch (\Exception $e) {
             $this->log($e->getMessage(), [], 'error');
             throw new SettlementException(
-                'settleTransaction: ' . $e->getMessage() . ' #' . $e->getCode(),
+                'settleTransaction: '.$e->getMessage().' #'.$e->getCode(),
                 $e->getCode()
             );
         }
@@ -285,16 +308,21 @@ class AsanPardakhtProvider extends AbstractProvider
             'password',
             'terminal_id',
         ]);
-
         if ($this->getTransaction()->isReadyForRefund() === false) {
-            throw new RefundException('shaparak::shaparak.could_not_refund_payment');
+            throw new RefundException(trans('shaparak::shaparak.could_not_refund_payment'));
         }
 
         try {
-            $response = $this->generateComplementaryOperation(self::URL_REFUND);
+            if ($this->getTransaction()->isReadyForReverse()) {
+                $response = $this->generateComplementaryOperation(self::URL_REFUND);
+            } elseif ($this->getTransaction()->isReadyForCancel()) {
+                $response = $this->generateComplementaryOperation(self::URL_CANSEL);
+            } else {
+                throw new RefundException(trans('shaparak::shaparak.could_not_refund_payment'));
+            }
 
             if ($response !== true) {
-                throw new Exception('shaparak::asanpardakht.could_not_refund_transaction');
+                throw new Exception(trans('shaparak::shaparak.refund_payment_already_exist'));
             }
 
             $this->getTransaction()->setRefunded(true);
@@ -304,7 +332,7 @@ class AsanPardakhtProvider extends AbstractProvider
             $this->log($e->getMessage(), [], 'error');
 
             throw new RefundException(
-                'refundTransaction: ' . $e->getMessage() . ' #' . $e->getCode(),
+                'refundTransaction: '.$e->getMessage().' #'.$e->getCode(),
                 $e->getCode()
             );
         }
