@@ -26,8 +26,10 @@ abstract class AbstractProvider implements ProviderContract
     public const URL_TOKEN = 'token';
     public const URL_VERIFY = 'verify';
     public const URL_REFUND = 'refund';
+    public const URL_CANSEL = 'cansel';
     public const URL_MULTIPLEX = 'multiplex';
 
+    protected bool $provideTransactionResult = true;
     /**
      * shaparak operation environment
      *
@@ -272,5 +274,13 @@ abstract class AbstractProvider implements ProviderContract
         $message = $provider . ": " . $message;
 
         Shaparak::log($message, $params, $level);
+    }
+
+    /**
+     * @return bool
+     */
+    public function getTransactionResult(): bool
+    {
+        return $this->provideTransactionResult;
     }
 }
