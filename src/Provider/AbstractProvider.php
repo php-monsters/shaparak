@@ -306,4 +306,13 @@ abstract class AbstractProvider implements ProviderContract
     {
         return $this->provideTransactionResult;
     }
+
+    /**
+     * @param  array  $parameters
+     * @return bool
+     */
+    public function setCallBackParameters(array $parameters): bool
+    {
+        return $this->getTransaction()->setCallBackParameters($parameters);
+    }
 }
