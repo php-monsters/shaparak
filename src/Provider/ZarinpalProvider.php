@@ -142,7 +142,6 @@ class ZarinpalProvider extends AbstractProvider
 
         $this->checkRequiredActionParameters([
             'merchant_id',
-            'amount',
             'authority',
         ]);
 
@@ -153,7 +152,7 @@ class ZarinpalProvider extends AbstractProvider
         $response = Http::acceptJson()->post($this->getUrlFor(self::URL_VERIFY), [
             'merchant_id' => $this->getParameters('merchant_id'),
             'authority' => $this->getParameters('authority'),
-            'amount' => $this->getAmount(),
+            'amount' => $this->getTransaction()->getPayableAmount(),
         ]);
 
         if ($response->successful()) {
