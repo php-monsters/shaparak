@@ -3,6 +3,7 @@
 namespace PhpMonsters\Shaparak\Provider;
 
 use SoapFault;
+use Exception;
 
 class ParsianProvider extends AbstractProvider
 {
@@ -182,7 +183,7 @@ class ParsianProvider extends AbstractProvider
                 'Token',
                 'Status',
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
 
@@ -234,23 +235,23 @@ class ParsianProvider extends AbstractProvider
             switch ($action) {
                 case self::URL_GATEWAY:
                 {
-                    return $this->bankTestBaseUrl . '/gateway/Parsian/NewIPGq';
+                    return $this->bankTestBaseUrl . '/parsian/pec.shaparak.ir/NewIPG';
                 }
                 case self::URL_SALE :
                 {
-                    return $this->bankTestBaseUrl . '/gateway/Parsian/NewIPGServices/Sale/SaleService.asmx?WSDL';
+                    return $this->bankTestBaseUrl . '/parsian/pec.shaparak.ir/NewIPGServices/Sale/SaleService.asmx?wsdl';
                 }
                 case self::URL_CONFIRM :
                 {
-                    return $this->bankTestBaseUrl . '/gateway/Parsian/NewIPGServices/Confirm/ConfirmService.asmx?WSDL';
+                    return $this->bankTestBaseUrl . '/parsian/pec.shaparak.ir/NewIPGServices/Confirm/ConfirmService.asmx?wsdl';
                 }
                 case self::URL_REFUND :
                 {
-                    return $this->bankTestBaseUrl . '/gateway/Parsian/NewIPGServices/Reverse/ReversalService.asmx?WSDL';
+                    return $this->bankTestBaseUrl . '/parsian/pec.shaparak.ir/NewIPGServices/Reverse/ReversalService.asmx?wsdl';
                 }
                 case self::URL_MULTIPLEX:
                 {
-                    return $this->bankTestBaseUrl . '/gateway/Parsian/NewIPGServices/MultiplexedSale/OnlineMultiplexedSalePaymentService.asmx?WSDL';
+                    return $this->bankTestBaseUrl . '/parsian/pec.shaparak.ir/NewIPGServices/MultiplexedSale/OnlineMultiplexedSalePaymentService.asmx?wsdl';
                 }
             }
         }
