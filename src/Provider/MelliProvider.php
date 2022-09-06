@@ -205,15 +205,15 @@ class MelliProvider extends AbstractProvider
             switch ($action) {
                 case self::URL_GATEWAY:
                 {
-                    return $this->bankTestBaseUrl . '/gateway/melli/purchase';
+                    return $this->bankTestBaseUrl . '/melli/sadad.shaparak.ir/VPG/Purchase';
                 }
                 case self::URL_TOKEN :
                 {
-                    return $this->bankTestBaseUrl . '/gateway/melli/payment-request';
+                    return $this->bankTestBaseUrl . '/melli/sadad.shaparak.ir/VPG/api/v0/Request/PaymentRequest';
                 }
                 case self::URL_VERIFY :
                 {
-                    return $this->bankTestBaseUrl . '/gateway/melli/verify';
+                    return $this->bankTestBaseUrl . '/melli/sadad.shaparak.ir/VPG/api/v0/Advice/Verify';
                 }
             }
         }
