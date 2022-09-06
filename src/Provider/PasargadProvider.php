@@ -3,6 +3,7 @@
 
 namespace PhpMonsters\Shaparak\Provider;
 
+use Illuminate\Support\Facades\Http;
 use PhpMonsters\Shaparak\Helper\Pasargad\RSAKeyType;
 use PhpMonsters\Shaparak\Helper\Pasargad\RSAProcessor;
 
