@@ -12,7 +12,9 @@ class PasargadProvider extends AbstractProvider
     public const URL_CHECK = 'check';
     public const UPDATE_SUBPAYMENT = 'UpdateInvoiceSubPayment';
     public const GET_SUBPAYMENT = 'GetSubPaymentsReport';
-    protected const GET_TOKEN_ACTION = 1003;
+    protected const ACTION_GET_TOKEN = 1003;
+    protected const ACTION_VERIFY = 1000;
+    protected const ACTION_REFUND = 1004;
     protected bool $refundSupport = true;
 
     /**
@@ -35,6 +37,77 @@ class PasargadProvider extends AbstractProvider
                 'n' => $this->requestToken()
             ],
         ];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getUrlFor(string $action): string
+    {
+        if ($this->environment === 'production') {
+            switch ($action) {
+                case self::URL_GATEWAY:
+                {
+                    return 'https://pep.shaparak.ir/gateway.aspx';
+                }
+                case self::URL_TOKEN:
+                {
+                    return 'https://pep.shaparak.ir/Api/v1/Payment/GetToken';
+                }
+                case self::URL_CHECK:
+                {
+                    return 'https://pep.shaparak.ir/Api/v1/Payment/CheckTransactionResult';
+                }
+                case self::URL_VERIFY:
+                {
+                    return 'https://pep.shaparak.ir/Api/v1/Payment/VerifyPayment';
+                }
+                case self::URL_REFUND:
+                {
+                    return 'https://pep.shaparak.ir/Api/v1/Payment/RefundPayment';
+                }
+                case self::UPDATE_SUBPAYMENT:
+                {
+                    return 'https://pep.shaparak.ir/Api/v1/Payment/UpdateInvoiceSubPayment';
+                }
+                case self::GET_SUBPAYMENT:
+                {
+                    return 'https://pep.shaparak.ir/Api/v1/Payment/GetSubPaymentsReport';
+                }
+            }
+        } else {
+            switch ($action) {
+                case self::URL_GATEWAY:
+                {
+                    return $this->bankTestBaseUrl.'/pasargad/pep.shaparak.ir/gateway.aspx';
+                }
+                case self::URL_TOKEN:
+                {
+                    return $this->bankTestBaseUrl.'/pasargad/pep.shaparak.ir/Api/v1/Payment/GetToken';
+                }
+                case self::URL_CHECK:
+                {
+                    return $this->bankTestBaseUrl.'/pasargad/pep.shaparak.ir/Api/v1/Payment/CheckTransactionResult';
+                }
+                case self::URL_VERIFY:
+                {
+                    return $this->bankTestBaseUrl.'/pasargad/pep.shaparak.ir/Api/v1/Payment/VerifyPayment';
+                }
+                case self::URL_REFUND:
+                {
+                    return $this->bankTestBaseUrl.'/pasargad/pep.shaparak.ir/Api/v1/Payment/RefundPayment';
+                }
+                case self::UPDATE_SUBPAYMENT:
+                {
+                    return $this->bankTestBaseUrl.'/pasargad/pep.shaparak.ir/Api/v1/Payment/UpdateInvoiceSubPayment';
+                }
+                case self::GET_SUBPAYMENT:
+                {
+                    return $this->bankTestBaseUrl.'/pasargad/pep.shaparak.ir/Api/v1/Payment/GetSubPaymentsReport';
+                }
+            }
+        }
+        throw new Exception("could not find url for {$action} action");
     }
 
     /**
@@ -64,6 +137,7 @@ class PasargadProvider extends AbstractProvider
         $invoiceDate = date("Y/m/d H:i:s", strtotime($this->getTransaction()->created_at));
 
         $sign = $this->createTokenSignature(
+            self::ACTION_GET_TOKEN,
             $merchantCode,
             $terminalCode,
             $invoiceNumber,
@@ -83,7 +157,7 @@ class PasargadProvider extends AbstractProvider
                 'invoiceDate' => $invoiceDate,
                 'amount' => $amount,
                 'timeStamp' => $timeStamp,
-                'action' => self::GET_TOKEN_ACTION,
+                'action' => self::ACTION_GET_TOKEN,
                 'terminalCode' => $terminalCode,
                 'merchantCode' => $merchantCode,
                 'redirectAddress' => $redirectAddress,
@@ -91,7 +165,7 @@ class PasargadProvider extends AbstractProvider
             ]);
 
         if ($response->successful()) {
-            if ((int)$response->json('IsSuccess') === true) {
+            if ((int) $response->json('IsSuccess') === true) {
                 return $response->json('token');
             }
 
@@ -108,13 +182,14 @@ class PasargadProvider extends AbstractProvider
      * @param $merchantCode
      * @param $terminalCode
      * @param $invoiceNumber
-     * @param string $invoiceDate
-     * @param int $amount
-     * @param string $redirectAddress
-     * @param string $timeStamp
+     * @param  string  $invoiceDate
+     * @param  int  $amount
+     * @param  string  $redirectAddress
+     * @param  string  $timeStamp
      * @return string
      */
     private function createTokenSignature(
+        string $action,
         $merchantCode,
         $terminalCode,
         $invoiceNumber,
@@ -123,17 +198,39 @@ class PasargadProvider extends AbstractProvider
         string $redirectAddress,
         string $timeStamp
     ): string {
-        $sign = "#" . $merchantCode . "#" . $terminalCode . "#" . $invoiceNumber . "#" . $invoiceDate . "#" . $amount .
-            "#" . $redirectAddress . "#" . self::GET_TOKEN_ACTION . "#" . $timeStamp . "#";
+        switch ($action) {
+            case self::ACTION_GET_TOKEN:
+            {
+                // request token
+                $sign = "#".$merchantCode."#".$terminalCode."#".$invoiceNumber."#".$invoiceDate."#".$amount.
+                    "#".$redirectAddress."#".$action."#".$timeStamp."#";
+                break;
+            }
+            case self::ACTION_VERIFY:
+            {
+                // verify transaction
+                $sign = "#".$merchantCode."#".$terminalCode."#".$invoiceNumber."#".$invoiceDate."#".$amount."#".$timeStamp."#";
+                break;
+            }
+            case self::ACTION_REFUND:
+            {
+                $sing = "#".$merchantCode."#".$terminalCode."#".$invoiceNumber."#".$invoiceDate."#".$amount."#".$action."#".$timeStamp."#";
+                break;
+            }
+            default:
+            {
+                throw new Exception("action {$action} is not valid!");
+                break;
+            }
+        }
 
-        $data = "#" . $merchantCode . "#" . $terminalCode . "#" . $invoiceNumber . "#" . $invoiceDate . "#" . $amount . "#" . $timeStamp . "#";
         $sign = sha1($sign, true);
         $sign = $this->getProcessor()->sign($sign); // digital signature
         return base64_encode($sign); // base64_encode
     }
 
     /**
-     * @param string $certificatePath
+     * @param  string  $certificatePath
      *
      * @return RSAProcessor
      */
@@ -141,69 +238,6 @@ class PasargadProvider extends AbstractProvider
     {
         $path = $certificatePath ?: $this->getParameters('certificate_path');
         return new RSAProcessor($path, RSAKeyType::XMLFile);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getUrlFor(string $action): string
-    {
-        if ($this->environment === 'production') {
-            switch ($action) {
-                case self::URL_GATEWAY:
-                {
-                    return 'https://pep.shaparak.ir/gateway.aspx';
-                }
-                case self::URL_CHECK:
-                {
-                    return 'https://pep.shaparak.ir/Api/v1/Payment/CheckTransactionResult';
-                }
-                case self::URL_VERIFY:
-                {
-                    return 'https://pep.shaparak.ir/Api/v1/Payment/VerifyPayment';
-                }
-                case self::URL_REFUND:
-                {
-                    return 'https://pep.shaparak.ir/Api/v1/Payment/RefundPayment';
-                }
-                case self::UPDATE_SUBPAYMENT:
-                {
-                    return 'https://pep.shaparak.ir/Api/v1/Payment/UpdateInvoiceSubPayment';
-                }
-                case self::GET_SUBPAYMENT:
-                {
-                    return 'https://pep.shaparak.ir/Api/v1/Payment/GetSubPaymentsReport';
-                }
-            }
-        } else {
-            switch ($action) {
-                case self::URL_GATEWAY:
-                {
-                    return $this->bankTestBaseUrl . '/pasargad/pep.shaparak.ir/gateway.aspx';
-                }
-                case self::URL_CHECK:
-                {
-                    return $this->bankTestBaseUrl . '/pasargad/pep.shaparak.ir/Api/v1/Payment/CheckTransactionResult';
-                }
-                case self::URL_VERIFY:
-                {
-                    return $this->bankTestBaseUrl . '/pasargad/pep.shaparak.ir/Api/v1/Payment/VerifyPayment';
-                }
-                case self::URL_REFUND:
-                {
-                    return $this->bankTestBaseUrl . '/pasargad/pep.shaparak.ir/Api/v1/Payment/RefundPayment';
-                }
-                case self::UPDATE_SUBPAYMENT:
-                {
-                    return $this->bankTestBaseUrl . '/pasargad/pep.shaparak.ir/Api/v1/Payment/UpdateInvoiceSubPayment';
-                }
-                case self::GET_SUBPAYMENT:
-                {
-                    return $this->bankTestBaseUrl . '/pasargad/pep.shaparak.ir/Api/v1/Payment/GetSubPaymentsReport';
-                }
-            }
-        }
-        throw new Exception("could not find url for {$action} action");
     }
 
     /**
@@ -267,7 +301,7 @@ class PasargadProvider extends AbstractProvider
                 true
             ); // update transaction reference id
         } else {
-            throw new Exception('could not verify transaction with callback tref: ' . $this->getParameters('tref'));
+            throw new Exception('could not verify transaction with callback tref: '.$this->getParameters('tref'));
         }
 
         $terminalCode = $this->getParameters('terminal_id');
@@ -277,11 +311,16 @@ class PasargadProvider extends AbstractProvider
         $amount = $this->getAmount();
         $timeStamp = date("Y/m/d H:i:s");
 
-        $data = "#" . $merchantCode . "#" . $terminalCode . "#" . $invoiceNumber . "#" . $invoiceDate . "#" . $amount . "#" . $timeStamp . "#";
-
-        $data = sha1($data, true);
-        $data = $this->getProcessor()->sign($data); // digital signature
-        $sign = base64_encode($data); // base64_encode
+        $sign = $this->createTokenSignature(
+            self::ACTION_VERIFY,
+            $merchantCode,
+            $terminalCode,
+            $invoiceNumber,
+            $invoiceDate,
+            $amount,
+            null,
+            $timeStamp
+        );
 
         $parameters = compact(
             'terminalCode',
@@ -299,7 +338,7 @@ class PasargadProvider extends AbstractProvider
 
         $info = $curl->getTransferInfo();
 
-        if ((int)$info['http_code'] === 200) {
+        if ((int) $info['http_code'] === 200) {
             $result = self::parseXML($response, [
                 'invoiceNumber' => $this->getParameters('iN'),
                 'invoiceDate' => $this->getParameters('iD'),
@@ -325,9 +364,9 @@ class PasargadProvider extends AbstractProvider
     /**
      * XML parser
      *
-     * @param string $data
+     * @param  string  $data
      *
-     * @param array $extra
+     * @param  array  $extra
      *
      * @return array
      */
@@ -357,7 +396,7 @@ class PasargadProvider extends AbstractProvider
                         $val['value'] = $temp[$val['tag']];
                     }
 
-                    @eval("\$ret['" . implode("']['", $hash_stack) . "'] = '{$val['value']}';");
+                    @eval("\$ret['".implode("']['", $hash_stack)."'] = '{$val['value']}';");
                     array_pop($hash_stack);
                     break;
             }
@@ -391,13 +430,18 @@ class PasargadProvider extends AbstractProvider
         $invoiceDate = $this->getParameters('iD');
         $amount = $this->getAmount();
         $timeStamp = date("Y/m/d H:i:s");
-        $action = 1004; // reverse code
+        $action = self::ACTION_REFUND; // reverse code
 
-        $data = "#" . $merchantCode . "#" . $terminalCode . "#" . $invoiceNumber . "#" . $invoiceDate . "#" . $amount . "#" . $action . "#" . $timeStamp . "#";
-
-        $data = sha1($data, true);
-        $data = $this->getProcessor()->sign($data); // digital signature
-        $sign = base64_encode($data); // base64_encode
+        $sign = $this->createTokenSignature(
+            self::ACTION_VERIFY,
+            $merchantCode,
+            $terminalCode,
+            $invoiceNumber,
+            $invoiceDate,
+            $amount,
+            null,
+            $timeStamp
+        );
 
         $parameters = compact(
             'terminalCode',
@@ -416,7 +460,7 @@ class PasargadProvider extends AbstractProvider
 
         $info = $curl->getTransferInfo();
 
-        if ((int)$info['http_code'] === 200) {
+        if ((int) $info['http_code'] === 200) {
             $result = self::parseXML($response, [
                 'invoiceNumber' => $this->getParameters('iN'),
                 'invoiceDate' => $this->getParameters('iD'),
