@@ -68,6 +68,7 @@ class SamanProvider extends AbstractProvider
             'parameters' => [
                 'Token'       => $token,
                 'RedirectURL' => $this->getCallbackUrl(),
+                'getmethod'   => (bool) $this->getParameters('get_method', true)
             ],
         ];
     }
