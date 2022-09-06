@@ -18,6 +18,7 @@ class MellatProvider extends AbstractProvider
      */
     protected function requestToken(): string
     {
+
         $transaction = $this->getTransaction();
 
         if ($transaction->isReadyForTokenRequest() === false) {
@@ -44,7 +45,7 @@ class MellatProvider extends AbstractProvider
         ];
 
         try {
-            $soapClient = $this->getSoapClient(self::URL_VERIFY);
+            $soapClient = $this->getSoapClient(self::URL_TOKEN);
 
             $response = $soapClient->bpPayRequest($sendParams);
 
@@ -335,24 +336,24 @@ class MellatProvider extends AbstractProvider
         if ($this->environment === 'production') {
             switch ($action) {
                 case self::URL_GATEWAY:
-                    {
-                        return 'https://bpm.shaparak.ir/pgwchannel/startpay.mellat';
-                    }
+                {
+                    return 'https://bpm.shaparak.ir/pgwchannel/startpay.mellat';
+                }
                 default:
-                    {
-                        return 'https://bpm.shaparak.ir/pgwchannel/services/pgw?wsdl';
-                    }
+                {
+                    return 'https://bpm.shaparak.ir/pgwchannel/services/pgw?wsdl';
+                }
             }
         } else {
             switch ($action) {
                 case self::URL_GATEWAY:
-                    {
-                        return 'https://banktest.ir/gateway/mellat/gate';
-                    }
+                {
+                    return $this->bankTestBaseUrl . '/mellat/bpm.shaparak.ir/pgwchannel/startpay.mellat';
+                }
                 default:
-                    {
-                        return 'https://banktest.ir/gateway/mellat/ws?wsdl';
-                    }
+                {
+                    return $this->bankTestBaseUrl . '/mellat/bpm.shaparak.ir/pgwchannel/services/pgw?wsdl';
+                }
             }
         }
     }
