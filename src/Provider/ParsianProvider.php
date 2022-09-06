@@ -156,7 +156,7 @@ class ParsianProvider extends AbstractProvider
 
             if (isset($response->ReversalRequestResult, $response->ReversalRequestResult->Status)) {
                 if ((int)$response->ReversalRequestResult->Status === 0) {
-                    $this->getTransaction()->setRefunded();
+                    $this->getTransaction()->setRefunded(true);
 
                     return true;
                 }

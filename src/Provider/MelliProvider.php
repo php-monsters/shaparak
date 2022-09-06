@@ -133,8 +133,8 @@ class MelliProvider extends AbstractProvider
                 foreach ($response as $k => $v) {
                     $this->getTransaction()->addExtra($k, $v, false);
                 }
-                $this->getTransaction()->setCardNumber($this->getParameters('accNoVal', @$response->accNoVal), false);
-                $this->getTransaction()->save();
+                //$this->getTransaction()->setCardNumber($this->getParameters('accNoVal', @$response->accNoVal), false);
+                $this->getTransaction()->setVerified(true);
 
                 return true;
             }

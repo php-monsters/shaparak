@@ -224,7 +224,7 @@ class MellatProvider extends AbstractProvider
 
             if (isset($response->return) && is_numeric($response->return)) {
                 if ((int) $response->return === 0 || (int) $response->return === 45) {
-                    $this->getTransaction()->setSettled();
+                    $this->getTransaction()->setSettled(true);
 
                     return true;
                 }
@@ -276,7 +276,7 @@ class MellatProvider extends AbstractProvider
 
             if (isset($response->return) && is_numeric($response->return)) {
                 if ((int) $response->return === 0 || (int) $response->return === 45) {
-                    $this->getTransaction()->setRefunded();
+                    $this->getTransaction()->setRefunded(true);
 
                     return true;
                 }
