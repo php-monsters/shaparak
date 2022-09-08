@@ -63,23 +63,23 @@ class AsanPardakhtProvider extends AbstractProvider
                 }
                 case self::URL_VERIFY:
                 {
-                    return 'https:///ipgrest.asanpardakht.ir/v1/Verify';
+                    return 'https://ipgrest.asanpardakht.ir/v1/Verify';
                 }
                 case self::URL_RESULT:
                 {
-                    return 'https:///ipgrest.asanpardakht.ir/v1/TranResult';
+                    return 'https://ipgrest.asanpardakht.ir/v1/TranResult';
                 }
                 case self::URL_SETTLEMENT:
                 {
-                    return 'https:///ipgrest.asanpardakht.ir/v1/Settlement';
+                    return 'https://ipgrest.asanpardakht.ir/v1/Settlement';
                 }
                 case self::URL_REFUND:
                 {
-                    return 'https:///ipgrest.asanpardakht.ir/v1/Reverse';
+                    return 'https://ipgrest.asanpardakht.ir/v1/Reverse';
                 }
                 case self::URL_CANCEL:
                 {
-                    return 'https:///ipgrest.asanpardakht.ir/v1/Cancel';
+                    return 'https://ipgrest.asanpardakht.ir/v1/Cancel';
                 }
             }
         } else {
