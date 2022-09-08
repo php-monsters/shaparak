@@ -75,7 +75,6 @@ class PasargadProvider extends AbstractProvider
 
     /**
      * @inheritDoc
-     * @throws Exception|\Samuraee\EasyCurl\Exception
      */
     public function verifyTransaction(): bool
     {
@@ -123,11 +122,12 @@ class PasargadProvider extends AbstractProvider
 
             return true;
         }
+
+        throw new Exception('shaparak::shaparak.verify_failed');
     }
 
     /**
      * @inheritDoc
-     * @throws Exception|\Samuraee\EasyCurl\Exception
      */
     public function refundTransaction(): bool
     {
@@ -161,6 +161,8 @@ class PasargadProvider extends AbstractProvider
 
             return true;
         }
+
+        throw new Exception('shaparak::shaparak.refund_failed');
     }
 
     private function callApi(string $url, array $body, $method = 'post'): array
