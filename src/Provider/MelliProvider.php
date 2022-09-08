@@ -43,7 +43,7 @@ class MelliProvider extends AbstractProvider
 
         $resCode = $response->json('ResCode');
         if (is_numeric($resCode) && (int)$resCode === 0) {
-            $transaction->setGatewayToken($response->Token, true); // update transaction reference id
+            $transaction->setGatewayToken($response->json('Token'), true); // update transaction reference id
             return $response->json('Token');
         }
 
@@ -56,14 +56,12 @@ class MelliProvider extends AbstractProvider
      */
     public function getFormParameters(): array
     {
-        $token = $this->requestToken();
-
         return [
             'gateway'    => 'melli',
             'method'     => 'get',
             'action'     => $this->getUrlFor(self::URL_GATEWAY),
             'parameters' => [
-                'Token' => $token,
+                'Token' => $this->requestToken(),
             ],
         ];
     }
