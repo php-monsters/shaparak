@@ -25,7 +25,7 @@ abstract class AbstractProvider implements ProviderContract
     public const URL_TOKEN = 'token';
     public const URL_VERIFY = 'verify';
     public const URL_REFUND = 'refund';
-    public const URL_CANSEL = 'cansel';
+    public const URL_CANCEL = 'cansel';
     public const URL_MULTIPLEX = 'multiplex';
 
     protected bool $provideTransactionResult = true;

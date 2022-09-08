@@ -77,7 +77,7 @@ class AsanPardakhtProvider extends AbstractProvider
                 {
                     return 'https:///ipgrest.asanpardakht.ir/v1/Reverse';
                 }
-                case self::URL_CANSEL:
+                case self::URL_CANCEL:
                 {
                     return 'https:///ipgrest.asanpardakht.ir/v1/Cancel';
                 }
@@ -108,7 +108,7 @@ class AsanPardakhtProvider extends AbstractProvider
                 {
                     return $this->bankTestBaseUrl.'/ap/ipgrest.asanpardakht.ir/v1/Reverse';
                 }
-                case self::URL_CANSEL:
+                case self::URL_CANCEL:
                 {
                     return $this->bankTestBaseUrl.'/ap/ipgrest.asanpardakht.ir/v1/Cancel';
                 }
@@ -315,7 +315,7 @@ class AsanPardakhtProvider extends AbstractProvider
             if ($this->getTransaction()->isReadyForReverse()) {
                 $response = $this->generateComplementaryOperation(self::URL_REFUND);
             } elseif ($this->getTransaction()->isReadyForCancel()) {
-                $response = $this->generateComplementaryOperation(self::URL_CANSEL);
+                $response = $this->generateComplementaryOperation(self::URL_CANCEL);
             } else {
                 throw new RefundException(__('shaparak::shaparak.could_not_refund_payment'));
             }
