@@ -7,7 +7,6 @@ use PhpMonsters\Shaparak\Contracts\Provider as ProviderContract;
 use PhpMonsters\Shaparak\Contracts\Transaction;
 use PhpMonsters\Shaparak\Facades\Shaparak;
 use ReflectionClass;
-use Samuraee\EasyCurl\EasyCurl;
 use SoapClient;
 use SoapFault;
 
@@ -237,24 +236,6 @@ abstract class AbstractProvider implements ProviderContract
      * @inheritDoc
      */
     abstract public function getUrlFor(string $action): string;
-
-    /**
-     * return a Curl Wrapper
-     * @return EasyCurl
-     */
-    protected function getCurl(): EasyCurl
-    {
-        $httpOptions = $this->httpClientOptions ? $this->httpClientOptions['curl'] : [];
-        $curl = new EasyCurl();
-        // set curl options if require. see shaparak config
-        if (!empty($httpOptions)) {
-            foreach ($httpOptions as $k => $v) {
-                $curl->addOption($k, $v);
-            }
-        }
-
-        return $curl;
-    }
 
     /**
      * fetches callback url from parameters

@@ -9,7 +9,6 @@ class MelliProvider extends AbstractProvider
     /**
      * @inheritDoc
      * @throws Exception
-     * @throws \Samuraee\EasyCurl\Exception
      */
     protected function requestToken(): string
     {
@@ -54,7 +53,6 @@ class MelliProvider extends AbstractProvider
     /**
      * @inheritDoc
      * @throws Exception
-     * @throws \Samuraee\EasyCurl\Exception
      */
     public function getFormParameters(): array
     {
@@ -73,7 +71,6 @@ class MelliProvider extends AbstractProvider
     /**
      * @inheritDoc
      * @throws Exception
-     * @throws \Samuraee\EasyCurl\Exception
      */
     public function verifyTransaction(): bool
     {
