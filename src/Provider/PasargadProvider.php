@@ -13,8 +13,6 @@ class PasargadProvider extends AbstractProvider
     public const UPDATE_SUBPAYMENT = 'UpdateInvoiceSubPayment';
     public const GET_SUBPAYMENT = 'GetSubPaymentsReport';
     protected const ACTION_GET_TOKEN = 1003;
-    protected const ACTION_VERIFY = 1000;
-    protected const ACTION_REFUND = 1004;
     protected bool $refundSupport = true;
 
     /**
@@ -37,6 +35,212 @@ class PasargadProvider extends AbstractProvider
                 'n' => $this->requestToken()
             ],
         ];
+    }
+
+    /**
+     * @inheritDoc
+     * @throws Exception
+     */
+    public function requestToken(): string
+    {
+        $this->log(__METHOD__);
+        $transaction = $this->getTransaction();
+
+        if ($transaction->isReadyForTokenRequest() === false) {
+            throw new Exception('transaction is not ready for requesting token from payment gateway');
+        }
+
+        $this->checkRequiredActionParameters([
+            'terminal_id',
+            'merchant_id',
+            'certificate_path',
+        ]);
+
+        $response = $this->callApi($this->getUrlFor(self::URL_TOKEN), [
+            'invoicenumber' => $this->getGatewayOrderId(),
+            'invoiceDate' => date("Y/m/d H:i:s", strtotime($this->getTransaction()->created_at)),
+            'amount' => $this->getAmount(),
+            'terminalCode' => $this->getParameters('terminal_id'),
+            'merchantCode' => $this->getParameters('merchant_id'),
+            'redirectAddress' => $this->getCallbackUrl(),
+            'timeStamp' => date("Y/m/d H:i:s"),
+            'action' => self::ACTION_GET_TOKEN,
+            'subpaymentlist' => $this->getParameters('subpaymentlist')
+        ]);
+
+        $this->log(__METHOD__, $response);
+
+        return $response['Token'];
+    }
+
+    /**
+     * @inheritDoc
+     * @throws Exception|\Samuraee\EasyCurl\Exception
+     */
+    public function verifyTransaction(): bool
+    {
+        $this->log(__METHOD__);
+
+        if ($this->getTransaction()->isReadyForVerify() === false) {
+            throw new Exception('shaparak::shaparak.could_not_verify_transaction');
+        }
+
+        $this->checkRequiredActionParameters([
+            'terminal_id',
+            'merchant_id',
+            'certificate_path',
+            'iN',
+            'iD',
+            'tref',
+        ]);
+
+        // update transaction reference number
+        if (!empty($this->getParameters('tref'))) {
+            $this->getTransaction()->setGatewayToken(
+                $this->getParameters('tref'),
+                true
+            ); // update transaction reference id
+        } else {
+            throw new Exception('could not verify transaction without tref');
+        }
+
+        $response = $this->callApi($this->getUrlFor(self::URL_VERIFY), [
+            'merchantCode' => $this->getParameters('merchant_id'),
+            'terminalCode' => $this->getParameters('terminal_id'),
+            'invoiceNumber' => $this->getParameters('iN'),
+            'invoiceDate' => $this->getParameters('iD'),
+            'amount' => $this->getAmount(),
+            'timeStamp' => date("Y/m/d H:i:s"),
+        ]);
+
+        $this->log(__METHOD__, $response);
+
+        if ($response['IsSuccess'] === true) {
+            $this->getTransaction()->setCardNumber($response['MaskedCardNumber'], false); // no save()
+            $this->getTransaction()->addExtra('HashedCardNumber', $response['HashedCardNumber'], false);
+            $this->getTransaction()->addExtra('ShaparakRefNumber', $response['ShaparakRefNumber'], false);
+            $this->getTransaction()->setVerified();
+
+            return true;
+        }
+    }
+
+    /**
+     * @inheritDoc
+     * @throws Exception|\Samuraee\EasyCurl\Exception
+     */
+    public function refundTransaction(): bool
+    {
+        $this->log(__METHOD__);
+
+        if ($this->getTransaction()->isReadyForRefund() === false) {
+            throw new Exception('shaparak::shaparak.could_not_refund_transaction');
+        }
+
+        $this->checkRequiredActionParameters([
+            'terminal_id',
+            'merchant_id',
+            'certificate_path',
+            'iN',
+            'iD',
+            'tref',
+        ]);
+
+        $response = $this->callApi($this->getUrlFor(self::URL_REFUND), [
+            'invoiceNumber' => $this->getParameters('iN'),
+            'invoiceDate' => $this->getParameters('iD'),
+            'terminalCode' => $this->getParameters('terminal_id'),
+            'merchantCode' => $this->getParameters('merchant_id'),
+            'timeStamp' => date("Y/m/d H:i:s"),
+        ]);
+
+        $this->log(__METHOD__, $response);
+
+        if ($response['IsSuccess'] === true) {
+            $this->getTransaction()->setRefunded();
+
+            return true;
+        }
+    }
+
+    private function callApi(string $url, array $body, $method = 'post'): array
+    {
+        $sign = $this->sign(json_encode($body));
+
+        $this->log("callApi({$url}) Sign: {$sign}", $body);
+
+        $response = Http::contentType('application/json')
+            ->acceptJson()
+            ->withHeaders([
+                'Sign' => $sign,
+            ])
+            ->throw()
+            ->{$method}($url, $body);
+
+
+        $this->log($response->json('Message'), $response->json());
+
+        if ($response->json('IsSuccess') === false) {
+            throw new Exception(($response->json('Message') ?? 'Invalid Pasargad response!'));
+        }
+
+        return $response->json();
+    }
+
+    /**
+     * @param  string  $string
+     * @return string
+     */
+    private function sign(string $string): string
+    {
+        $string = sha1($string, true);
+        $string = $this->getProcessor()->sign($string); // digital signature
+        return base64_encode($string); // base64_encode
+    }
+
+    /**
+     * @param  string  $certificatePath
+     *
+     * @return RSAProcessor
+     */
+    private function getProcessor(string $certificatePath = null): RSAProcessor
+    {
+        $path = $certificatePath ?: $this->getParameters('certificate_path');
+        return new RSAProcessor($path, RSAKeyType::XMLFile);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function canContinueWithCallbackParameters(): bool
+    {
+        try {
+            $this->checkRequiredActionParameters([
+                'iN',
+                'iD',
+                'tref',
+            ]);
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        if (!empty($this->getParameters('tref'))) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getGatewayReferenceId(): string
+    {
+        $this->checkRequiredActionParameters([
+            'tref',
+        ]);
+
+        return $this->getParameters('tref');
     }
 
     /**
@@ -108,378 +312,5 @@ class PasargadProvider extends AbstractProvider
             }
         }
         throw new Exception("could not find url for {$action} action");
-    }
-
-    /**
-     * @inheritDoc
-     * @throws Exception
-     */
-    protected function requestToken(): string
-    {
-        $transaction = $this->getTransaction();
-
-        if ($transaction->isReadyForTokenRequest() === false) {
-            throw new Exception('transaction is not ready for requesting token from payment gateway');
-        }
-
-        $this->checkRequiredActionParameters([
-            'terminal_id',
-            'merchant_id',
-            'certificate_path',
-        ]);
-
-        $terminalCode = $this->getParameters('terminal_id');
-        $merchantCode = $this->getParameters('merchant_id');
-        $redirectAddress = $this->getCallbackUrl();
-        $invoiceNumber = $this->getGatewayOrderId();
-        $amount = $this->getAmount();
-        $timeStamp = date("Y/m/d H:i:s");
-        $invoiceDate = date("Y/m/d H:i:s", strtotime($this->getTransaction()->created_at));
-
-        $sign = $this->createTokenSignature(
-            self::ACTION_GET_TOKEN,
-            $merchantCode,
-            $terminalCode,
-            $invoiceNumber,
-            $invoiceDate,
-            $amount,
-            $redirectAddress,
-            $timeStamp
-        );
-
-        $response = Http::retry(3, 100)
-            ->acceptJson()
-            ->withHeaders([
-                'Sign' => $sign,
-            ])
-            ->post($this->getUrlFor(self::URL_TOKEN), [
-                'invoicenumber' => $invoiceNumber,
-                'invoiceDate' => $invoiceDate,
-                'amount' => $amount,
-                'timeStamp' => $timeStamp,
-                'action' => self::ACTION_GET_TOKEN,
-                'terminalCode' => $terminalCode,
-                'merchantCode' => $merchantCode,
-                'redirectAddress' => $redirectAddress,
-                'subpaymentlist' => $this->getParameters('subpaymentlist')
-            ]);
-
-        if ($response->successful()) {
-            if ((int) $response->json('IsSuccess') === true) {
-                return $response->json('token');
-            }
-
-            $this->log($response->json('Message'), $response->json(), 'error');
-            throw new Exception(
-                $response->json($response->json('Message'))
-            );
-        }
-
-        throw new Exception('shaparak::shaparak.token_failed');
-    }
-
-    /**
-     * @param $merchantCode
-     * @param $terminalCode
-     * @param $invoiceNumber
-     * @param  string  $invoiceDate
-     * @param  int  $amount
-     * @param  string  $redirectAddress
-     * @param  string  $timeStamp
-     * @return string
-     */
-    private function createTokenSignature(
-        string $action,
-        $merchantCode,
-        $terminalCode,
-        $invoiceNumber,
-        string $invoiceDate,
-        int $amount,
-        string $redirectAddress,
-        string $timeStamp
-    ): string {
-        switch ($action) {
-            case self::ACTION_GET_TOKEN:
-            {
-                // request token
-                $sign = "#".$merchantCode."#".$terminalCode."#".$invoiceNumber."#".$invoiceDate."#".$amount.
-                    "#".$redirectAddress."#".$action."#".$timeStamp."#";
-                break;
-            }
-            case self::ACTION_VERIFY:
-            {
-                // verify transaction
-                $sign = "#".$merchantCode."#".$terminalCode."#".$invoiceNumber."#".$invoiceDate."#".$amount."#".$timeStamp."#";
-                break;
-            }
-            case self::ACTION_REFUND:
-            {
-                $sing = "#".$merchantCode."#".$terminalCode."#".$invoiceNumber."#".$invoiceDate."#".$amount."#".$action."#".$timeStamp."#";
-                break;
-            }
-            default:
-            {
-                throw new Exception("action {$action} is not valid!");
-                break;
-            }
-        }
-
-        $sign = sha1($sign, true);
-        $sign = $this->getProcessor()->sign($sign); // digital signature
-        return base64_encode($sign); // base64_encode
-    }
-
-    /**
-     * @param  string  $certificatePath
-     *
-     * @return RSAProcessor
-     */
-    private function getProcessor(string $certificatePath = null): RSAProcessor
-    {
-        $path = $certificatePath ?: $this->getParameters('certificate_path');
-        return new RSAProcessor($path, RSAKeyType::XMLFile);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function canContinueWithCallbackParameters(): bool
-    {
-        try {
-            $this->checkRequiredActionParameters([
-                'iN',
-                'iD',
-                'tref',
-            ]);
-        } catch (\Exception $e) {
-            return false;
-        }
-
-        if (!empty($this->getParameters('tref'))) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @inheritDoc
-     * @throws Exception
-     */
-    public function getGatewayReferenceId(): string
-    {
-        $this->checkRequiredActionParameters([
-            'tref',
-        ]);
-
-        return $this->getParameters('tref');
-    }
-
-    /**
-     * @inheritDoc
-     * @throws Exception|\Samuraee\EasyCurl\Exception
-     */
-    public function verifyTransaction(): bool
-    {
-        if ($this->getTransaction()->isReadyForVerify() === false) {
-            throw new Exception('shaparak::shaparak.could_not_verify_transaction');
-        }
-
-        $this->checkRequiredActionParameters([
-            'terminal_id',
-            'merchant_id',
-            'certificate_path',
-            'iN',
-            'iD',
-            'tref',
-        ]);
-
-        // update transaction reference number
-        if (!empty($this->getParameters('tref'))) {
-            $this->getTransaction()->setGatewayToken(
-                $this->getParameters('tref'),
-                true
-            ); // update transaction reference id
-        } else {
-            throw new Exception('could not verify transaction with callback tref: '.$this->getParameters('tref'));
-        }
-
-        $terminalCode = $this->getParameters('terminal_id');
-        $merchantCode = $this->getParameters('merchant_id');
-        $invoiceNumber = $this->getParameters('iN');
-        $invoiceDate = $this->getParameters('iD');
-        $amount = $this->getAmount();
-        $timeStamp = date("Y/m/d H:i:s");
-
-        $sign = $this->createTokenSignature(
-            self::ACTION_VERIFY,
-            $merchantCode,
-            $terminalCode,
-            $invoiceNumber,
-            $invoiceDate,
-            $amount,
-            null,
-            $timeStamp
-        );
-
-        $parameters = compact(
-            'terminalCode',
-            'merchantCode',
-            'invoiceNumber',
-            'invoiceDate',
-            'amount',
-            'timeStamp',
-            'sign'
-        );
-
-        $curl = $this->getCurl();
-
-        $response = $curl->post($this->getUrlFor(self::URL_VERIFY), $parameters);
-
-        $info = $curl->getTransferInfo();
-
-        if ((int) $info['http_code'] === 200) {
-            $result = self::parseXML($response, [
-                'invoiceNumber' => $this->getParameters('iN'),
-                'invoiceDate' => $this->getParameters('iD'),
-            ]);
-        }
-
-        if (isset($result, $result['actionResult'])) {
-            if ($result['actionResult']['result'] === "True") {
-                //@todo add card number to the transaction whenever Pasargad passed it on callback
-                //$this->getTransaction()->setCardNumber(CARD_PAN, false); // no save()
-                $this->getTransaction()->setVerified();
-
-                return true;
-            }
-
-            $message = $result['actionResult']['resultMessage'] ?? 'shaparak::shaparak.verification_failed';
-            throw new Exception($message);
-        }
-
-        throw new Exception('shaparak::shaparak.could_not_verify_transaction');
-    }
-
-    /**
-     * XML parser
-     *
-     * @param  string  $data
-     *
-     * @param  array  $extra
-     *
-     * @return array
-     */
-    public static function parseXML(string $data, array $extra = [])
-    {
-        $ret = [];
-        $parser = xml_parser_create();
-        xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, 0);
-        xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 1);
-        xml_parse_into_struct($parser, $data, $values, $tags);
-        xml_parser_free($parser);
-        $hash_stack = [];
-
-        $temp = $extra;
-
-        foreach ($values as $key => $val) {
-            switch ($val['type']) {
-                case 'open':
-                    $hash_stack[] = $val['tag'];
-                    break;
-                case 'close':
-                    array_pop($hash_stack);
-                    break;
-                case 'complete':
-                    $hash_stack[] = $val['tag'];
-                    if (!isset($val['value'])) {
-                        $val['value'] = $temp[$val['tag']];
-                    }
-
-                    @eval("\$ret['".implode("']['", $hash_stack)."'] = '{$val['value']}';");
-                    array_pop($hash_stack);
-                    break;
-            }
-        }
-
-        return $ret;
-    }
-
-    /**
-     * @inheritDoc
-     * @throws Exception|\Samuraee\EasyCurl\Exception
-     */
-    public function refundTransaction(): bool
-    {
-        if ($this->getTransaction()->isReadyForRefund() === false) {
-            throw new Exception('shaparak::shaparak.could_not_refund_transaction');
-        }
-
-        $this->checkRequiredActionParameters([
-            'terminal_id',
-            'merchant_id',
-            'certificate_path',
-            'iN',
-            'iD',
-            'tref',
-        ]);
-
-        $terminalCode = $this->getParameters('terminal_id');
-        $merchantCode = $this->getParameters('merchant_id');
-        $invoiceNumber = $this->getParameters('iN');
-        $invoiceDate = $this->getParameters('iD');
-        $amount = $this->getAmount();
-        $timeStamp = date("Y/m/d H:i:s");
-        $action = self::ACTION_REFUND; // reverse code
-
-        $sign = $this->createTokenSignature(
-            self::ACTION_VERIFY,
-            $merchantCode,
-            $terminalCode,
-            $invoiceNumber,
-            $invoiceDate,
-            $amount,
-            null,
-            $timeStamp
-        );
-
-        $parameters = compact(
-            'terminalCode',
-            'merchantCode',
-            'invoiceNumber',
-            'invoiceDate',
-            'amount',
-            'timeStamp',
-            'action',
-            'sign'
-        );
-
-        $curl = $this->getCurl();
-
-        $response = $curl->post($this->getUrlFor(self::URL_REFUND), $parameters);
-
-        $info = $curl->getTransferInfo();
-
-        if ((int) $info['http_code'] === 200) {
-            $result = self::parseXML($response, [
-                'invoiceNumber' => $this->getParameters('iN'),
-                'invoiceDate' => $this->getParameters('iD'),
-            ]);
-        }
-
-        if (isset($result, $result['actionResult'])) {
-            if ($result['actionResult']['result'] === "True") {
-                //@todo add card number to the transaction whenever Pasargad passed it on callback
-                //$this->getTransaction()->setCardNumber(CARD_PAN, false); // no save()
-                $this->getTransaction()->setRefunded();
-
-                return true;
-            }
-
-            $message = $result['actionResult']['resultMessage'] ?? 'shaparak::shaparak.refund_failed';
-            throw new Exception($message);
-        }
-
-        throw new Exception('shaparak::shaparak.could_not_refund_transaction');
     }
 }
