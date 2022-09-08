@@ -200,7 +200,6 @@ class AsanPardakhtProvider extends AbstractProvider
     /**
      * @return bool
      * @throws Exception
-     * @throws RefundException
      * @throws VerificationException
      */
     public function verifyTransaction(): bool
@@ -309,7 +308,7 @@ class AsanPardakhtProvider extends AbstractProvider
             'terminal_id',
         ]);
         if ($this->getTransaction()->isReadyForRefund() === false) {
-            throw new RefundException(trans('shaparak::shaparak.could_not_refund_payment'));
+            throw new RefundException(__('shaparak::shaparak.could_not_refund_payment'));
         }
 
         try {
@@ -318,11 +317,11 @@ class AsanPardakhtProvider extends AbstractProvider
             } elseif ($this->getTransaction()->isReadyForCancel()) {
                 $response = $this->generateComplementaryOperation(self::URL_CANSEL);
             } else {
-                throw new RefundException(trans('shaparak::shaparak.could_not_refund_payment'));
+                throw new RefundException(__('shaparak::shaparak.could_not_refund_payment'));
             }
 
             if ($response !== true) {
-                throw new Exception(trans('shaparak::shaparak.refund_payment_already_exist'));
+                throw new Exception(__('shaparak::shaparak.refund_payment_already_exist'));
             }
 
             $this->getTransaction()->setRefunded(true);
