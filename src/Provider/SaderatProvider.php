@@ -73,7 +73,6 @@ class SaderatProvider extends AbstractProvider
 
     /**
      * @inheritDoc
-     * @throws \Samuraee\EasyCurl\Exception
      * @throws Exception
      * @throws \JsonException
      */
