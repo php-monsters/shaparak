@@ -248,7 +248,7 @@ class AsanPardakhtProvider extends AbstractProvider
         ], $this->getUrlFor(self::URL_RESULT), self::GET_METHOD);
 
         if ($response->successful() && $response->status() === 200 && !empty($response->body())) {
-            $this->getTransaction()->setCallBackParameters($response->json(), false);
+            $this->getTransaction()->setCallBackParameters($response->json());
             $this->getTransaction()->setReferenceId($response->json('refID'));
 
             return true;
@@ -338,6 +338,7 @@ class AsanPardakhtProvider extends AbstractProvider
         }
     }
 
+
     /**
      * @inheritDoc
      */
@@ -351,7 +352,7 @@ class AsanPardakhtProvider extends AbstractProvider
             return false;
         }
         if (!empty($this->getParameters('ReturningParams'))) {
-            return true;
+            return $this->getTransactionResult();
         }
 
         return false;
