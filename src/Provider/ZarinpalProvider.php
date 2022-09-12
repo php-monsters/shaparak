@@ -108,13 +108,13 @@ class ZarinpalProvider extends AbstractProvider
         try {
             $this->checkRequiredActionParameters([
                 'Authority',
-                'State',
+                'Status',
             ]);
         } catch (\Exception $e) {
             return false;
         }
 
-        return $this->getParameters('State') === 'OK';
+        return $this->getParameters('Status') === 'OK';
     }
 
     /**
@@ -142,18 +142,17 @@ class ZarinpalProvider extends AbstractProvider
 
         $this->checkRequiredActionParameters([
             'merchant_id',
-            'amount',
             'authority',
         ]);
 
-        if ($this->getParameters('State') !== 'OK') {
-            throw new Exception('could not verify transaction with callback state: ' . $this->getParameters('State'));
+        if ($this->getParameters('Status') !== 'OK') {
+            throw new Exception('could not verify transaction with callback status: ' . $this->getParameters('Status'));
         }
 
         $response = Http::acceptJson()->post($this->getUrlFor(self::URL_VERIFY), [
             'merchant_id' => $this->getParameters('merchant_id'),
             'authority' => $this->getParameters('authority'),
-            'amount' => $this->getAmount(),
+            'amount' => $this->getTransaction()->getPayableAmount(),
         ]);
 
         if ($response->successful()) {
@@ -179,11 +178,12 @@ class ZarinpalProvider extends AbstractProvider
         return false;
     }
 
-    private function getDescription(): string{
-        $desciption = $this->getTransaction()->description;
-        if (empty($desciption)) {
-            $desciption = sprintf("Payment for Order ID: %s", $this->getTransaction()->id);
+    private function getDescription(): string
+    {
+        $description = $this->getTransaction()->description;
+        if (empty($description)) {
+            $description = sprintf("Payment for Order ID: %s", $this->getTransaction()->id);
         }
-        return $desciption;
+        return $description;
     }
 }

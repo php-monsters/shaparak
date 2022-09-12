@@ -7,7 +7,6 @@ use PhpMonsters\Shaparak\Contracts\Provider as ProviderContract;
 use PhpMonsters\Shaparak\Contracts\Transaction;
 use PhpMonsters\Shaparak\Facades\Shaparak;
 use ReflectionClass;
-use Samuraee\EasyCurl\EasyCurl;
 use SoapClient;
 use SoapFault;
 
@@ -26,7 +25,7 @@ abstract class AbstractProvider implements ProviderContract
     public const URL_TOKEN = 'token';
     public const URL_VERIFY = 'verify';
     public const URL_REFUND = 'refund';
-    public const URL_CANSEL = 'cansel';
+    public const URL_CANCEL = 'cansel';
     public const URL_MULTIPLEX = 'multiplex';
 
     protected bool $provideTransactionResult = true;
@@ -158,6 +157,15 @@ abstract class AbstractProvider implements ProviderContract
     }
 
     /**
+     * @inheritDoc
+     */
+    public function accomplishTransaction(): bool
+    {
+        // default behavior
+        return $this->getTransaction()->setAccomplished(true);
+    }
+
+    /**
      * @return Transaction
      */
     public function getTransaction(): Transaction
@@ -230,24 +238,6 @@ abstract class AbstractProvider implements ProviderContract
     abstract public function getUrlFor(string $action): string;
 
     /**
-     * return a Curl Wrapper
-     * @return EasyCurl
-     */
-    protected function getCurl(): EasyCurl
-    {
-        $httpOptions = $this->httpClientOptions ? $this->httpClientOptions['curl'] : [];
-        $curl = new EasyCurl();
-        // set curl options if require. see shaparak config
-        if (!empty($httpOptions)) {
-            foreach ($httpOptions as $k => $v) {
-                $curl->addOption($k, $v);
-            }
-        }
-
-        return $curl;
-    }
-
-    /**
      * fetches callback url from parameters
      * @return string
      */
@@ -296,5 +286,14 @@ abstract class AbstractProvider implements ProviderContract
     public function getTransactionResult(): bool
     {
         return $this->provideTransactionResult;
+    }
+
+    /**
+     * @param  array  $parameters
+     * @return bool
+     */
+    public function setCallBackParameters(array $parameters): bool
+    {
+        return $this->getTransaction()->setCallBackParameters($parameters);
     }
 }

@@ -2,14 +2,13 @@
 
 namespace PhpMonsters\Shaparak\Provider;
 
-use PhpMonsters\Shaparak\Contracts\Provider as ProviderContract;
+use Illuminate\Support\Facades\Http;
 
 class MelliProvider extends AbstractProvider
 {
     /**
      * @inheritDoc
      * @throws Exception
-     * @throws \Samuraee\EasyCurl\Exception
      */
     protected function requestToken(): string
     {
@@ -30,36 +29,22 @@ class MelliProvider extends AbstractProvider
         $key        = $this->getParameters('transaction_key');
         $orderId    = $this->getGatewayOrderId();
 
-        $signature = $this->encryptPKCS7("{$terminalId};{$orderId};{$amount}", "{$key}");
+        $response = Http::acceptJson()
+            ->throw()
+            ->post($this->getUrlFor(self::URL_TOKEN), [
+                'TerminalId'    => $terminalId,
+                'MerchantId'    => $this->getParameters('merchant_id'),
+                'Amount'        => $amount,
+                'SignData'      => $this->encryptPKCS7("{$terminalId};{$orderId};{$amount}", "{$key}"),
+                'ReturnUrl'     => $this->getCallbackUrl(),
+                'LocalDateTime' => date("m/d/Y g:i:s a"),
+                'OrderId'       => $orderId,
+            ]);
 
-        $sendParams = [
-            'TerminalId'    => $terminalId,
-            'MerchantId'    => $this->getParameters('merchant_id'),
-            'Amount'        => $amount,
-            'SignData'      => $signature,
-            'ReturnUrl'     => $this->getCallbackUrl(),
-            'LocalDateTime' => date("m/d/Y g:i:s a"),
-            'OrderId'       => $orderId,
-        ];
-
-        $jsonData = json_encode($sendParams, JSON_THROW_ON_ERROR);
-        $curl     = $this->getCurl();
-
-        $curl->addHeader('Content-Type', 'application/json');
-        // and then
-        $response = $curl->rawPost($this->getUrlFor(self::URL_TOKEN), $jsonData);
-        $info     = $curl->getTransferInfo();
-
-        if ((int) $info['http_code'] === 200 && !empty($response)) {
-            $response = json_decode(trim($response));
-
-            if ($response->ResCode == 0) {// got string token
-                $transaction->setGatewayToken($response->Token, true); // update transaction reference id
-
-                return $response->Token;
-            }
-
-            throw new Exception(sprintf('shaparak::melli.error_%s', $response->ResCode));
+        $resCode = $response->json('ResCode');
+        if (is_numeric($resCode) && (int)$resCode === 0) {
+            $transaction->setGatewayToken($response->json('Token'), true); // update transaction reference id
+            return $response->json('Token');
         }
 
         throw new Exception('shaparak::shaparak.token_failed');
@@ -68,18 +53,15 @@ class MelliProvider extends AbstractProvider
     /**
      * @inheritDoc
      * @throws Exception
-     * @throws \Samuraee\EasyCurl\Exception
      */
     public function getFormParameters(): array
     {
-        $token = $this->requestToken();
-
         return [
             'gateway'    => 'melli',
             'method'     => 'get',
             'action'     => $this->getUrlFor(self::URL_GATEWAY),
             'parameters' => [
-                'Token' => $token,
+                'Token' => $this->requestToken(),
             ],
         ];
     }
@@ -87,7 +69,6 @@ class MelliProvider extends AbstractProvider
     /**
      * @inheritDoc
      * @throws Exception
-     * @throws \Samuraee\EasyCurl\Exception
      */
     public function verifyTransaction(): bool
     {
@@ -105,7 +86,7 @@ class MelliProvider extends AbstractProvider
         ]);
 
         if ((int) $this->getParameters('ResCode') !== 0) {
-            throw new Exception('could not verify transaction with callback state: ' . $this->getParameters('State'));
+            throw new Exception('could not verify transaction with ResCode: ' . $this->getParameters('ResCode'));
         }
 
         $key   = $this->getParameters('transaction_key');
@@ -113,42 +94,35 @@ class MelliProvider extends AbstractProvider
 
         $signature = $this->encryptPKCS7($token, $key);
 
-        $sendParams = [
-            'Token'    => $token,
-            'SignData' => $signature,
-        ];
 
-        $jsonData = json_encode($sendParams, JSON_THROW_ON_ERROR);
-        $curl     = $this->getCurl();
+        $response = Http::acceptJson()
+            ->throw()
+            ->post($this->getUrlFor(self::URL_VERIFY), [
+                'Token'    => $token,
+                'SignData' => $signature,
+            ]);
 
-        $curl->addHeader('Content-Type', 'application/json');
-        // and then
-        $response = $curl->rawPost($this->getUrlFor(self::URL_VERIFY), $jsonData);
-        $info     = $curl->getTransferInfo();
-
-        if ((int) $info['http_code'] === 200 && !empty($response)) {
-            $response = json_decode(trim($response));
-
-            if (is_numeric($response->ResCode) && (int)$response->ResCode === 0 && (int)$response->Amount === $this->getAmount()) {// got string token
-                foreach ($response as $k => $v) {
-                    $this->getTransaction()->addExtra($k, $v, false);
-                }
-                $this->getTransaction()->setCardNumber($this->getParameters('accNoVal', @$response->accNoVal), false);
-                $this->getTransaction()->save();
-
-                return true;
+        $resCode = $response->json('ResCode');
+        if (is_numeric($resCode) && (int)$resCode === 0 && (int)$response->json('Amount') === $this->getAmount()) {// got string token
+            foreach ($response->json() as $k => $v) {
+                $this->getTransaction()->addExtra($k, $v, false);
             }
+            //$this->getTransaction()->setCardNumber($this->getParameters('accNoVal', @$response->accNoVal), false);
+            $this->getTransaction()->setVerified(true);
 
-            throw new Exception(sprintf('shaparak::melli.error_%s', $response->ResCode));
+            return true;
         }
 
         throw new Exception('shaparak::shaparak.could_not_verify_transaction');
     }
 
+    /**
+     * @throws Exception
+     */
     public function refundTransaction(): bool
     {
         // TODO: Implement refundTransaction() method.
-        throw new Exception('melli gateway does not support refund action');
+        throw new Exception('melli gateway does not support refund action right now');
     }
 
     /**
@@ -205,15 +179,15 @@ class MelliProvider extends AbstractProvider
             switch ($action) {
                 case self::URL_GATEWAY:
                 {
-                    return $this->bankTestBaseUrl . '/gateway/melli/purchase';
+                    return $this->bankTestBaseUrl . '/melli/sadad.shaparak.ir/VPG/Purchase';
                 }
                 case self::URL_TOKEN :
                 {
-                    return $this->bankTestBaseUrl . '/gateway/melli/payment-request';
+                    return $this->bankTestBaseUrl . '/melli/sadad.shaparak.ir/VPG/api/v0/Request/PaymentRequest';
                 }
                 case self::URL_VERIFY :
                 {
-                    return $this->bankTestBaseUrl . '/gateway/melli/verify';
+                    return $this->bankTestBaseUrl . '/melli/sadad.shaparak.ir/VPG/api/v0/Advice/Verify';
                 }
             }
         }

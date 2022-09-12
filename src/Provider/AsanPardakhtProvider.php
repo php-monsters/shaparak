@@ -63,23 +63,23 @@ class AsanPardakhtProvider extends AbstractProvider
                 }
                 case self::URL_VERIFY:
                 {
-                    return 'https:///ipgrest.asanpardakht.ir/v1/Verify';
+                    return 'https://ipgrest.asanpardakht.ir/v1/Verify';
                 }
                 case self::URL_RESULT:
                 {
-                    return 'https:///ipgrest.asanpardakht.ir/v1/TranResult';
+                    return 'https://ipgrest.asanpardakht.ir/v1/TranResult';
                 }
                 case self::URL_SETTLEMENT:
                 {
-                    return 'https:///ipgrest.asanpardakht.ir/v1/Settlement';
+                    return 'https://ipgrest.asanpardakht.ir/v1/Settlement';
                 }
                 case self::URL_REFUND:
                 {
-                    return 'https:///ipgrest.asanpardakht.ir/v1/Reverse';
+                    return 'https://ipgrest.asanpardakht.ir/v1/Reverse';
                 }
-                case self::URL_CANSEL:
+                case self::URL_CANCEL:
                 {
-                    return 'https:///ipgrest.asanpardakht.ir/v1/Cancel';
+                    return 'https://ipgrest.asanpardakht.ir/v1/Cancel';
                 }
             }
         } else {
@@ -108,7 +108,7 @@ class AsanPardakhtProvider extends AbstractProvider
                 {
                     return $this->bankTestBaseUrl.'/ap/ipgrest.asanpardakht.ir/v1/Reverse';
                 }
-                case self::URL_CANSEL:
+                case self::URL_CANCEL:
                 {
                     return $this->bankTestBaseUrl.'/ap/ipgrest.asanpardakht.ir/v1/Cancel';
                 }
@@ -200,7 +200,6 @@ class AsanPardakhtProvider extends AbstractProvider
     /**
      * @return bool
      * @throws Exception
-     * @throws RefundException
      * @throws VerificationException
      */
     public function verifyTransaction(): bool
@@ -309,20 +308,20 @@ class AsanPardakhtProvider extends AbstractProvider
             'terminal_id',
         ]);
         if ($this->getTransaction()->isReadyForRefund() === false) {
-            throw new RefundException(trans('shaparak::shaparak.could_not_refund_payment'));
+            throw new RefundException(__('shaparak::shaparak.could_not_refund_payment'));
         }
 
         try {
             if ($this->getTransaction()->isReadyForReverse()) {
                 $response = $this->generateComplementaryOperation(self::URL_REFUND);
             } elseif ($this->getTransaction()->isReadyForCancel()) {
-                $response = $this->generateComplementaryOperation(self::URL_CANSEL);
+                $response = $this->generateComplementaryOperation(self::URL_CANCEL);
             } else {
-                throw new RefundException(trans('shaparak::shaparak.could_not_refund_payment'));
+                throw new RefundException(__('shaparak::shaparak.could_not_refund_payment'));
             }
 
             if ($response !== true) {
-                throw new Exception(trans('shaparak::shaparak.refund_payment_already_exist'));
+                throw new Exception(__('shaparak::shaparak.refund_payment_already_exist'));
             }
 
             $this->getTransaction()->setRefunded(true);

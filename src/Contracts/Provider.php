@@ -73,6 +73,13 @@ interface Provider
     function refundTransaction(): bool;
 
     /**
+     * accomplish transaction. It means the transaction is immutable from now on
+     *
+     * @return bool
+     */
+    function accomplishTransaction(): bool;
+
+    /**
      * fetch bak gateway reference id from callback parameters
      *
      * @return string

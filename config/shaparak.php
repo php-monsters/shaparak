@@ -87,6 +87,14 @@ return [
         | Zarinpal gateway configuration
         |--------------------------------------------------------------------------
         */
+        'saderat'    => [
+            'terminal_id'     => env('SADERAT_MERCHANT_ID'),
+        ],
+        /*
+        |--------------------------------------------------------------------------
+        | Zarinpal gateway configuration
+        |--------------------------------------------------------------------------
+        */
         'zarinpal'    => [
             'merchant_id'     => env('ZARINPAL_MERCHANT_ID'),
         ],

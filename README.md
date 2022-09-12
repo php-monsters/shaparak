@@ -54,8 +54,88 @@ if you choose development mode, Shaparak uses [banktest.ir](https://banktest.ir)
 
 
 ## Usage
+### Add required fields to the model migration
+```php
+$table->string('token', 40)->nullable(); // It keeps token that we get from the IPG
+$table->string('gateway_ref_id', 40)->nullable(); // It keeps gateway reference id that we get from the IPG on callback
+$table->jsonb('gateway_callback_params')->nullable(); // It keeps the IPG callback parameters (just for tracking and debugging)
 
+$table->boolean('verified')->default(false); // Transaction verified or not
+$table->boolean('after_verified')->default(false); // Transaction settled or not
+$table->boolean('reversed')->default(false); // Transaction revered/refunded or not
+$table->boolean('accomplished')->default(false); // Transaction accomplished or not
+```
 ### Prepare required model(s)
+Your Transaction, Invoice or Order model MUST implement Shaparak Transaction Interface. 
+```php
+<?php
+
+namespace App\Models;
+
+use App\Traits\JsonbField;
+use App\Traits\ShaparakIntegration;
+use Illuminate\Database\Eloquent\Model;
+use PhpMonsters\Shaparak\Contracts\Transaction as ShaparakTransaction;
+
+class Transaction extends Model implements TransactionTransaction
+{
+```
+### Initialize a Shaparak instance
+```php
+// method I: init Shaparak by passing custom gateway options
+$gatewayProperties = [
+    'terminal_id' => 'X1A3B5CY-X1DT4Z',
+    'terminal_pass' => '12345',
+];
+$shaparak = Shaparak::with($psp, $transaction, $gatewayProperties)
+    ->setParameters($request->all());
+    
+// method II: init shaparak by config based gateway options
+// if you don't pass the third item it will use gateway's options from `config/shaparak.php` config file
+$shaparak = Shaparak::with($psp, $transaction)
+    ->setParameters($request->all());
+```
+
+### Create goto IPG form
+Create a form in order to go to payment gateway. This form is auto-submit by default
+```php
+// create your transaction as you desired
+$transaction = new Transaction();
+$transaction->user_id = $user->id;
+// ...
+$transaction->ip_address = $request->getClientIp();
+$transaction->description = $request->input('description');
+$transaction->save();
+
+try {
+    $form = Shaparak::with('saman', $transaction)->getForm();
+} catch (\Exception $e) {
+    XLog::exception($e);
+    flash(trans('gate.could_not_create_goto_bank_form'))->error();
+    return redirect()->back();
+}
+```
+Show the form in your blade like:
+```php
+{!! $form !!}
+```
+
+### Callback URL
+In your callback action create a Shaparak instance and handle the transaction 
+```php
+$shaparak = Shaparak::with('saman', $order)
+    ->setParameters($request->all());
+    
+if ($shaparak->canContinueWithCallbackParameters($request->all()) !== true) {
+    flash(trans('gate.could_not_continue_because_of_callback_params'))->error();
+    // do what you need
+}
+
+$shaparak->setCallBackParameters($request->all());
+
+$verifyResult = $shaparak->verifyTransaction($request->all());
+
+```
 
 ## Security
 
