@@ -166,7 +166,6 @@ class AsanPardakhtProvider extends AbstractProvider
             'local_date',
             'local_time',
         ]);
-
         return [
             'serviceTypeId' => 1,
             'merchantConfigurationId' => $this->getParameters('terminal_id'),
@@ -240,7 +239,6 @@ class AsanPardakhtProvider extends AbstractProvider
             'password',
             'terminal_id',
         ]);
-
         $response = $this->sendParamToAp([
             'localInvoiceId' => $this->getTransaction()->getGatewayOrderId(),
             'merchantConfigurationId' => $this->getParameters('terminal_id'),
