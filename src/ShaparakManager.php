@@ -33,13 +33,13 @@ class ShaparakManager extends Manager implements Contracts\Factory
     protected Transaction $transaction;
 
     /**
-     * @param string $message
-     * @param array $params
-     * @param string $level
+     * @param  string  $message
+     * @param  array  $params
+     * @param  string  $level
      */
     public static function log(string $message, array $params = [], string $level = 'debug'): void
     {
-        $message = "SHAPARAK -> " . $message;
+        $message = "SHAPARAK -> ".$message;
 
         forward_static_call(['PhpMonsters\Log\Facades\XLog', $level], $message, $params);
     }
@@ -47,9 +47,9 @@ class ShaparakManager extends Manager implements Contracts\Factory
     /**
      * Get a driver instance.
      *
-     * @param string $driver driver name
-     * @param Transaction $transaction
-     * @param array $config runtime configuration for the driver instead of reading from config file
+     * @param  string  $driver  driver name
+     * @param  Transaction  $transaction
+     * @param  array  $config  runtime configuration for the driver instead of reading from config file
      *
      * @return mixed
      */
@@ -60,7 +60,6 @@ class ShaparakManager extends Manager implements Contracts\Factory
         if (!empty($config)) {
             $this->runtimeConfig = $config;
         }
-
         return $this->driver($driver);
     }
 
@@ -94,7 +93,7 @@ class ShaparakManager extends Manager implements Contracts\Factory
     /**
      * get provider configuration runtime array or config based configuration
      *
-     * @param string $driver
+     * @param  string  $driver
      *
      * @return array
      */
@@ -110,9 +109,9 @@ class ShaparakManager extends Manager implements Contracts\Factory
     /**
      * Build a Shaparak provider instance.
      *
-     * @param string $provider
+     * @param  string  $provider
      *
-     * @param array $config
+     * @param  array  $config
      *
      * @return Provider
      */
