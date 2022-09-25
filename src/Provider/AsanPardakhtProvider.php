@@ -383,7 +383,6 @@ class AsanPardakhtProvider extends AbstractProvider
             $this->getUrlFor($method),
             self::POST_METHOD
         );
-
         if ($response->successful()) {
             return true;
         }
