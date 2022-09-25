@@ -319,7 +319,7 @@ class AsanPardakhtProvider extends AbstractProvider
             }
 
             if ($response !== true) {
-                throw new Exception(__('shaparak::shaparak.refund_payment_already_exist'));
+                throw new Exception(__('shaparak::shaparak.refund_unknown_error'));
             }
 
             $this->getTransaction()->setRefunded(true);
