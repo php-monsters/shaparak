@@ -348,6 +348,7 @@ class AsanPardakhtProvider extends AbstractProvider
         } catch (\Exception $e) {
             return false;
         }
+
         if (!empty($this->getParameters('ReturningParams'))) {
             return $this->getTransactionResult();
         }
