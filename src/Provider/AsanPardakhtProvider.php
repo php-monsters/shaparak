@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Http;
 use PhpMonsters\Shaparak\Exceptions\RefundException;
 use PhpMonsters\Shaparak\Exceptions\RequestTokenException;
 use PhpMonsters\Shaparak\Exceptions\SettlementException;
-use PhpMonsters\Shaparak\Exceptions\VerificationException;
 
 /**
  * AsanPardakhtProvider class
@@ -196,10 +195,9 @@ class AsanPardakhtProvider extends AbstractProvider
         );
     }
 
+
     /**
-     * @return bool
-     * @throws Exception
-     * @throws VerificationException
+     * @inheritDoc
      */
     public function verifyTransaction(): bool
     {
@@ -213,18 +211,15 @@ class AsanPardakhtProvider extends AbstractProvider
             $response = $this->generateComplementaryOperation(self::URL_VERIFY);
 
             if ($response !== true) {
-                throw new Exception('shaparak::asanpardakht.could_not_verify_transaction');
+                return false;
             }
             $this->getTransaction()->setVerified(true);
 
             return true;
         } catch (\Exception $e) {
-            $this->log($e->getMessage(), [], 'error');
+            $this->log('verifyTransaction: '.$e->getMessage().' #'.$e->getCode(), [], 'error');
 
-            throw new VerificationException(
-                'verifyTransaction: '.$e->getMessage().' #'.$e->getCode(),
-                $e->getCode()
-            );
+            return false;
         }
     }
 
