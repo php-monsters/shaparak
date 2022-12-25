@@ -139,11 +139,11 @@ class AsanPardakhtProvider extends AbstractProvider
 
         if ($response->successful() && !empty($response->body())) {
             $this->getTransaction()->setGatewayToken(
-                $response->body(),
+                json_decode($response->body(), false, 512, JSON_THROW_ON_ERROR),
                 true
             );
 
-            return $response->body();
+            return json_decode($response->body(), false, 512, JSON_THROW_ON_ERROR);
         } elseif ($response->status() !== 200) {
             //todo: handle error page
             throw new Exception(sprintf('shaparak::asanpardakht.error_%s', $response->status()));
