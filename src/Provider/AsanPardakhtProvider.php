@@ -241,7 +241,7 @@ class AsanPardakhtProvider extends AbstractProvider
 
         if ($response->successful() && $response->status() === 200 && !empty($response->body())) {
             $this->getTransaction()->setCallBackParameters($response->json());
-            $this->getTransaction()->setReferenceId($response->json('refID'));
+            $this->getTransaction()->setReferenceId($response->json('rrn'));
 
             return true;
         }
