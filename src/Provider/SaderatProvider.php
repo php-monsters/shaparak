@@ -9,7 +9,7 @@ class SaderatProvider extends AbstractProvider
     protected bool $refundSupport = true;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getFormParameters(): array
     {
@@ -25,54 +25,55 @@ class SaderatProvider extends AbstractProvider
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getUrlFor(string $action = null): string
     {
         if ($this->environment == 'production') {
             switch ($action) {
                 case self::URL_GATEWAY:
-                {
+
                     return 'https://sepehr.shaparak.ir:8080/Pay';
-                }
-                case self::URL_TOKEN :
-                {
+
+                case self::URL_TOKEN:
+
                     return 'https://sepehr.shaparak.ir:8081/V1/PeymentApi/GetToken';
-                }
+
                 case self::URL_VERIFY:
-                {
+
                     return 'https://sepehr.shaparak.ir:8081/V1/PeymentApi/Advice';
-                }
+
                 case self::URL_REFUND:
-                {
+
                     return 'https://sepehr.shaparak.ir:8081/V1/PeymentApi/Rollback';
-                }
+
             }
         } else {
             switch ($action) {
                 case self::URL_GATEWAY:
-                {
+
                     return $this->bankTestBaseUrl.'/saderat/sepehr.shaparak.ir/Pay';
-                }
+
                 case self::URL_TOKEN:
-                {
+
                     return $this->bankTestBaseUrl.'/saderat/sepehr.shaparak.ir/V1/PeymentApi/GetToken';
-                }
+
                 case self::URL_VERIFY:
-                {
+
                     return $this->bankTestBaseUrl.'/saderat/sepehr.shaparak.ir/V1/PeymentApi/Advice';
-                }
+
                 case self::URL_REFUND:
-                {
+
                     return $this->bankTestBaseUrl.'/saderat/sepehr.shaparak.ir/V1/PeymentApi/Rollback';
-                }
+
             }
         }
         throw new Exception("could not find url for {$action} action");
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
      * @throws Exception
      * @throws \JsonException
      */
@@ -111,7 +112,7 @@ class SaderatProvider extends AbstractProvider
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function verifyTransaction(): bool
     {
@@ -152,7 +153,7 @@ class SaderatProvider extends AbstractProvider
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function refundTransaction(): bool
     {
@@ -193,7 +194,7 @@ class SaderatProvider extends AbstractProvider
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function canContinueWithCallbackParameters(): bool
     {
@@ -206,11 +207,12 @@ class SaderatProvider extends AbstractProvider
         }
 
         $respCode = $this->getParameters('RespCode');
-        return (is_numeric($respCode) && (int) $respCode === 0) ;
+
+        return is_numeric($respCode) && (int) $respCode === 0;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getGatewayReferenceId(): string
     {

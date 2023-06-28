@@ -41,9 +41,9 @@ return [
         |--------------------------------------------------------------------------
         */
         'saman' => [
-            'terminal_id' =>   env('SAMAN_TERMINAL_ID'),
+            'terminal_id' => env('SAMAN_TERMINAL_ID'),
             'terminal_pass' => env('SAMAN_TERMINAL_PASS'),
-         ],
+        ],
         /*
         |--------------------------------------------------------------------------
         | Parsian gateway configuration
@@ -58,18 +58,18 @@ return [
         |--------------------------------------------------------------------------
         */
         'pasargad' => [
-            'terminal_id'       => env('PASARGAD_TERMINAL_ID'),
-            'merchant_id'       => env('PASARGAD_MERCHANT_ID'),
-            'certificate_path'  => env('PASARGAD_CERT_PATH', storage_path('shaparak/pasargad/certificate.xml')),
+            'terminal_id' => env('PASARGAD_TERMINAL_ID'),
+            'merchant_id' => env('PASARGAD_MERCHANT_ID'),
+            'certificate_path' => env('PASARGAD_CERT_PATH', storage_path('shaparak/pasargad/certificate.xml')),
         ],
         /*
         |--------------------------------------------------------------------------
         | Mellat gateway configuration
         |--------------------------------------------------------------------------
         */
-        'mellat'   => [
-            'username'    => env('MELLAT_USERNAME'),
-            'password'    => env('MELLAT_PASSWORD'),
+        'mellat' => [
+            'username' => env('MELLAT_USERNAME'),
+            'password' => env('MELLAT_PASSWORD'),
             'terminal_id' => env('MELLAT_TERMINAL_ID'),
         ],
         /*
@@ -77,9 +77,9 @@ return [
         | Melli/Sadad gateway configuration
         |--------------------------------------------------------------------------
         */
-        'melli'    => [
-            'merchant_id'     => env('MELLI_MERCHANT_ID'),
-            'terminal_id'     => env('MELLI_TERMINAL_ID'),
+        'melli' => [
+            'merchant_id' => env('MELLI_MERCHANT_ID'),
+            'terminal_id' => env('MELLI_TERMINAL_ID'),
             'transaction_key' => env('MELLI_TRANS_KEY'),
         ],
         /*
@@ -87,16 +87,16 @@ return [
         | Zarinpal gateway configuration
         |--------------------------------------------------------------------------
         */
-        'saderat'    => [
-            'terminal_id'     => env('SADERAT_MERCHANT_ID'),
+        'saderat' => [
+            'terminal_id' => env('SADERAT_MERCHANT_ID'),
         ],
         /*
         |--------------------------------------------------------------------------
         | Zarinpal gateway configuration
         |--------------------------------------------------------------------------
         */
-        'zarinpal'    => [
-            'merchant_id'     => env('ZARINPAL_MERCHANT_ID'),
+        'zarinpal' => [
+            'merchant_id' => env('ZARINPAL_MERCHANT_ID'),
         ],
     ],
 
@@ -109,7 +109,7 @@ return [
     |
     */
     'httpClientOptions' => [
-        'soap'   => [],
-        'curl'   => [],
+        'soap' => [],
+        'curl' => [],
     ],
 ];

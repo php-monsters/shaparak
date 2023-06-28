@@ -6,5 +6,4 @@ use PhpMonsters\Shaparak\Exception;
 
 class RequestTokenException extends Exception
 {
-
 }

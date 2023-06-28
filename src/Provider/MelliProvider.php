@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\Http;
 class MelliProvider extends AbstractProvider
 {
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
      * @throws Exception
      */
     protected function requestToken(): string
@@ -25,25 +26,26 @@ class MelliProvider extends AbstractProvider
         ]);
 
         $terminalId = $this->getParameters('terminal_id');
-        $amount     = $this->getAmount();
-        $key        = $this->getParameters('transaction_key');
-        $orderId    = $this->getGatewayOrderId();
+        $amount = $this->getAmount();
+        $key = $this->getParameters('transaction_key');
+        $orderId = $this->getGatewayOrderId();
 
         $response = Http::acceptJson()
             ->throw()
             ->post($this->getUrlFor(self::URL_TOKEN), [
-                'TerminalId'    => $terminalId,
-                'MerchantId'    => $this->getParameters('merchant_id'),
-                'Amount'        => $amount,
-                'SignData'      => $this->encryptPKCS7("{$terminalId};{$orderId};{$amount}", "{$key}"),
-                'ReturnUrl'     => $this->getCallbackUrl(),
-                'LocalDateTime' => date("m/d/Y g:i:s a"),
-                'OrderId'       => $orderId,
+                'TerminalId' => $terminalId,
+                'MerchantId' => $this->getParameters('merchant_id'),
+                'Amount' => $amount,
+                'SignData' => $this->encryptPKCS7("{$terminalId};{$orderId};{$amount}", "{$key}"),
+                'ReturnUrl' => $this->getCallbackUrl(),
+                'LocalDateTime' => date('m/d/Y g:i:s a'),
+                'OrderId' => $orderId,
             ]);
 
         $resCode = $response->json('ResCode');
-        if (is_numeric($resCode) && (int)$resCode === 0) {
+        if (is_numeric($resCode) && (int) $resCode === 0) {
             $transaction->setGatewayToken($response->json('Token'), true); // update transaction reference id
+
             return $response->json('Token');
         }
 
@@ -51,15 +53,16 @@ class MelliProvider extends AbstractProvider
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
      * @throws Exception
      */
     public function getFormParameters(): array
     {
         return [
-            'gateway'    => 'melli',
-            'method'     => 'get',
-            'action'     => $this->getUrlFor(self::URL_GATEWAY),
+            'gateway' => 'melli',
+            'method' => 'get',
+            'action' => $this->getUrlFor(self::URL_GATEWAY),
             'parameters' => [
                 'Token' => $this->requestToken(),
             ],
@@ -67,7 +70,8 @@ class MelliProvider extends AbstractProvider
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
      * @throws Exception
      */
     public function verifyTransaction(): bool
@@ -86,24 +90,23 @@ class MelliProvider extends AbstractProvider
         ]);
 
         if ((int) $this->getParameters('ResCode') !== 0) {
-            throw new Exception('could not verify transaction with ResCode: ' . $this->getParameters('ResCode'));
+            throw new Exception('could not verify transaction with ResCode: '.$this->getParameters('ResCode'));
         }
 
-        $key   = $this->getParameters('transaction_key');
+        $key = $this->getParameters('transaction_key');
         $token = $this->getParameters('Token');
 
         $signature = $this->encryptPKCS7($token, $key);
 
-
         $response = Http::acceptJson()
             ->throw()
             ->post($this->getUrlFor(self::URL_VERIFY), [
-                'Token'    => $token,
+                'Token' => $token,
                 'SignData' => $signature,
             ]);
 
         $resCode = $response->json('ResCode');
-        if (is_numeric($resCode) && (int)$resCode === 0 && (int)$response->json('Amount') === $this->getAmount()) {// got string token
+        if (is_numeric($resCode) && (int) $resCode === 0 && (int) $response->json('Amount') === $this->getAmount()) {// got string token
             foreach ($response->json() as $k => $v) {
                 $this->getTransaction()->addExtra($k, $v, false);
             }
@@ -126,7 +129,7 @@ class MelliProvider extends AbstractProvider
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function canContinueWithCallbackParameters(): bool
     {
@@ -140,11 +143,11 @@ class MelliProvider extends AbstractProvider
             return false;
         }
 
-        return (int)$this->getParameters('ResCode') === 0;
+        return (int) $this->getParameters('ResCode') === 0;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getGatewayReferenceId(): string
     {
@@ -156,39 +159,39 @@ class MelliProvider extends AbstractProvider
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getUrlFor(string $action = null): string
     {
         if ($this->environment === 'production') {
             switch ($action) {
                 case self::URL_GATEWAY:
-                {
+
                     return 'https://sadad.shaparak.ir/VPG/Purchase';
-                }
-                case self::URL_TOKEN :
-                {
+
+                case self::URL_TOKEN:
+
                     return 'https://sadad.shaparak.ir/vpg/api/v0/Request/PaymentRequest';
-                }
-                case self::URL_VERIFY :
-                {
+
+                case self::URL_VERIFY:
+
                     return 'https://sadad.shaparak.ir/vpg/api/v0/Advice/Verify';
-                }
+
             }
         } else {
             switch ($action) {
                 case self::URL_GATEWAY:
-                {
-                    return $this->bankTestBaseUrl . '/melli/sadad.shaparak.ir/VPG/Purchase';
-                }
-                case self::URL_TOKEN :
-                {
-                    return $this->bankTestBaseUrl . '/melli/sadad.shaparak.ir/VPG/api/v0/Request/PaymentRequest';
-                }
-                case self::URL_VERIFY :
-                {
-                    return $this->bankTestBaseUrl . '/melli/sadad.shaparak.ir/VPG/api/v0/Advice/Verify';
-                }
+
+                    return $this->bankTestBaseUrl.'/melli/sadad.shaparak.ir/VPG/Purchase';
+
+                case self::URL_TOKEN:
+
+                    return $this->bankTestBaseUrl.'/melli/sadad.shaparak.ir/VPG/api/v0/Request/PaymentRequest';
+
+                case self::URL_VERIFY:
+
+                    return $this->bankTestBaseUrl.'/melli/sadad.shaparak.ir/VPG/api/v0/Advice/Verify';
+
             }
         }
 
@@ -200,13 +203,11 @@ class MelliProvider extends AbstractProvider
      *
      * @param string data
      * @param string key
-     *
-     * @return string
      */
     protected function encryptPKCS7(string $str, string $key): string
     {
-        $key        = base64_decode($key);
-        $cipherText = openssl_encrypt($str, "DES-EDE3", $key, OPENSSL_RAW_DATA);
+        $key = base64_decode($key);
+        $cipherText = openssl_encrypt($str, 'DES-EDE3', $key, OPENSSL_RAW_DATA);
 
         return base64_encode($cipherText);
     }

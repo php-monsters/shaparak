@@ -3,17 +3,18 @@
 namespace PhpMonsters\Shaparak\Provider;
 
 use SoapFault;
-use PhpMonsters\Shaparak\Contracts\Provider as ProviderContract;
 
 class MellatProvider extends AbstractProvider
 {
     public const URL_INQUIRY = 'inquiry';
-    public const URL_SETTLE  = 'settle';
+
+    public const URL_SETTLE = 'settle';
 
     protected bool $refundSupport = true;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
      * @throws Exception
      */
     protected function requestToken(): string
@@ -32,16 +33,16 @@ class MellatProvider extends AbstractProvider
         ]);
 
         $sendParams = [
-            'terminalId'     => (int) $this->getParameters('terminal_id'),
-            'userName'       => $this->getParameters('username'),
-            'userPassword'   => $this->getParameters('password'),
-            'orderId'        => $this->getGatewayOrderId(),
-            'amount'         => $this->getAmount(),
-            'localDate'      => $this->getParameters('local_date', date('Ymd')),
-            'localTime'      => $this->getParameters('local_time', date('His')),
+            'terminalId' => (int) $this->getParameters('terminal_id'),
+            'userName' => $this->getParameters('username'),
+            'userPassword' => $this->getParameters('password'),
+            'orderId' => $this->getGatewayOrderId(),
+            'amount' => $this->getAmount(),
+            'localDate' => $this->getParameters('local_date', date('Ymd')),
+            'localTime' => $this->getParameters('local_time', date('His')),
             'additionalData' => (string) $this->getParameters('additional_data'),
-            'callBackUrl'    => $this->getCallbackUrl(),
-            'payerId'        => (int) $this->getParameters('payer_id'),
+            'callBackUrl' => $this->getCallbackUrl(),
+            'payerId' => (int) $this->getParameters('payer_id'),
         ];
 
         try {
@@ -63,20 +64,21 @@ class MellatProvider extends AbstractProvider
 
             throw new Exception('shaparak::shaparak.token_failed');
         } catch (SoapFault $e) {
-            throw new Exception('SoapFault: ' . $e->getMessage() . ' #' . $e->getCode(), $e->getCode());
+            throw new Exception('SoapFault: '.$e->getMessage().' #'.$e->getCode(), $e->getCode());
         }
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
      * @throws Exception
      */
     public function getFormParameters(): array
     {
         return [
-            'gateway'    => 'mellat',
-            'method'     => 'post',
-            'action'     => $this->getUrlFor(self::URL_GATEWAY),
+            'gateway' => 'mellat',
+            'method' => 'post',
+            'action' => $this->getUrlFor(self::URL_GATEWAY),
             'parameters' => [
                 'RefId' => $this->requestToken(),
             ],
@@ -84,7 +86,8 @@ class MellatProvider extends AbstractProvider
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
      * @throws Exception
      */
     public function verifyTransaction(): bool
@@ -108,11 +111,11 @@ class MellatProvider extends AbstractProvider
         try {
 
             $sendParams = [
-                'terminalId'      => (int) $this->getParameters('terminal_id'),
-                'userName'        => $this->getParameters('username'),
-                'userPassword'    => $this->getParameters('password'),
-                'orderId'         => (int) $this->getParameters('SaleOrderId'), // same as SaleOrderId
-                'saleOrderId'     => (int) $this->getParameters('SaleOrderId'),
+                'terminalId' => (int) $this->getParameters('terminal_id'),
+                'userName' => $this->getParameters('username'),
+                'userPassword' => $this->getParameters('password'),
+                'orderId' => (int) $this->getParameters('SaleOrderId'), // same as SaleOrderId
+                'saleOrderId' => (int) $this->getParameters('SaleOrderId'),
                 'saleReferenceId' => (int) $this->getParameters('SaleReferenceId'),
             ];
 
@@ -133,12 +136,13 @@ class MellatProvider extends AbstractProvider
 
             throw new Exception('shaparak::shaparak.verify_failed');
         } catch (SoapFault $e) {
-            throw new Exception('SoapFault: ' . $e->getMessage() . ' #' . $e->getCode(), $e->getCode());
+            throw new Exception('SoapFault: '.$e->getMessage().' #'.$e->getCode(), $e->getCode());
         }
     }
 
     /**
      * @return bool
+     *
      * @throws Exception
      */
     public function inquiryTransaction()
@@ -159,11 +163,11 @@ class MellatProvider extends AbstractProvider
         ]);
 
         $sendParams = [
-            'terminalId'      => (int) $this->getParameters('terminal_id'),
-            'userName'        => $this->getParameters('username'),
-            'userPassword'    => $this->getParameters('password'),
-            'orderId'         => (int) $this->getParameters('SaleOrderId'), // same as SaleOrderId
-            'saleOrderId'     => (int) $this->getParameters('SaleOrderId'),
+            'terminalId' => (int) $this->getParameters('terminal_id'),
+            'userName' => $this->getParameters('username'),
+            'userPassword' => $this->getParameters('password'),
+            'orderId' => (int) $this->getParameters('SaleOrderId'), // same as SaleOrderId
+            'saleOrderId' => (int) $this->getParameters('SaleOrderId'),
             'saleReferenceId' => (int) $this->getParameters('SaleReferenceId'),
         ];
 
@@ -179,15 +183,13 @@ class MellatProvider extends AbstractProvider
             throw new Exception('shaparak::shaparak.inquiry_failed');
         } catch (SoapFault $e) {
 
-            throw new Exception('SoapFault: ' . $e->getMessage() . ' #' . $e->getCode(), $e->getCode());
+            throw new Exception('SoapFault: '.$e->getMessage().' #'.$e->getCode(), $e->getCode());
         }
     }
-
 
     /**
      * Send settle request
      *
-     * @return bool
      *
      * @throws Exception
      */
@@ -209,11 +211,11 @@ class MellatProvider extends AbstractProvider
         ]);
 
         $sendParams = [
-            'terminalId'      => (int) $this->getParameters('terminal_id'),
-            'userName'        => $this->getParameters('username'),
-            'userPassword'    => $this->getParameters('password'),
-            'orderId'         => (int) $this->getParameters('SaleOrderId'), // same as SaleOrderId
-            'saleOrderId'     => (int) $this->getParameters('SaleOrderId'),
+            'terminalId' => (int) $this->getParameters('terminal_id'),
+            'userName' => $this->getParameters('username'),
+            'userPassword' => $this->getParameters('password'),
+            'orderId' => (int) $this->getParameters('SaleOrderId'), // same as SaleOrderId
+            'saleOrderId' => (int) $this->getParameters('SaleOrderId'),
             'saleReferenceId' => (int) $this->getParameters('SaleReferenceId'),
         ];
 
@@ -234,13 +236,14 @@ class MellatProvider extends AbstractProvider
 
             throw new Exception('shaparak::shaparak.invalid_response');
         } catch (SoapFault $e) {
-            throw new Exception('SoapFault: ' . $e->getMessage() . ' #' . $e->getCode(), $e->getCode());
+            throw new Exception('SoapFault: '.$e->getMessage().' #'.$e->getCode(), $e->getCode());
         }
 
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
      * @throws Exception
      */
     public function refundTransaction(): bool
@@ -262,11 +265,11 @@ class MellatProvider extends AbstractProvider
 
         try {
             $sendParams = [
-                'terminalId'      => (int) $this->getParameters('terminal_id'),
-                'userName'        => $this->getParameters('username'),
-                'userPassword'    => $this->getParameters('password'),
-                'orderId'         => (int) $this->getParameters('SaleOrderId'), // same as SaleOrderId
-                'saleOrderId'     => (int) $this->getParameters('SaleOrderId'),
+                'terminalId' => (int) $this->getParameters('terminal_id'),
+                'userName' => $this->getParameters('username'),
+                'userPassword' => $this->getParameters('password'),
+                'orderId' => (int) $this->getParameters('SaleOrderId'), // same as SaleOrderId
+                'saleOrderId' => (int) $this->getParameters('SaleOrderId'),
                 'saleReferenceId' => (int) $this->getParameters('SaleReferenceId'),
             ];
 
@@ -281,17 +284,17 @@ class MellatProvider extends AbstractProvider
                     return true;
                 }
 
-                throw new Exception('shaparak::mellat.error_' . strval($response->return));
+                throw new Exception('shaparak::mellat.error_'.strval($response->return));
             }
 
             throw new Exception('shaparak::mellat.errors.invalid_response');
         } catch (SoapFault $e) {
-            throw new Exception('SoapFault: ' . $e->getMessage() . ' #' . $e->getCode(), $e->getCode());
+            throw new Exception('SoapFault: '.$e->getMessage().' #'.$e->getCode(), $e->getCode());
         }
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function canContinueWithCallbackParameters(): bool
     {
@@ -307,7 +310,7 @@ class MellatProvider extends AbstractProvider
             return false;
         }
 
-        if (!empty($this->getParameters('RefId'))) {
+        if (! empty($this->getParameters('RefId'))) {
             return true;
         }
 
@@ -315,7 +318,8 @@ class MellatProvider extends AbstractProvider
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
      * @throws Exception
      */
     public function getGatewayReferenceId(): string
@@ -327,33 +331,32 @@ class MellatProvider extends AbstractProvider
         return $this->getParameters('RefId');
     }
 
-
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getUrlFor(string $action): string
     {
         if ($this->environment === 'production') {
             switch ($action) {
                 case self::URL_GATEWAY:
-                {
+
                     return 'https://bpm.shaparak.ir/pgwchannel/startpay.mellat';
-                }
+
                 default:
-                {
+
                     return 'https://bpm.shaparak.ir/pgwchannel/services/pgw?wsdl';
-                }
+
             }
         } else {
             switch ($action) {
                 case self::URL_GATEWAY:
-                {
-                    return $this->bankTestBaseUrl . '/mellat/bpm.shaparak.ir/pgwchannel/startpay.mellat';
-                }
+
+                    return $this->bankTestBaseUrl.'/mellat/bpm.shaparak.ir/pgwchannel/startpay.mellat';
+
                 default:
-                {
-                    return $this->bankTestBaseUrl . '/mellat/bpm.shaparak.ir/pgwchannel/services/pgw?wsdl';
-                }
+
+                    return $this->bankTestBaseUrl.'/mellat/bpm.shaparak.ir/pgwchannel/services/pgw?wsdl';
+
             }
         }
     }

@@ -9,7 +9,8 @@ class SamanProvider extends AbstractProvider
     protected bool $refundSupport = true;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
      * @throws Exception
      */
     protected function requestToken(): string
@@ -25,8 +26,8 @@ class SamanProvider extends AbstractProvider
         ]);
 
         $sendParams = [
-            'TermID'      => $this->getParameters('terminal_id'),
-            'ResNum'      => $this->getGatewayOrderId(),
+            'TermID' => $this->getParameters('terminal_id'),
+            'ResNum' => $this->getGatewayOrderId(),
             'TotalAmount' => $this->getAmount(),
         ];
 
@@ -35,7 +36,7 @@ class SamanProvider extends AbstractProvider
 
             $response = $soapClient->__soapCall('RequestToken', $sendParams);
 
-            if (!empty($response)) {
+            if (! empty($response)) {
                 $token = trim($response);
                 if (strlen($token) >= 20) { // got string token
                     $this->log("fetched token from gateway: {$token}");
@@ -49,12 +50,13 @@ class SamanProvider extends AbstractProvider
 
             throw new Exception('shaparak::shaparak.token_failed');
         } catch (SoapFault $e) {
-            throw new Exception('SoapFault: ' . $e->getMessage() . ' #' . $e->getCode(), $e->getCode());
+            throw new Exception('SoapFault: '.$e->getMessage().' #'.$e->getCode(), $e->getCode());
         }
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
      * @throws Exception
      */
     public function getFormParameters(): array
@@ -62,19 +64,20 @@ class SamanProvider extends AbstractProvider
         $token = $this->requestToken();
 
         return [
-            'gateway'    => 'saman',
-            'method'     => 'POST',
-            'action'     => $this->getUrlFor(self::URL_GATEWAY),
+            'gateway' => 'saman',
+            'method' => 'POST',
+            'action' => $this->getUrlFor(self::URL_GATEWAY),
             'parameters' => [
-                'Token'       => $token,
+                'Token' => $token,
                 'RedirectURL' => $this->getCallbackUrl(),
-                'getmethod'   => (bool) $this->getParameters('get_method', true)
+                'getmethod' => (bool) $this->getParameters('get_method', true),
             ],
         ];
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
      * @throws Exception
      */
     public function verifyTransaction(): bool
@@ -95,7 +98,7 @@ class SamanProvider extends AbstractProvider
         ]);
 
         if ($this->getParameters('State') !== 'OK') {
-            throw new Exception('could not verify transaction with callback state: ' . $this->getParameters('State'));
+            throw new Exception('could not verify transaction with callback state: '.$this->getParameters('State'));
         }
 
         try {
@@ -115,17 +118,18 @@ class SamanProvider extends AbstractProvider
                     return true;
                 }
 
-                throw new Exception('shaparak::saman.error_' . (string)$response);
+                throw new Exception('shaparak::saman.error_'.(string) $response);
             }
 
             throw new Exception('shaparak::shaparak.could_not_verify_transaction');
         } catch (SoapFault $e) {
-            throw new Exception('SoapFault: ' . $e->getMessage() . ' #' . $e->getCode(), $e->getCode());
+            throw new Exception('SoapFault: '.$e->getMessage().' #'.$e->getCode(), $e->getCode());
         }
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
      * @throws Exception
      */
     public function refundTransaction(): bool
@@ -159,17 +163,17 @@ class SamanProvider extends AbstractProvider
                     return true;
                 }
 
-                throw new Exception('shaparak::saman.error_' . strval($response));
+                throw new Exception('shaparak::saman.error_'.strval($response));
             }
 
             throw new Exception('shaparak::shaparak.could_not_refund_payment');
         } catch (SoapFault $e) {
-            throw new Exception('SoapFault: ' . $e->getMessage() . ' #' . $e->getCode(), $e->getCode());
+            throw new Exception('SoapFault: '.$e->getMessage().' #'.$e->getCode(), $e->getCode());
         }
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function canContinueWithCallbackParameters(): bool
     {
@@ -186,7 +190,8 @@ class SamanProvider extends AbstractProvider
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
      * @throws Exception
      */
     public function getGatewayReferenceId(): string
@@ -199,39 +204,39 @@ class SamanProvider extends AbstractProvider
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getUrlFor(string $action = null): string
     {
         if ($this->environment === 'production') {
             switch ($action) {
                 case self::URL_GATEWAY:
-                {
+
                     return 'https://sep.shaparak.ir/Payment.aspx';
-                }
+
                 case self::URL_TOKEN :
-                {
+
                     return 'https://sep.shaparak.ir/Payments/InitPayment.asmx?WSDL';
-                }
+
                 default:
-                {
+
                     return 'https://sep.shaparak.ir/payments/referencepayment.asmx?WSDL';
-                }
+
             }
         } else {
             switch ($action) {
                 case self::URL_GATEWAY:
-                {
-                    return $this->bankTestBaseUrl . '/saman/sep.shaparak.ir/payment.aspx';
-                }
+
+                    return $this->bankTestBaseUrl.'/saman/sep.shaparak.ir/payment.aspx';
+
                 case self::URL_TOKEN :
-                {
-                    return $this->bankTestBaseUrl . '/saman/sep.shaparak.ir/payments/initpayment.asmx?wsdl';
-                }
+
+                    return $this->bankTestBaseUrl.'/saman/sep.shaparak.ir/payments/initpayment.asmx?wsdl';
+
                 default:
-                {
-                    return $this->bankTestBaseUrl . '/saman/sep.shaparak.ir/payments/referencepayment.asmx?wsdl';
-                }
+
+                    return $this->bankTestBaseUrl.'/saman/sep.shaparak.ir/payments/referencepayment.asmx?wsdl';
+
             }
         }
     }

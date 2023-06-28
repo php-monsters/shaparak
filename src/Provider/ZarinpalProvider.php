@@ -9,7 +9,8 @@ class ZarinpalProvider extends AbstractProvider
     protected bool $refundSupport = true;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
      * @throws Exception
      */
     public function getFormParameters(): array
@@ -19,13 +20,14 @@ class ZarinpalProvider extends AbstractProvider
         return [
             'gateway' => 'zarinpal',
             'method' => 'GET',
-            'action' => $this->getUrlFor(self::URL_GATEWAY) . '/' . $token,
+            'action' => $this->getUrlFor(self::URL_GATEWAY).'/'.$token,
             'parameters' => [],
         ];
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
      * @throws Exception
      */
     protected function requestToken(): string
@@ -46,13 +48,13 @@ class ZarinpalProvider extends AbstractProvider
         ]);
 
         if ($response->successful()) {
-            if ((int)$response->json('data.code') === 100) {
+            if ((int) $response->json('data.code') === 100) {
                 return $response->json('data.authority');
             }
 
             $this->log($response->json('errors.message'), $response->json('errors'), 'error');
             throw new Exception(
-                $response->json('errors.code') . ' ' . $response->json('errors.message')
+                $response->json('errors.code').' '.$response->json('errors.message')
             );
         } else {
             $this->log($response->body());
@@ -62,46 +64,46 @@ class ZarinpalProvider extends AbstractProvider
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getUrlFor(string $action = null): string
     {
         if ($this->environment === 'production') {
             switch ($action) {
                 case self::URL_GATEWAY:
-                {
+
                     return 'https://www.zarinpal.com/pg/StartPay';
-                }
-                case self::URL_TOKEN :
-                {
+
+                case self::URL_TOKEN:
+
                     return 'https://api.zarinpal.com/pg/v4/payment/request.json';
-                }
-                case self::URL_VERIFY :
-                {
+
+                case self::URL_VERIFY:
+
                     return 'https://api.zarinpal.com/pg/v4/payment/verify.json';
-                }
+
             }
         } else {
             switch ($action) {
                 case self::URL_GATEWAY:
-                {
-                    return $this->bankTestBaseUrl . '/zarinpal/www.zarinpal.com/pg/StartPay';
-                }
-                case self::URL_TOKEN :
-                {
-                    return $this->bankTestBaseUrl . '/zarinpal/api.zarinpal.com/pg/v4/payment/request.json';
-                }
-                case self::URL_VERIFY :
-                {
-                    return $this->bankTestBaseUrl . '/zarinpal/api.zarinpal.com/pg/v4/payment/verify.json';
-                }
+
+                    return $this->bankTestBaseUrl.'/zarinpal/www.zarinpal.com/pg/StartPay';
+
+                case self::URL_TOKEN:
+
+                    return $this->bankTestBaseUrl.'/zarinpal/api.zarinpal.com/pg/v4/payment/request.json';
+
+                case self::URL_VERIFY:
+
+                    return $this->bankTestBaseUrl.'/zarinpal/api.zarinpal.com/pg/v4/payment/verify.json';
+
             }
         }
         throw new Exception('url destination is not valid!');
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function canContinueWithCallbackParameters(): bool
     {
@@ -118,7 +120,8 @@ class ZarinpalProvider extends AbstractProvider
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
      * @throws Exception
      */
     public function getGatewayReferenceId(): string
@@ -131,7 +134,8 @@ class ZarinpalProvider extends AbstractProvider
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
      * @throws Exception
      */
     public function verifyTransaction(): bool
@@ -146,7 +150,7 @@ class ZarinpalProvider extends AbstractProvider
         ]);
 
         if ($this->getParameters('Status') !== 'OK') {
-            throw new Exception('could not verify transaction with callback status: ' . $this->getParameters('Status'));
+            throw new Exception('could not verify transaction with callback status: '.$this->getParameters('Status'));
         }
 
         $response = Http::acceptJson()->post($this->getUrlFor(self::URL_VERIFY), [
@@ -156,23 +160,21 @@ class ZarinpalProvider extends AbstractProvider
         ]);
 
         if ($response->successful()) {
-            if ((int)$response->json('data.code') === 100 || (int)$response->json('data.code') === 101) {
+            if ((int) $response->json('data.code') === 100 || (int) $response->json('data.code') === 101) {
                 $this->getTransaction()->setVerified(true); // save()
+
                 return true;
             }
 
             $this->log($response->json('errors.message'), $response->json('errors'), 'error');
             throw new Exception(
-                $response->json('errors.code') . ' ' . $response->json('errors.message')
+                $response->json('errors.code').' '.$response->json('errors.message')
             );
         }
 
         throw new Exception('shaparak::shaparak.could_not_verify_transaction');
     }
 
-    /**
-     * @return bool
-     */
     public function refundTransaction(): bool
     {
         return false;
@@ -182,8 +184,9 @@ class ZarinpalProvider extends AbstractProvider
     {
         $description = $this->getTransaction()->description;
         if (empty($description)) {
-            $description = sprintf("Payment for Order ID: %s", $this->getTransaction()->id);
+            $description = sprintf('Payment for Order ID: %s', $this->getTransaction()->id);
         }
+
         return $description;
     }
 }

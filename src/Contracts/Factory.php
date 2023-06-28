@@ -2,8 +2,6 @@
 
 namespace PhpMonsters\Shaparak\Contracts;
 
-use InvalidArgumentException;
-
 interface Factory
 {
     /**

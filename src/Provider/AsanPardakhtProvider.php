@@ -13,22 +13,18 @@ use PhpMonsters\Shaparak\Exceptions\SettlementException;
 class AsanPardakhtProvider extends AbstractProvider
 {
     public const URL_RESULT = 'result';
+
     public const GET_METHOD = 'get';
+
     public const POST_METHOD = 'post';
+
     public const URL_SETTLEMENT = 'settlement';
 
-    /**
-     * @var bool
-     */
     protected bool $refundSupport = true;
 
-    /**
-     * @var bool
-     */
     protected bool $settlementSupport = true;
 
     /**
-     * @return array
      * @throws Exception
      * @throws RequestTokenException
      */
@@ -46,78 +42,77 @@ class AsanPardakhtProvider extends AbstractProvider
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getUrlFor(string $action): string
     {
         if ($this->environment === 'production') {
             switch ($action) {
                 case self::URL_GATEWAY:
-                {
+
                     return 'https://asan.shaparak.ir';
-                }
+
                 case self::URL_TOKEN:
-                {
+
                     return 'https://ipgrest.asanpardakht.ir/v1/Token';
-                }
+
                 case self::URL_VERIFY:
-                {
+
                     return 'https://ipgrest.asanpardakht.ir/v1/Verify';
-                }
+
                 case self::URL_RESULT:
-                {
+
                     return 'https://ipgrest.asanpardakht.ir/v1/TranResult';
-                }
+
                 case self::URL_SETTLEMENT:
-                {
+
                     return 'https://ipgrest.asanpardakht.ir/v1/Settlement';
-                }
+
                 case self::URL_REFUND:
-                {
+
                     return 'https://ipgrest.asanpardakht.ir/v1/Reverse';
-                }
+
                 case self::URL_CANCEL:
-                {
+
                     return 'https://ipgrest.asanpardakht.ir/v1/Cancel';
-                }
+
             }
         } else {
             switch ($action) {
                 case self::URL_GATEWAY:
-                {
+
                     return $this->bankTestBaseUrl.'/ap/asan.shaparak.ir';
-                }
+
                 case self::URL_TOKEN:
-                {
+
                     return $this->bankTestBaseUrl.'/ap/ipgrest.asanpardakht.ir/v1/Token';
-                }
+
                 case self::URL_VERIFY:
-                {
+
                     return $this->bankTestBaseUrl.'/ap/ipgrest.asanpardakht.ir/v1/Verify';
-                }
+
                 case self::URL_RESULT:
-                {
+
                     return $this->bankTestBaseUrl.'/ap/ipgrest.asanpardakht.ir/v1/TranResult';
-                }
+
                 case self::URL_SETTLEMENT:
-                {
+
                     return $this->bankTestBaseUrl.'/ap/ipgrest.asanpardakht.ir/v1/Settlement';
-                }
+
                 case self::URL_REFUND:
-                {
+
                     return $this->bankTestBaseUrl.'/ap/ipgrest.asanpardakht.ir/v1/Reverse';
-                }
+
                 case self::URL_CANCEL:
-                {
+
                     return $this->bankTestBaseUrl.'/ap/ipgrest.asanpardakht.ir/v1/Cancel';
-                }
+
             }
         }
         throw new Exception("could not find url for {$action} action");
     }
 
     /**
-     * @return string
      * @throws Exception
      * @throws RequestTokenException
      */
@@ -137,7 +132,7 @@ class AsanPardakhtProvider extends AbstractProvider
             self::POST_METHOD
         );
 
-        if ($response->successful() && !empty($response->body())) {
+        if ($response->successful() && ! empty($response->body())) {
             $this->getTransaction()->setGatewayToken(
                 json_decode($response->body(), false, 512, JSON_THROW_ON_ERROR),
                 true
@@ -153,7 +148,6 @@ class AsanPardakhtProvider extends AbstractProvider
     }
 
     /**
-     * @return array
      * @throws Exception
      */
     public function requestTokenData(): array
@@ -165,6 +159,7 @@ class AsanPardakhtProvider extends AbstractProvider
             'local_date',
             'local_time',
         ]);
+
         return [
             'serviceTypeId' => 1,
             'merchantConfigurationId' => $this->getParameters('terminal_id'),
@@ -176,12 +171,6 @@ class AsanPardakhtProvider extends AbstractProvider
         ];
     }
 
-    /**
-     * @param  array  $params
-     * @param  string  $url
-     * @param  string  $method
-     * @return mixed
-     */
     public function sendParamToAp(array $params, string $url, string $method): mixed
     {
         return Http::acceptJson()->withHeaders([
@@ -195,9 +184,8 @@ class AsanPardakhtProvider extends AbstractProvider
         );
     }
 
-
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function verifyTransaction(): bool
     {
@@ -224,7 +212,6 @@ class AsanPardakhtProvider extends AbstractProvider
     }
 
     /**
-     * @return bool
      * @throws Exception
      */
     public function getTransactionResult(): bool
@@ -239,19 +226,19 @@ class AsanPardakhtProvider extends AbstractProvider
             'merchantConfigurationId' => $this->getParameters('terminal_id'),
         ], $this->getUrlFor(self::URL_RESULT), self::GET_METHOD);
 
-        if ($response->successful() && $response->status() === 200 && !empty($response->body())) {
+        if ($response->successful() && $response->status() === 200 && ! empty($response->body())) {
             $this->getTransaction()->setCallBackParameters($response->json());
             $this->getTransaction()->setReferenceId($response->json('rrn'));
 
             return true;
         }
+
         return false;
     }
 
     /**
      * Send settle request
      *
-     * @return bool
      *
      * @throws Exception
      * @throws SettlementException
@@ -287,9 +274,9 @@ class AsanPardakhtProvider extends AbstractProvider
         }
     }
 
-
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
      * @throws Exception
      * @throws RefundException
      */
@@ -330,9 +317,8 @@ class AsanPardakhtProvider extends AbstractProvider
         }
     }
 
-
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function canContinueWithCallbackParameters(): bool
     {
@@ -344,7 +330,7 @@ class AsanPardakhtProvider extends AbstractProvider
             return false;
         }
 
-        if (!empty($this->getParameters('ReturningParams'))) {
+        if (! empty($this->getParameters('ReturningParams'))) {
             return $this->getTransactionResult();
         }
 
@@ -352,7 +338,7 @@ class AsanPardakhtProvider extends AbstractProvider
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getGatewayReferenceId(): string
     {
@@ -364,8 +350,6 @@ class AsanPardakhtProvider extends AbstractProvider
     }
 
     /**
-     * @param $method
-     * @return bool
      * @throws Exception
      */
     protected function generateComplementaryOperation($method): bool

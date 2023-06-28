@@ -14,72 +14,63 @@ use SoapFault;
  * Class AbstractProvider
  *
  * @author    Aboozar Ghaffari
- * @package   Shaparak
- * @package   PhpMonsters\Shaparak
+ *
  * @version   v1.0
+ *
  * @license   https://github.com/php-monsters/shaparak/blob/master/LICENSE
  */
 abstract class AbstractProvider implements ProviderContract
 {
     public const URL_GATEWAY = 'gateway';
+
     public const URL_TOKEN = 'token';
+
     public const URL_VERIFY = 'verify';
+
     public const URL_REFUND = 'refund';
+
     public const URL_CANCEL = 'cancel';
+
     public const URL_MULTIPLEX = 'multiplex';
 
     protected bool $provideTransactionResult = true;
+
     /**
      * shaparak operation environment
-     *
-     * @var string
      */
     protected string $environment;
 
     /**
      * The custom parameters to be sent with the request.
-     *
-     * @var array
      */
     protected array $parameters = [];
 
-    /**
-     * @var Transaction
-     */
     protected Transaction $transaction;
 
     /**
      * specifies whether the gateway supports transaction reverse/refund or not
-     * @var bool
      */
     protected bool $refundSupport = false;
 
     /**
      * specifies whether the gateway supports transaction settlement or not
-     * @var bool
      */
     protected bool $settlementSupport = false;
 
     /**
      * The custom Guzzle/SoapClient configuration options.
-     *
-     * @var array
      */
     protected array $httpClientOptions = [];
 
     /**
      * banktest mock service base url
-     * @var string
      */
     protected string $bankTestBaseUrl;
 
     /**
      * AdapterAbstract constructor.
      *
-     * @param  Transaction  $transaction
-     * @param  array  $configs
      * @param  string  $environment  Shaparak module mode
-     * @param  array  $httpClientOptions
      */
     public function __construct(
         Transaction $transaction,
@@ -95,7 +86,7 @@ abstract class AbstractProvider implements ProviderContract
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getForm(): \Illuminate\View\View
     {
@@ -104,19 +95,19 @@ abstract class AbstractProvider implements ProviderContract
         return view(
             'shaparak::goto-gate-form',
             array_merge($formParameters, [
-                'buttonLabel' => $this->getParameters('submit_label') ?: __("shaparak::shaparak.goto_gate"),
+                'buttonLabel' => $this->getParameters('submit_label') ?: __('shaparak::shaparak.goto_gate'),
                 'autoSubmit' => (bool) $this->getParameters('auto_submit', true),
             ])
         );
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     abstract public function getFormParameters(): array;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getParameters(string $key = null, $default = null)
     {
@@ -130,11 +121,11 @@ abstract class AbstractProvider implements ProviderContract
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function setParameters(array $parameters = []): ProviderContract
     {
-        $parameters = array_change_key_case($parameters, CASE_LOWER);
+        $parameters = array_change_key_case($parameters);
         $parameters = array_map('trim', $parameters);
 
         $this->parameters = array_merge($this->parameters, $parameters);
@@ -143,53 +134,50 @@ abstract class AbstractProvider implements ProviderContract
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     abstract public function verifyTransaction(): bool;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function settleTransaction(): bool
     {
         // default behavior
-        return $this->getTransaction()->setSettled(true);
+        return $this->getTransaction()->setSettled();
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function accomplishTransaction(): bool
     {
         // default behavior
-        return $this->getTransaction()->setAccomplished(true);
+        return $this->getTransaction()->setAccomplished();
     }
 
-    /**
-     * @return Transaction
-     */
     public function getTransaction(): Transaction
     {
         return $this->transaction;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     abstract public function refundTransaction(): bool;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     abstract public function getGatewayReferenceId(): string;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     abstract public function canContinueWithCallbackParameters(): bool;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function refundSupport(): bool
     {
@@ -197,7 +185,7 @@ abstract class AbstractProvider implements ProviderContract
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function settlementSupport(): bool
     {
@@ -205,23 +193,20 @@ abstract class AbstractProvider implements ProviderContract
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function checkRequiredActionParameters(array $parameters): void
     {
         $parameters = array_map('strtolower', $parameters);
 
         foreach ($parameters as $parameter) {
-            if (!array_key_exists($parameter, $this->parameters) || trim($this->parameters[$parameter]) === '') {
+            if (! array_key_exists($parameter, $this->parameters) || trim($this->parameters[$parameter]) === '') {
                 throw new Exception("Parameters array must have a not null value for key: '$parameter'");
             }
         }
     }
 
     /**
-     * @param  string  $action
-     *
-     * @return SoapClient
      * @throws SoapFault|Exception
      */
     protected function getSoapClient(string $action): SoapClient
@@ -233,13 +218,12 @@ abstract class AbstractProvider implements ProviderContract
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     abstract public function getUrlFor(string $action): string;
 
     /**
      * fetches callback url from parameters
-     * @return string
      */
     protected function getCallbackUrl(): string
     {
@@ -250,22 +234,20 @@ abstract class AbstractProvider implements ProviderContract
 
     /**
      * fetches payable amount of the transaction
-     * @return int
      */
     protected function getAmount(): int
     {
-        return (is_int($this->getParameters('amount')) && !empty($this->getParameters('amount'))) ?
+        return (is_int($this->getParameters('amount')) && ! empty($this->getParameters('amount'))) ?
             $this->getParameters('amount') :
             $this->getTransaction()->getPayableAmount();
     }
 
     /**
      * fetches payable amount of the transaction
-     * @return int
      */
     protected function getGatewayOrderId(): int
     {
-        return (is_int($this->getParameters('order_id')) && !empty($this->getParameters('order_id'))) ?
+        return (is_int($this->getParameters('order_id')) && ! empty($this->getParameters('order_id'))) ?
             $this->getParameters('order_id') :
             $this->getTransaction()->getGatewayOrderId();
     }
@@ -275,23 +257,16 @@ abstract class AbstractProvider implements ProviderContract
         $reflect = new ReflectionClass($this);
         $provider = strtolower(str_replace('Provider', '', $reflect->getShortName()));
 
-        $message = $provider.": ".$message;
+        $message = $provider.': '.$message;
 
         Shaparak::log($message, $params, $level);
     }
 
-    /**
-     * @return bool
-     */
     public function getTransactionResult(): bool
     {
         return $this->provideTransactionResult;
     }
 
-    /**
-     * @param  array  $parameters
-     * @return bool
-     */
     public function setCallBackParameters(array $parameters): bool
     {
         return $this->getTransaction()->setCallBackParameters($parameters);

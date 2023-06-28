@@ -52,23 +52,23 @@ class ShaparakServiceProvider extends ServiceProvider
 
     protected function registerResources()
     {
-        $this->loadViewsFrom(__DIR__ . '/../views/', 'shaparak');
+        $this->loadViewsFrom(__DIR__.'/../views/', 'shaparak');
 
         $this->publishes([
-            __DIR__ . '/../translations/' => base_path('/lang/vendor/shaparak'),
+            __DIR__.'/../translations/' => base_path('/lang/vendor/shaparak'),
         ], 'translations');
 
-        $this->loadTranslationsFrom(__DIR__ . '/../translations', 'shaparak');
+        $this->loadTranslationsFrom(__DIR__.'/../translations', 'shaparak');
     }
 
     protected function registerPublishing()
     {
         $this->publishes([
-            __DIR__ . '/../views/' => resource_path('/views/vendor/shaparak'),
+            __DIR__.'/../views/' => resource_path('/views/vendor/shaparak'),
         ], 'views');
 
         $this->publishes([
-            __DIR__ . '/../config/shaparak.php' => config_path('shaparak.php')
+            __DIR__.'/../config/shaparak.php' => config_path('shaparak.php'),
         ], 'config');
     }
 }

@@ -20,26 +20,17 @@ class ShaparakManager extends Manager implements Contracts\Factory
 {
     /**
      * runtime driver configuration
-     *
-     * @var array
      */
     protected array $runtimeConfig;
 
     /**
      * transaction which should paid on the gateway
-     *
-     * @var Transaction $transaction
      */
     protected Transaction $transaction;
 
-    /**
-     * @param  string  $message
-     * @param  array  $params
-     * @param  string  $level
-     */
     public static function log(string $message, array $params = [], string $level = 'debug'): void
     {
-        $message = "SHAPARAK -> ".$message;
+        $message = 'SHAPARAK -> '.$message;
 
         forward_static_call(['PhpMonsters\Log\Facades\XLog', $level], $message, $params);
     }
@@ -48,18 +39,17 @@ class ShaparakManager extends Manager implements Contracts\Factory
      * Get a driver instance.
      *
      * @param  string  $driver  driver name
-     * @param  Transaction  $transaction
      * @param  array  $config  runtime configuration for the driver instead of reading from config file
-     *
      * @return mixed
      */
     public function with(string $driver, Transaction $transaction, array $config = [])
     {
         $this->transaction = $transaction;
 
-        if (!empty($config)) {
+        if (! empty($config)) {
             $this->runtimeConfig = $config;
         }
+
         return $this->driver($driver);
     }
 
@@ -92,10 +82,6 @@ class ShaparakManager extends Manager implements Contracts\Factory
 
     /**
      * get provider configuration runtime array or config based configuration
-     *
-     * @param  string  $driver
-     *
-     * @return array
      */
     protected function getConfig(string $driver): array
     {
@@ -108,12 +94,6 @@ class ShaparakManager extends Manager implements Contracts\Factory
 
     /**
      * Build a Shaparak provider instance.
-     *
-     * @param  string  $provider
-     *
-     * @param  array  $config
-     *
-     * @return Provider
      */
     public function buildProvider(string $provider, array $config): Provider
     {

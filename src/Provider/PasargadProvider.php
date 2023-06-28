@@ -1,6 +1,5 @@
 <?php
 
-
 namespace PhpMonsters\Shaparak\Provider;
 
 use Illuminate\Support\Facades\Http;
@@ -10,13 +9,18 @@ use PhpMonsters\Shaparak\Helper\Pasargad\RSAProcessor;
 class PasargadProvider extends AbstractProvider
 {
     public const URL_CHECK = 'check';
+
     public const UPDATE_SUBPAYMENT = 'UpdateInvoiceSubPayment';
+
     public const GET_SUBPAYMENT = 'GetSubPaymentsReport';
+
     protected const ACTION_GET_TOKEN = 1003;
+
     protected bool $refundSupport = true;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
      * @throws Exception
      */
     public function getFormParameters(): array
@@ -32,13 +36,14 @@ class PasargadProvider extends AbstractProvider
             'method' => 'GET',
             'action' => $this->getUrlFor(self::URL_GATEWAY),
             'parameters' => [
-                'n' => $this->requestToken()
+                'n' => $this->requestToken(),
             ],
         ];
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
      * @throws Exception
      */
     public function requestToken(): string
@@ -58,14 +63,14 @@ class PasargadProvider extends AbstractProvider
 
         $response = $this->callApi($this->getUrlFor(self::URL_TOKEN), [
             'invoicenumber' => $this->getGatewayOrderId(),
-            'invoiceDate' => date("Y/m/d H:i:s", strtotime($this->getTransaction()->created_at)),
+            'invoiceDate' => date('Y/m/d H:i:s', strtotime($this->getTransaction()->created_at)),
             'amount' => $this->getAmount(),
             'terminalCode' => $this->getParameters('terminal_id'),
             'merchantCode' => $this->getParameters('merchant_id'),
             'redirectAddress' => $this->getCallbackUrl(),
-            'timeStamp' => date("Y/m/d H:i:s"),
+            'timeStamp' => date('Y/m/d H:i:s'),
             'action' => self::ACTION_GET_TOKEN,
-            'subpaymentlist' => $this->getParameters('subpaymentlist')
+            'subpaymentlist' => $this->getParameters('subpaymentlist'),
         ]);
 
         $this->log(__METHOD__, $response);
@@ -74,7 +79,7 @@ class PasargadProvider extends AbstractProvider
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function verifyTransaction(): bool
     {
@@ -94,7 +99,7 @@ class PasargadProvider extends AbstractProvider
         ]);
 
         // update transaction reference number
-        if (!empty($this->getParameters('tref'))) {
+        if (! empty($this->getParameters('tref'))) {
             $this->getTransaction()->setGatewayToken(
                 $this->getParameters('tref'),
                 true
@@ -109,7 +114,7 @@ class PasargadProvider extends AbstractProvider
             'invoiceNumber' => $this->getParameters('iN'),
             'invoiceDate' => $this->getParameters('iD'),
             'amount' => $this->getAmount(),
-            'timeStamp' => date("Y/m/d H:i:s"),
+            'timeStamp' => date('Y/m/d H:i:s'),
         ]);
 
         $this->log(__METHOD__, $response);
@@ -127,7 +132,7 @@ class PasargadProvider extends AbstractProvider
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function refundTransaction(): bool
     {
@@ -151,7 +156,7 @@ class PasargadProvider extends AbstractProvider
             'invoiceDate' => $this->getParameters('iD'),
             'terminalCode' => $this->getParameters('terminal_id'),
             'merchantCode' => $this->getParameters('merchant_id'),
-            'timeStamp' => date("Y/m/d H:i:s"),
+            'timeStamp' => date('Y/m/d H:i:s'),
         ]);
 
         $this->log(__METHOD__, $response);
@@ -179,7 +184,6 @@ class PasargadProvider extends AbstractProvider
             ->throw()
             ->{$method}($url, $body);
 
-
         $this->log($response->json('Message'), $response->json());
 
         if ($response->json('IsSuccess') === false) {
@@ -189,30 +193,26 @@ class PasargadProvider extends AbstractProvider
         return $response->json();
     }
 
-    /**
-     * @param  string  $string
-     * @return string
-     */
     private function sign(string $string): string
     {
         $string = sha1($string, true);
         $string = $this->getProcessor()->sign($string); // digital signature
+
         return base64_encode($string); // base64_encode
     }
 
     /**
      * @param  string  $certificatePath
-     *
-     * @return RSAProcessor
      */
     private function getProcessor(string $certificatePath = null): RSAProcessor
     {
         $path = $certificatePath ?: $this->getParameters('certificate_path');
+
         return new RSAProcessor($path, RSAKeyType::XMLFile);
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function canContinueWithCallbackParameters(): bool
     {
@@ -226,7 +226,7 @@ class PasargadProvider extends AbstractProvider
             return false;
         }
 
-        if (!empty($this->getParameters('tref'))) {
+        if (! empty($this->getParameters('tref'))) {
             return true;
         }
 
@@ -234,7 +234,7 @@ class PasargadProvider extends AbstractProvider
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getGatewayReferenceId(): string
     {
@@ -246,71 +246,71 @@ class PasargadProvider extends AbstractProvider
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getUrlFor(string $action): string
     {
         if ($this->environment === 'production') {
             switch ($action) {
                 case self::URL_GATEWAY:
-                {
+
                     return 'https://pep.shaparak.ir/gateway.aspx';
-                }
+
                 case self::URL_TOKEN:
-                {
+
                     return 'https://pep.shaparak.ir/Api/v1/Payment/GetToken';
-                }
+
                 case self::URL_CHECK:
-                {
+
                     return 'https://pep.shaparak.ir/Api/v1/Payment/CheckTransactionResult';
-                }
+
                 case self::URL_VERIFY:
-                {
+
                     return 'https://pep.shaparak.ir/Api/v1/Payment/VerifyPayment';
-                }
+
                 case self::URL_REFUND:
-                {
+
                     return 'https://pep.shaparak.ir/Api/v1/Payment/RefundPayment';
-                }
+
                 case self::UPDATE_SUBPAYMENT:
-                {
+
                     return 'https://pep.shaparak.ir/Api/v1/Payment/UpdateInvoiceSubPayment';
-                }
+
                 case self::GET_SUBPAYMENT:
-                {
+
                     return 'https://pep.shaparak.ir/Api/v1/Payment/GetSubPaymentsReport';
-                }
+
             }
         } else {
             switch ($action) {
                 case self::URL_GATEWAY:
-                {
+
                     return $this->bankTestBaseUrl.'/pasargad/pep.shaparak.ir/gateway.aspx';
-                }
+
                 case self::URL_TOKEN:
-                {
+
                     return $this->bankTestBaseUrl.'/pasargad/pep.shaparak.ir/Api/v1/Payment/GetToken';
-                }
+
                 case self::URL_CHECK:
-                {
+
                     return $this->bankTestBaseUrl.'/pasargad/pep.shaparak.ir/Api/v1/Payment/CheckTransactionResult';
-                }
+
                 case self::URL_VERIFY:
-                {
+
                     return $this->bankTestBaseUrl.'/pasargad/pep.shaparak.ir/Api/v1/Payment/VerifyPayment';
-                }
+
                 case self::URL_REFUND:
-                {
+
                     return $this->bankTestBaseUrl.'/pasargad/pep.shaparak.ir/Api/v1/Payment/RefundPayment';
-                }
+
                 case self::UPDATE_SUBPAYMENT:
-                {
+
                     return $this->bankTestBaseUrl.'/pasargad/pep.shaparak.ir/Api/v1/Payment/UpdateInvoiceSubPayment';
-                }
+
                 case self::GET_SUBPAYMENT:
-                {
+
                     return $this->bankTestBaseUrl.'/pasargad/pep.shaparak.ir/Api/v1/Payment/GetSubPaymentsReport';
-                }
+
             }
         }
         throw new Exception("could not find url for {$action} action");
