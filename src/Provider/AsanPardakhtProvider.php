@@ -168,6 +168,7 @@ class AsanPardakhtProvider extends AbstractProvider
             'localDate' => $this->getParameters('local_date').' '.$this->getParameters('local_time'),
             'callbackURL' => $this->getCallbackUrl(),
             'paymentId' => 0,
+            'additionalData' => (string) $this->getParameters('additional_data', ''),
         ];
     }
 
