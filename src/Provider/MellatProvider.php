@@ -12,6 +12,8 @@ class MellatProvider extends AbstractProvider
 
     protected bool $refundSupport = true;
 
+    protected bool $settlementSupport = true;
+
     /**
      * {@inheritDoc}
      *
