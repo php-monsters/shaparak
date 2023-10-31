@@ -131,7 +131,7 @@ class MellatProvider extends AbstractProvider
                     throw new Exception(sprintf('shaparak::mellat.error_%s', $response->return));
                 }
 
-                $this->getTransaction()->setCardNumber($this->getParameters('CardHolderInfo'));
+                $this->getTransaction()->setCardNumber($this->getParameters('CardHolderPan'));
                 $this->getTransaction()->setVerified(true); // save()
 
                 return true;
