@@ -196,11 +196,11 @@ class AsanPardakhtProvider extends AbstractProvider
     {
         parent::callbackAbuseCheckList(); // checks order id
 
-        if ((int) $this->getParameters('amount') === $this->getTransaction()->getPayableAmount()) {
+        if ((int) $this->getParameters('amount') !== $this->getTransaction()->getPayableAmount()) {
             throw new Exception('shaparak::shaparak.could_not_pass_abuse_checklist');
         }
 
-        if ((string) $this->getParameters('refID') === $this->getTransaction()->getGatewayToken()) {
+        if ((string) $this->getParameters('refID') !== $this->getTransaction()->getGatewayToken()) {
             throw new Exception('shaparak::shaparak.could_not_pass_abuse_checklist');
         }
     }

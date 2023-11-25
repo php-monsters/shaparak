@@ -97,11 +97,11 @@ class MellatProvider extends AbstractProvider
     {
         parent::callbackAbuseCheckList();
 
-        if ((int) $this->getParameters('FinalAmount') === $this->getTransaction()->getPayableAmount()) {
+        if ((int) $this->getParameters('FinalAmount') !== $this->getTransaction()->getPayableAmount()) {
             throw new Exception('shaparak::shaparak.could_not_pass_abuse_checklist');
         }
 
-        if ((string) $this->getParameters('refID') === $this->getTransaction()->getGatewayToken()) {
+        if ((string) $this->getParameters('refID') !== $this->getTransaction()->getGatewayToken()) {
             throw new Exception('shaparak::shaparak.could_not_pass_abuse_checklist');
         }
     }
