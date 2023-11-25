@@ -344,7 +344,7 @@ class AsanPardakhtProvider extends AbstractProvider
     public function getGatewayReferenceId(): string
     {
         if (is_null($this->getTransaction()->getReferenceId())) {
-            return $this->getParameters('saleOrderId');
+            return $this->getParameters('salesOrderId');
         }
 
         return $this->getTransaction()->getReferenceId();
