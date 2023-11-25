@@ -112,6 +112,11 @@ class SaderatProvider extends AbstractProvider
         throw new Exception('shaparak::shaparak.token_failed');
     }
 
+    protected function getGatewayOrderIdFromCallBackParameters(): string
+    {
+        return $this->getParameters('InvoiceId');
+    }
+
     /**
      * {@inheritDoc}
      */

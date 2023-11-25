@@ -78,6 +78,11 @@ class PasargadProvider extends AbstractProvider
         return $response['Token'];
     }
 
+    protected function getGatewayOrderIdFromCallBackParameters(): string
+    {
+        return $this->getParameters('iN');
+    }
+
     /**
      * {@inheritDoc}
      * @throws Exception

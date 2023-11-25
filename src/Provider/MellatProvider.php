@@ -38,7 +38,7 @@ class MellatProvider extends AbstractProvider
             'terminalId' => (int) $this->getParameters('terminal_id'),
             'userName' => $this->getParameters('username'),
             'userPassword' => $this->getParameters('password'),
-            'orderId' => $this->getGatewayOrderId(),
+            'orderId' => $this->getGatewayOrderId(), // get it from Transaction
             'amount' => $this->getAmount(),
             'localDate' => $this->getParameters('local_date', date('Ymd')),
             'localTime' => $this->getParameters('local_time', date('His')),
@@ -88,6 +88,11 @@ class MellatProvider extends AbstractProvider
         ];
     }
 
+    protected function getGatewayOrderIdFromCallBackParameters(): string
+    {
+        return $this->getParameters('SaleOrderId');
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -131,10 +136,13 @@ class MellatProvider extends AbstractProvider
                     throw new Exception(sprintf('shaparak::mellat.error_%s', $response->return));
                 }
 
-                $this->getTransaction()->setCardNumber($this->getParameters('CardHolderPan'));
-                $this->getTransaction()->setVerified(true); // save()
+                if ((int) $this->getParameters('FinalAmount') === $this->getTransaction()->getPayableAmount()) {
+                    // double-check the amount by transaction amount
+                    $this->getTransaction()->setCardNumber($this->getParameters('CardHolderPan'));
+                    $this->getTransaction()->setVerified(true); // save()
 
-                return true;
+                    return true;
+                }
             }
 
             throw new Exception('shaparak::shaparak.verify_failed');

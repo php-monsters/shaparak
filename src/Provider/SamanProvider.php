@@ -27,7 +27,7 @@ class SamanProvider extends AbstractProvider
 
         $sendParams = [
             'TermID' => $this->getParameters('terminal_id'),
-            'ResNum' => $this->getGatewayOrderId(),
+            'ResNum' => $this->getGatewayOrderId(), // get it from Transaction
             'TotalAmount' => $this->getAmount(),
         ];
 

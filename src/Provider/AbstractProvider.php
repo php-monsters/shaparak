@@ -247,10 +247,10 @@ abstract class AbstractProvider implements ProviderContract
      */
     protected function getGatewayOrderId(): int
     {
-        return (is_int($this->getParameters('order_id')) && ! empty($this->getParameters('order_id'))) ?
-            $this->getParameters('order_id') :
-            $this->getTransaction()->getGatewayOrderId();
+        return $this->getTransaction()->getGatewayOrderId();
     }
+
+    abstract protected function getGatewayOrderIdFromCallBackParameters(): string;
 
     protected function log(string $message, array $params = [], string $level = 'debug'): void
     {

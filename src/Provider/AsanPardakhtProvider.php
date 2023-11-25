@@ -165,7 +165,7 @@ class AsanPardakhtProvider extends AbstractProvider
         return [
             'serviceTypeId' => 1,
             'merchantConfigurationId' => $this->getParameters('terminal_id'),
-            'localInvoiceId' => $this->getGatewayOrderId(),
+            'localInvoiceId' => $this->getGatewayOrderId(), // get it from Transaction
             'amountInRials' => $this->getAmount(),
             'localDate' => $this->getParameters('local_date').' '.$this->getParameters('local_time'),
             'callbackURL' => $this->getCallbackUrl(),
@@ -185,6 +185,11 @@ class AsanPardakhtProvider extends AbstractProvider
             $url,
             $params
         );
+    }
+
+    protected function getGatewayOrderIdFromCallBackParameters(): string
+    {
+        return $this->getParameters('ResNum');
     }
 
     /**
@@ -225,7 +230,7 @@ class AsanPardakhtProvider extends AbstractProvider
             'terminal_id',
         ]);
         $response = $this->sendParamToAp([
-            'localInvoiceId' => $this->getTransaction()->getGatewayOrderId(),
+            'localInvoiceId' => $this->getGatewayOrderId(),
             'merchantConfigurationId' => $this->getParameters('terminal_id'),
         ], $this->getUrlFor(self::URL_RESULT), self::GET_METHOD);
 

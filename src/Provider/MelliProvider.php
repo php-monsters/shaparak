@@ -69,6 +69,11 @@ class MelliProvider extends AbstractProvider
         ];
     }
 
+    protected function getGatewayOrderIdFromCallBackParameters(): string
+    {
+        return $this->getParameters('OrderId');
+    }
+
     /**
      * {@inheritDoc}
      *
