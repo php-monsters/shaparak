@@ -2,6 +2,6 @@
 
 namespace PhpMonsters\Shaparak;
 
-class Exception extends \Exception
+class Exception extends \RuntimeException
 {
 }

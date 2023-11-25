@@ -3,6 +3,7 @@
 namespace PhpMonsters\Shaparak\Provider;
 
 use Illuminate\Support\Facades\Http;
+use JsonException;
 
 class SaderatProvider extends AbstractProvider
 {
@@ -29,7 +30,7 @@ class SaderatProvider extends AbstractProvider
      */
     public function getUrlFor(string $action = null): string
     {
-        if ($this->environment == 'production') {
+        if ($this->environment === 'production') {
             switch ($action) {
                 case self::URL_GATEWAY:
 
@@ -75,7 +76,7 @@ class SaderatProvider extends AbstractProvider
      * {@inheritDoc}
      *
      * @throws Exception
-     * @throws \JsonException
+     * @throws JsonException
      */
     protected function requestToken(): string
     {
@@ -116,7 +117,7 @@ class SaderatProvider extends AbstractProvider
      */
     public function verifyTransaction(): bool
     {
-        if ($this->getTransaction()->isReadyForVerify() == false) {
+        if ($this->getTransaction()->isReadyForVerify() === false) {
             throw new Exception('shaparak::shaparak.could_not_verify_transaction');
         }
 
@@ -144,9 +145,9 @@ class SaderatProvider extends AbstractProvider
         if (in_array($response->json('Status'), ['OK', 'Duplicate'])) {
             if ((int) $response->json('ReturnId') === $this->transaction->getPayableAmount()) {
                 return $this->getTransaction()->setVerified();
-            } else {
-                throw new Exception('shaparak::shaparak.amounts_not_match');
             }
+
+            throw new Exception('shaparak::shaparak.amounts_not_match');
         }
 
         throw new Exception('shaparak::shaparak.verify_failed');
@@ -185,9 +186,9 @@ class SaderatProvider extends AbstractProvider
         if (in_array($response->json('Status'), ['OK', 'Duplicate'])) {
             if ((int) $response->json('ReturnId') === $this->transaction->getPayableAmount()) {
                 return $this->getTransaction()->setRefunded();
-            } else {
-                throw new Exception('shaparak::shaparak.amounts_not_match');
             }
+
+            throw new Exception('shaparak::shaparak.amounts_not_match');
         }
 
         throw new Exception('shaparak::shaparak.refund_failed');

@@ -201,8 +201,8 @@ class MelliProvider extends AbstractProvider
     /**
      * Create sign data based on (Tripledes(ECB,PKCS7)) algorithm
      *
-     * @param string data
-     * @param string key
+     * @param string $str data
+     * @param string $key key
      */
     protected function encryptPKCS7(string $str, string $key): string
     {

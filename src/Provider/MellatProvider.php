@@ -287,7 +287,7 @@ class MellatProvider extends AbstractProvider
                     return true;
                 }
 
-                throw new Exception('shaparak::mellat.error_'.strval($response->return));
+                throw new Exception('shaparak::mellat.error_'. $response->return);
             }
 
             throw new Exception('shaparak::mellat.errors.invalid_response');
@@ -340,27 +340,15 @@ class MellatProvider extends AbstractProvider
     public function getUrlFor(string $action): string
     {
         if ($this->environment === 'production') {
-            switch ($action) {
-                case self::URL_GATEWAY:
-
-                    return 'https://bpm.shaparak.ir/pgwchannel/startpay.mellat';
-
-                default:
-
-                    return 'https://bpm.shaparak.ir/pgwchannel/services/pgw?wsdl';
-
-            }
-        } else {
-            switch ($action) {
-                case self::URL_GATEWAY:
-
-                    return $this->bankTestBaseUrl.'/mellat/bpm.shaparak.ir/pgwchannel/startpay.mellat';
-
-                default:
-
-                    return $this->bankTestBaseUrl.'/mellat/bpm.shaparak.ir/pgwchannel/services/pgw?wsdl';
-
-            }
+            return match ($action) {
+                self::URL_GATEWAY => 'https://bpm.shaparak.ir/pgwchannel/startpay.mellat',
+                default => 'https://bpm.shaparak.ir/pgwchannel/services/pgw?wsdl',
+            };
         }
+
+        return match ($action) {
+            self::URL_GATEWAY => $this->bankTestBaseUrl . '/mellat/bpm.shaparak.ir/pgwchannel/startpay.mellat',
+            default => $this->bankTestBaseUrl . '/mellat/bpm.shaparak.ir/pgwchannel/services/pgw?wsdl',
+        };
     }
 }

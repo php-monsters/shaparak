@@ -209,35 +209,17 @@ class SamanProvider extends AbstractProvider
     public function getUrlFor(string $action = null): string
     {
         if ($this->environment === 'production') {
-            switch ($action) {
-                case self::URL_GATEWAY:
-
-                    return 'https://sep.shaparak.ir/Payment.aspx';
-
-                case self::URL_TOKEN :
-
-                    return 'https://sep.shaparak.ir/Payments/InitPayment.asmx?WSDL';
-
-                default:
-
-                    return 'https://sep.shaparak.ir/payments/referencepayment.asmx?WSDL';
-
-            }
-        } else {
-            switch ($action) {
-                case self::URL_GATEWAY:
-
-                    return $this->bankTestBaseUrl.'/saman/sep.shaparak.ir/payment.aspx';
-
-                case self::URL_TOKEN :
-
-                    return $this->bankTestBaseUrl.'/saman/sep.shaparak.ir/payments/initpayment.asmx?wsdl';
-
-                default:
-
-                    return $this->bankTestBaseUrl.'/saman/sep.shaparak.ir/payments/referencepayment.asmx?wsdl';
-
-            }
+            return match ($action) {
+                self::URL_GATEWAY => 'https://sep.shaparak.ir/Payment.aspx',
+                self::URL_TOKEN => 'https://sep.shaparak.ir/Payments/InitPayment.asmx?WSDL',
+                default => 'https://sep.shaparak.ir/payments/referencepayment.asmx?WSDL',
+            };
         }
+
+        return match ($action) {
+            self::URL_GATEWAY => $this->bankTestBaseUrl . '/saman/sep.shaparak.ir/payment.aspx',
+            self::URL_TOKEN => $this->bankTestBaseUrl . '/saman/sep.shaparak.ir/payments/initpayment.asmx?wsdl',
+            default => $this->bankTestBaseUrl . '/saman/sep.shaparak.ir/payments/referencepayment.asmx?wsdl',
+        };
     }
 }

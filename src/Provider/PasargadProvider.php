@@ -80,6 +80,7 @@ class PasargadProvider extends AbstractProvider
 
     /**
      * {@inheritDoc}
+     * @throws Exception
      */
     public function verifyTransaction(): bool
     {
@@ -133,6 +134,7 @@ class PasargadProvider extends AbstractProvider
 
     /**
      * {@inheritDoc}
+     * @throws Exception
      */
     public function refundTransaction(): bool
     {
@@ -202,7 +204,8 @@ class PasargadProvider extends AbstractProvider
     }
 
     /**
-     * @param  string  $certificatePath
+     * @param string|null $certificatePath
+     * @return RSAProcessor
      */
     private function getProcessor(string $certificatePath = null): RSAProcessor
     {

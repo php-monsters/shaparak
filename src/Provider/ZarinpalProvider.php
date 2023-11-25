@@ -2,6 +2,7 @@
 
 namespace PhpMonsters\Shaparak\Provider;
 
+use Exception;
 use Illuminate\Support\Facades\Http;
 
 class ZarinpalProvider extends AbstractProvider

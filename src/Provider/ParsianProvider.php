@@ -2,7 +2,6 @@
 
 namespace PhpMonsters\Shaparak\Provider;
 
-use Exception;
 use SoapFault;
 
 class ParsianProvider extends AbstractProvider
@@ -188,7 +187,7 @@ class ParsianProvider extends AbstractProvider
                 'Token',
                 'Status',
             ]);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return false;
         }
 

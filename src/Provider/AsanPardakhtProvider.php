@@ -3,6 +3,7 @@
 namespace PhpMonsters\Shaparak\Provider;
 
 use Illuminate\Support\Facades\Http;
+use JsonException;
 use PhpMonsters\Shaparak\Exceptions\RefundException;
 use PhpMonsters\Shaparak\Exceptions\RequestTokenException;
 use PhpMonsters\Shaparak\Exceptions\SettlementException;
@@ -25,8 +26,7 @@ class AsanPardakhtProvider extends AbstractProvider
     protected bool $settlementSupport = true;
 
     /**
-     * @throws Exception
-     * @throws RequestTokenException
+     * @throws RequestTokenException|JsonException
      */
     public function getFormParameters(): array
     {
@@ -114,7 +114,7 @@ class AsanPardakhtProvider extends AbstractProvider
 
     /**
      * @throws Exception
-     * @throws RequestTokenException
+     * @throws RequestTokenException|JsonException
      */
     public function requestToken(): string
     {
@@ -139,7 +139,9 @@ class AsanPardakhtProvider extends AbstractProvider
             );
 
             return json_decode($response->body(), false, 512, JSON_THROW_ON_ERROR);
-        } elseif ($response->status() !== 200) {
+        }
+
+        if ($response->status() !== 200) {
             //todo: handle error page
             throw new Exception(sprintf('shaparak::asanpardakht.error_%s', $response->status()));
         }
@@ -343,11 +345,11 @@ class AsanPardakhtProvider extends AbstractProvider
      */
     public function getGatewayReferenceId(): string
     {
-        if (is_null($this->getTransaction()->getReferenceId())) {
-            return $this->getParameters('salesOrderId');
-        }
+        $this->checkRequiredActionParameters([
+            'rrn',
+        ]);
 
-        return $this->getTransaction()->getReferenceId();
+        return $this->getParameters('rrn');
     }
 
     /**
