@@ -44,7 +44,7 @@ class MelliProvider extends AbstractProvider
 
         $resCode = $response->json('ResCode');
         if (is_numeric($resCode) && (int) $resCode === 0) {
-            $transaction->setGatewayToken($response->json('Token'), true); // update transaction reference id
+            $transaction->setGatewayToken($response->json('Token'), true); // update transaction
 
             return $response->json('Token');
         }

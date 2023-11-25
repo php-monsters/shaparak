@@ -57,7 +57,6 @@ if you choose development mode, Shaparak uses [banktest.ir](https://banktest.ir)
 ### Add required fields to the model migration
 ```php
 $table->string('token', 40)->nullable(); // It keeps token that we get from the IPG
-$table->string('gateway_ref_id', 40)->nullable(); // It keeps gateway reference id that we get from the IPG on callback
 $table->jsonb('gateway_callback_params')->nullable(); // It keeps the IPG callback parameters (just for tracking and debugging)
 
 $table->boolean('verified')->default(false); // Transaction verified or not

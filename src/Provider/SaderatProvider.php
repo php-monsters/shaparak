@@ -104,7 +104,7 @@ class SaderatProvider extends AbstractProvider
             $this->getTransaction()->setGatewayToken(
                 $response['Accesstoken'],
                 true
-            ); // update transaction reference id
+            ); // update transaction
 
             return $response->json('Accesstoken');
         }

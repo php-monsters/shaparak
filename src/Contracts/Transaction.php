@@ -20,16 +20,6 @@ interface Transaction
     public function getGatewayToken(): string;
 
     /**
-     * set reference ID of transaction شناسه/کد پیگیری
-     */
-    public function setReferenceId(string $referenceId, bool $save = true): bool;
-
-    /**
-     * get reference ID of the
-     */
-    public function getReferenceId(): string;
-
-    /**
      * return an order id for the transaction to requesting a payment token from the gateway
      */
     public function getGatewayOrderId(): int;

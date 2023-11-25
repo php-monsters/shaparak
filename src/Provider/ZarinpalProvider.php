@@ -2,7 +2,6 @@
 
 namespace PhpMonsters\Shaparak\Provider;
 
-use Exception;
 use Illuminate\Support\Facades\Http;
 
 class ZarinpalProvider extends AbstractProvider
@@ -33,6 +32,8 @@ class ZarinpalProvider extends AbstractProvider
      */
     protected function requestToken(): string
     {
+        $transaction = $this->getTransaction();
+
         if ($this->getTransaction()->isReadyForTokenRequest() === false) {
             throw new Exception('transaction is not ready for requesting token from payment gateway');
         }
@@ -50,6 +51,7 @@ class ZarinpalProvider extends AbstractProvider
 
         if ($response->successful()) {
             if ((int) $response->json('data.code') === 100) {
+                $transaction->setGatewayToken($response->json('data.authority'), true); // update transaction
                 return $response->json('data.authority');
             }
 
@@ -189,5 +191,10 @@ class ZarinpalProvider extends AbstractProvider
         }
 
         return $description;
+    }
+
+    protected function getGatewayOrderIdFromCallBackParameters(): string
+    {
+        return '';
     }
 }

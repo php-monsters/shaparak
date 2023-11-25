@@ -40,7 +40,7 @@ class SamanProvider extends AbstractProvider
                 $token = trim($response);
                 if (strlen($token) >= 20) { // got string token
                     $this->log("fetched token from gateway: {$token}");
-                    $transaction->setGatewayToken($token, true); // update transaction reference id
+                    $transaction->setGatewayToken($token, true); // update transaction
 
                     return $token;
                 }

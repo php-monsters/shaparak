@@ -111,7 +111,7 @@ class PasargadProvider extends AbstractProvider
             $this->getTransaction()->setGatewayToken(
                 $this->getParameters('tref'),
                 true
-            ); // update transaction reference id
+            ); // update transaction
         } else {
             throw new Exception('could not verify transaction without tref');
         }

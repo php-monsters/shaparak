@@ -56,7 +56,7 @@ class MellatProvider extends AbstractProvider
                 $response = explode(',', $response->return);
 
                 if ((int) $response[0] === 0) {
-                    $this->getTransaction()->setGatewayToken($response[1]); // update transaction reference id
+                    $this->getTransaction()->setGatewayToken($response[1]); // update transaction
 
                     return $response[1];
                 }
