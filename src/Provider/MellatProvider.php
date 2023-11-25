@@ -90,7 +90,20 @@ class MellatProvider extends AbstractProvider
 
     protected function getGatewayOrderIdFromCallBackParameters(): string
     {
-        return $this->getParameters('SaleOrderId');
+        return (string) $this->getParameters('SaleOrderId');
+    }
+
+    protected function callbackAbuseCheckList(): void
+    {
+        parent::callbackAbuseCheckList();
+
+        if ((int) $this->getParameters('FinalAmount') === $this->getTransaction()->getPayableAmount()) {
+            throw new Exception('shaparak::shaparak.could_not_pass_abuse_checklist');
+        }
+
+        if ((string) $this->getParameters('refID') === $this->getTransaction()->getGatewayToken()) {
+            throw new Exception('shaparak::shaparak.could_not_pass_abuse_checklist');
+        }
     }
 
     /**
@@ -116,6 +129,8 @@ class MellatProvider extends AbstractProvider
             'CardHolderPan',
         ]);
 
+        $this->callbackAbuseCheckList();
+
         try {
 
             $sendParams = [
@@ -127,6 +142,7 @@ class MellatProvider extends AbstractProvider
                 'saleReferenceId' => (int) $this->getParameters('SaleReferenceId'),
             ];
 
+
             $soapClient = $this->getSoapClient(self::URL_VERIFY);
 
             $response = $soapClient->bpVerifyRequest($sendParams);
@@ -136,13 +152,10 @@ class MellatProvider extends AbstractProvider
                     throw new Exception(sprintf('shaparak::mellat.error_%s', $response->return));
                 }
 
-                if ((int) $this->getParameters('FinalAmount') === $this->getTransaction()->getPayableAmount()) {
-                    // double-check the amount by transaction amount
-                    $this->getTransaction()->setCardNumber($this->getParameters('CardHolderPan'));
-                    $this->getTransaction()->setVerified(true); // save()
+                $this->getTransaction()->setCardNumber($this->getParameters('CardHolderPan'));
+                $this->getTransaction()->setVerified(true); // save()
 
-                    return true;
-                }
+                return true;
             }
 
             throw new Exception('shaparak::shaparak.verify_failed');
@@ -152,11 +165,11 @@ class MellatProvider extends AbstractProvider
     }
 
     /**
-     * @return bool
+     * @return string
      *
      * @throws Exception
      */
-    public function inquiryTransaction()
+    public function inquiryTransaction() :string
     {
         if ($this->getTransaction()->isReadyForInquiry() === false) {
             throw new Exception('shaparak::shaparak.could_not_inquiry_payment');

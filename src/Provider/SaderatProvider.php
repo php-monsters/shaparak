@@ -114,7 +114,7 @@ class SaderatProvider extends AbstractProvider
 
     protected function getGatewayOrderIdFromCallBackParameters(): string
     {
-        return $this->getParameters('InvoiceId');
+        return (string) $this->getParameters('InvoiceId');
     }
 
     /**
@@ -139,6 +139,8 @@ class SaderatProvider extends AbstractProvider
             'IssuerBank',
             'CardNumber',
         ]);
+
+        $this->callbackAbuseCheckList();
 
         $response = Http::acceptJson()
             ->throw()

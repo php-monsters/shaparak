@@ -15,6 +15,11 @@ interface Transaction
     public function setGatewayToken(string $token, bool $save = true): bool;
 
     /**
+     * get gateway token of transaction
+     */
+    public function getGatewayToken(): string;
+
+    /**
      * set reference ID of transaction شناسه/کد پیگیری
      */
     public function setReferenceId(string $referenceId, bool $save = true): bool;

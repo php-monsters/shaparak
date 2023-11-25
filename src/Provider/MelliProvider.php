@@ -71,7 +71,7 @@ class MelliProvider extends AbstractProvider
 
     protected function getGatewayOrderIdFromCallBackParameters(): string
     {
-        return $this->getParameters('OrderId');
+        return (string) $this->getParameters('OrderId');
     }
 
     /**
@@ -97,6 +97,8 @@ class MelliProvider extends AbstractProvider
         if ((int) $this->getParameters('ResCode') !== 0) {
             throw new Exception('could not verify transaction with ResCode: '.$this->getParameters('ResCode'));
         }
+
+        $this->callbackAbuseCheckList();
 
         $key = $this->getParameters('transaction_key');
         $token = $this->getParameters('Token');

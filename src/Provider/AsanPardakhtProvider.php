@@ -189,7 +189,20 @@ class AsanPardakhtProvider extends AbstractProvider
 
     protected function getGatewayOrderIdFromCallBackParameters(): string
     {
-        return $this->getParameters('ResNum');
+        return (string) $this->getParameters('ResNum');
+    }
+
+    protected function callbackAbuseCheckList(): void
+    {
+        parent::callbackAbuseCheckList(); // checks order id
+
+        if ((int) $this->getParameters('amount') === $this->getTransaction()->getPayableAmount()) {
+            throw new Exception('shaparak::shaparak.could_not_pass_abuse_checklist');
+        }
+
+        if ((string) $this->getParameters('refID') === $this->getTransaction()->getGatewayToken()) {
+            throw new Exception('shaparak::shaparak.could_not_pass_abuse_checklist');
+        }
     }
 
     /**
@@ -202,6 +215,12 @@ class AsanPardakhtProvider extends AbstractProvider
         if ($this->getTransaction()->isReadyForVerify() === false) {
             throw new Exception('shaparak::shaparak.could_not_verify_transaction');
         }
+
+        $this->checkRequiredActionParameters([
+            'terminal_id',
+        ]);
+
+        $this->callbackAbuseCheckList();
 
         try {
             $response = $this->generateComplementaryOperation(self::URL_VERIFY);

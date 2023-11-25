@@ -252,6 +252,13 @@ abstract class AbstractProvider implements ProviderContract
 
     abstract protected function getGatewayOrderIdFromCallBackParameters(): string;
 
+    protected function callbackAbuseCheckList(): void
+    {
+        if ((string) $this->getTransaction()->gateway_order_id !==  $this->getGatewayOrderIdFromCallBackParameters()) {
+            throw new Exception('shaparak::shaparak.could_not_pass_abuse_checklist');
+        }
+    }
+
     protected function log(string $message, array $params = [], string $level = 'debug'): void
     {
         $reflect = new ReflectionClass($this);

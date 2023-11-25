@@ -83,7 +83,7 @@ class ParsianProvider extends AbstractProvider
 
     protected function getGatewayOrderIdFromCallBackParameters(): string
     {
-        return $this->getParameters('OrderId');
+        return (string) $this->getParameters('OrderId');
     }
 
     /**
@@ -102,6 +102,8 @@ class ParsianProvider extends AbstractProvider
             'Token',
             'Status',
         ]);
+
+        $this->callbackAbuseCheckList();
 
         if ((int) $this->getParameters('Status') !== 0) {
             throw new Exception(

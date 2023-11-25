@@ -80,7 +80,7 @@ class PasargadProvider extends AbstractProvider
 
     protected function getGatewayOrderIdFromCallBackParameters(): string
     {
-        return $this->getParameters('iN');
+        return (string) $this->getParameters('iN');
     }
 
     /**
@@ -103,6 +103,8 @@ class PasargadProvider extends AbstractProvider
             'iD',
             'tref',
         ]);
+
+        $this->callbackAbuseCheckList();
 
         // update transaction reference number
         if (! empty($this->getParameters('tref'))) {

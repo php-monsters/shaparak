@@ -75,6 +75,11 @@ class SamanProvider extends AbstractProvider
         ];
     }
 
+    protected function getGatewayOrderIdFromCallBackParameters(): string
+    {
+        return (string) $this->getParameters('ResNum');
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -100,6 +105,8 @@ class SamanProvider extends AbstractProvider
         if ($this->getParameters('State') !== 'OK') {
             throw new Exception('could not verify transaction with callback state: '.$this->getParameters('State'));
         }
+
+        $this->callbackAbuseCheckList();
 
         try {
             $soapClient = $this->getSoapClient(self::URL_VERIFY);
