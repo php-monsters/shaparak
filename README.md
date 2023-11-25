@@ -79,6 +79,203 @@ use PhpMonsters\Shaparak\Contracts\Transaction as ShaparakTransaction;
 class Transaction extends Model implements TransactionTransaction
 {
 ```
+
+### Shaparak Integration Trait
+You can use a trait as below in order integrate your model with Shaparak and implement Shaparak's Transaction contract.
+
+**Sample integration trait (THIS IS JUST AN EXAMPLE)**: 
+
+```php
+trait ShaparakIntegration
+{
+    /**
+     * return callback url for payment process
+     */
+    public function getCallbackUrl(): string
+    {
+        return makeHttpsUrl(route(
+            'ipg.transaction_callback',
+            [
+                'token' => $this->token,
+            ]
+        ));
+    }
+
+    /**
+     * set gateway token that fetched from ipg provider gateway
+     */
+    public function setGatewayToken(string $token, bool $save = true): bool
+    {
+        $this->token = $token;
+        $this->status = (TransactionStatusEnum::GoneToGate)->value;
+
+        if ($save) {
+            return $this->save();
+        }
+
+        return true;
+    }
+
+    public function getGatewayToken(): string
+    {
+        return $this->token;
+    }
+
+    /**
+     * check if you transaction is ready for requesting payment token
+     */
+    public function isReadyForTokenRequest(): bool
+    {
+        return intval($this->status) <= (TransactionStatusEnum::Callback)->value;
+    }
+
+    /**
+     * check if transaction is ready for requesting verify transaction
+     */
+    public function isReadyForVerify(): bool
+    {
+        return intval($this->status) <= (TransactionStatusEnum::Verified)->value;
+    }
+
+    /**
+     * check if transaction is ready for requesting inquiry transaction (if supported by gateway)
+     */
+    public function isReadyForInquiry(): bool
+    {
+        return intval($this->status) >= (TransactionStatusEnum::GoneToGate)->value;
+    }
+
+    /**
+     * check if transaction is ready for requesting settle/... transaction (if needed by gateway)
+     */
+    public function isReadyForSettle(): bool
+    {
+        return intval($this->status) == (TransactionStatusEnum::Verified)->value;
+    }
+
+    /**
+     * check if transaction is ready to mark as  accomplished
+     */
+    public function isReadyForAccomplish(): bool
+    {
+        return (intval($this->status) >= (TransactionStatusEnum::Verified)->value) &&
+            (intval($this->status) < (TransactionStatusEnum::Accomplished)->value);
+    }
+
+    public function ipgProviderSupportsRefund(): bool
+    {
+        return ! empty($this->providable) &&
+            $this->providable->refund_support === true;
+    }
+
+    public function isReadyForReverse(): bool
+    {
+        return $this->status === TransactionStatusEnum::Callback->value;
+    }
+
+    public function isReadyForCancel(): bool
+    {
+        return $this->status === TransactionStatusEnum::Verified->value;
+    }
+
+    /**
+     * check if transaction is ready for accomplishment (merchant verify)
+     */
+    public function isReadyForRefund(): bool
+    {
+        return
+            $this->ipgProviderSupportsRefund() &&
+            (int) $this->status !== (TransactionStatusEnum::Accomplished)->value;
+    }
+
+    /**
+     * update transaction by paid card number (if provided by gateway)
+     */
+    public function setCardNumber(string $cardNumber, bool $save = true): bool
+    {
+        $this->cardNumber = $cardNumber;
+
+        if ($save) {
+            return $this->save();
+        }
+
+        return true;
+    }
+
+    /**
+     * mark transaction as verified
+     */
+    public function setVerified(bool $save = true): bool
+    {
+        $this->status = (TransactionStatusEnum::Verified)->value;
+
+        if ($save) {
+            return $this->save();
+        }
+
+        return true;
+    }
+
+    /**
+     * mark transaction as settled/...
+     */
+    public function setSettled(bool $save = true): bool
+    {
+        $this->status = (TransactionStatusEnum::Settled)->value;
+
+        if ($save) {
+            return $this->save();
+        }
+
+        return true;
+    }
+
+    /**
+     * mark transaction as reversed
+     */
+    public function setRefunded(bool $save = true): bool
+    {
+        $this->status = (TransactionStatusEnum::Refund)->value;
+
+        if ($save) {
+            return $this->save();
+        }
+
+        return true;
+    }
+
+    /**
+     * get transaction amount
+     */
+    public function getPayableAmount(): int
+    {
+        return $this->payable_amount;
+    }
+
+    /**
+     * save ipg provider's gateway callback parameters into transaction
+     */
+    public function setCallBackParameters(array $parameters, bool $save = true): bool
+    {
+        $this->gateway_callback_params = $parameters;
+
+        if ($save) {
+            return $this->save();
+        }
+
+        return true;
+    }
+
+    /**
+     * @return false|mixed|string
+     */
+    public function getCallbackParams(): mixed
+    {
+        return $this->gateway_callback_params;
+    }
+}
+```
+
 ### Initialize a Shaparak instance
 ```php
 // method I: init Shaparak by passing custom gateway options
@@ -95,7 +292,7 @@ $shaparak = Shaparak::with($psp, $transaction)
     ->setParameters($request->all());
 ```
 
-### Create goto IPG form
+### Create goto IPG form (Payment form)
 Create a form in order to go to payment gateway. This form is auto-submit by default
 ```php
 // create your transaction as you desired
@@ -119,7 +316,7 @@ Show the form in your blade like:
 {!! $form !!}
 ```
 
-### Callback URL
+### Callback URL/route on your application
 In your callback action create a Shaparak instance and handle the transaction 
 ```php
 $shaparak = Shaparak::with('saman', $order)
@@ -134,6 +331,15 @@ $shaparak->setCallBackParameters($request->all());
 
 $verifyResult = $shaparak->verifyTransaction($request->all());
 
+```
+
+### Next steps (optional steps)
+Use the following methods based on your needs
+
+```php
+$inquiryResult = $shaparak->inquiryTransaction($request->all());
+$settleResult = $shaparak->settleTransaction($request->all());
+$refundResult = $shaparak->refundTransaction($request->all());
 ```
 
 ## Security
