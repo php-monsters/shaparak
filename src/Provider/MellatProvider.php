@@ -97,7 +97,6 @@ class MellatProvider extends AbstractProvider
     {
         if (!(
             (string)$this->getTransaction()->gateway_order_id === $this->getGatewayOrderIdFromCallBackParameters()
-            && (int)$this->getParameters('FinalAmount') === $this->getTransaction()->getPayableAmount()
             && (string)$this->getParameters('refID') === $this->getTransaction()->getGatewayToken()
         )) {
             throw new Exception('shaparak::shaparak.could_not_pass_abuse_checklist');
