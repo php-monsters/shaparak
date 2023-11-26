@@ -189,18 +189,16 @@ class AsanPardakhtProvider extends AbstractProvider
 
     protected function getGatewayOrderIdFromCallBackParameters(): string
     {
-        return (string) $this->getParameters('ResNum');
+        return (string) $this->getTransaction()->getFromJsonb(key: 'salesOrderID', filedName: 'gateway_callback_params');
     }
 
     protected function callbackAbuseCheckList(): void
     {
-        parent::callbackAbuseCheckList(); // checks order id
-
-        if ((int) $this->getParameters('amount') !== $this->getTransaction()->getPayableAmount()) {
-            throw new Exception('shaparak::shaparak.could_not_pass_abuse_checklist');
-        }
-
-        if ((string) $this->getParameters('refID') !== $this->getTransaction()->getGatewayToken()) {
+        if (!(
+            $this->getGatewayOrderIdFromCallBackParameters() === (string)$this->getTransaction()->gateway_order_id
+            && (int)$this->getTransaction()->getFromJsonb(key: 'amount', filedName: 'gateway_callback_params') === $this->getTransaction()->getPayableAmount()
+            && (string)$this->getTransaction()->getFromJsonb(key: 'refID', filedName: 'gateway_callback_params') === $this->getTransaction()->getGatewayToken()
+        )) {
             throw new Exception('shaparak::shaparak.could_not_pass_abuse_checklist');
         }
     }
