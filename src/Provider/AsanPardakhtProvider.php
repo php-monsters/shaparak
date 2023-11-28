@@ -196,6 +196,7 @@ class AsanPardakhtProvider extends AbstractProvider
     {
         if (!(
             $this->getGatewayOrderIdFromCallBackParameters() === (string)$this->getTransaction()->gateway_order_id
+            && (int)$this->getTransaction()->getFromJsonb(key: 'amount', fieldName: 'gateway_callback_params') === $this->getTransaction()->getPayableAmount()
             && (string)$this->getTransaction()->getFromJsonb(key: 'refID', fieldName: 'gateway_callback_params') === $this->getTransaction()->getGatewayToken()
         )) {
             throw new Exception('shaparak::shaparak.could_not_pass_abuse_checklist');
