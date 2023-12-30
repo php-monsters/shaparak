@@ -45,12 +45,17 @@ class MellatProvider extends AbstractProvider
             'additionalData' => (string) $this->getParameters('additional_data'),
             'callBackUrl' => $this->getCallbackUrl(),
             'payerId' => (int) $this->getParameters('payer_id'),
+            'user_mobile' => '98' . substr($this->getParameters('user_mobile'), -10)
         ];
 
         try {
             $soapClient = $this->getSoapClient(self::URL_TOKEN);
 
-            $response = $soapClient->bpPayRequest($sendParams);
+            if ($this->getParameters('cumulative')) {
+                $response = $soapClient->bpCumulativeDynamicPayRequest($sendParams);
+            } else {
+                $response = $soapClient->bpPayRequest($sendParams);
+            }
 
             if (isset($response->return)) {
                 $response = explode(',', $response->return);

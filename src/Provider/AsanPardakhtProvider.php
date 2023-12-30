@@ -162,16 +162,18 @@ class AsanPardakhtProvider extends AbstractProvider
             'local_time',
         ]);
 
-        return [
+        $data = [
             'serviceTypeId' => 1,
             'merchantConfigurationId' => $this->getParameters('terminal_id'),
             'localInvoiceId' => $this->getGatewayOrderId(), // get it from Transaction
             'amountInRials' => $this->getAmount(),
             'localDate' => $this->getParameters('local_date').' '.$this->getParameters('local_time'),
             'callbackURL' => $this->getCallbackUrl(),
-            'paymentId' => 0,
+            'paymentId' => $this->getParameters('payment_id', 0),
             'additionalData' => (string) $this->getParameters('additional_data', ''),
         ];
+
+        return array_merge($data, $this->cumulativeData());
     }
 
     public function sendParamToAp(array $params, string $url, string $method): mixed
@@ -391,5 +393,15 @@ class AsanPardakhtProvider extends AbstractProvider
         }
 
         return false;
+    }
+
+    private function cumulativeData(): array
+    {
+        if ($this->getParameters('cumulative')) {
+            return [
+                'settlementPortions' => $this->getParameters('settlement_portions')
+            ];
+        }
+        return [];
     }
 }

@@ -22,6 +22,8 @@ return [
         'prefix' => 'SHAPARAK->',
     ],
 
+    'iban' => env('SETTLEMENT_IBAN'),
+
     'providers' => [
         /*
         |--------------------------------------------------------------------------
@@ -34,6 +36,7 @@ return [
             'terminal_id' => env('AP_MERCHANT_ID'),
             'key' => env('AP_KEY'),
             'iv' => env('AP_IV'),
+            'cumulative' => env('AP_CUMULATIVE', false),
         ],
         /*
         |--------------------------------------------------------------------------
@@ -43,6 +46,7 @@ return [
         'saman' => [
             'terminal_id' => env('SAMAN_TERMINAL_ID'),
             'terminal_pass' => env('SAMAN_TERMINAL_PASS'),
+            'cumulative' => env('SAMAN_CUMULATIVE', false),
         ],
         /*
         |--------------------------------------------------------------------------
@@ -51,6 +55,7 @@ return [
         */
         'parsian' => [
             'pin' => env('PARSIAN_PIN', ''),
+            'cumulative' => env('PARSIAN_CUMULATIVE', false),
         ],
         /*
         |--------------------------------------------------------------------------
@@ -61,6 +66,7 @@ return [
             'terminal_id' => env('PASARGAD_TERMINAL_ID'),
             'merchant_id' => env('PASARGAD_MERCHANT_ID'),
             'certificate_path' => env('PASARGAD_CERT_PATH', storage_path('shaparak/pasargad/certificate.xml')),
+            'cumulative' => env('PASARGAD_CUMULATIVE', false),
         ],
         /*
         |--------------------------------------------------------------------------
@@ -71,6 +77,7 @@ return [
             'username' => env('MELLAT_USERNAME'),
             'password' => env('MELLAT_PASSWORD'),
             'terminal_id' => env('MELLAT_TERMINAL_ID'),
+                'cumulative' => env('MELLAT_CUMULATIVE', false),
         ],
         /*
         |--------------------------------------------------------------------------
@@ -81,6 +88,7 @@ return [
             'merchant_id' => env('MELLI_MERCHANT_ID'),
             'terminal_id' => env('MELLI_TERMINAL_ID'),
             'transaction_key' => env('MELLI_TRANS_KEY'),
+            'cumulative' => env('MELLI_CUMULATIVE', false),
         ],
         /*
         |--------------------------------------------------------------------------
@@ -89,6 +97,7 @@ return [
         */
         'saderat' => [
             'terminal_id' => env('SADERAT_MERCHANT_ID'),
+            'cumulative' => env('SADERAT_CUMULATIVE', false),
         ],
         /*
         |--------------------------------------------------------------------------
@@ -97,6 +106,7 @@ return [
         */
         'zarinpal' => [
             'merchant_id' => env('ZARINPAL_MERCHANT_ID'),
+            'cumulative' => env('ZARINPAL_CUMULATIVE', false),
         ],
     ],
 
