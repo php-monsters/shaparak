@@ -397,7 +397,7 @@ class AsanPardakhtProvider extends AbstractProvider
 
     private function cumulativeData(): array
     {
-        if ($this->getParameters('cumulative')) {
+        if ($this->getParameters('settlement_portions')) {
             return [
                 'settlementPortions' => $this->getParameters('settlement_portions')
             ];
