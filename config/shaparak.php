@@ -77,7 +77,7 @@ return [
             'username' => env('MELLAT_USERNAME'),
             'password' => env('MELLAT_PASSWORD'),
             'terminal_id' => env('MELLAT_TERMINAL_ID'),
-                'cumulative' => env('MELLAT_CUMULATIVE', false),
+            'cumulative' => env('MELLAT_CUMULATIVE', false),
         ],
         /*
         |--------------------------------------------------------------------------

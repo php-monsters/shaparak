@@ -51,7 +51,7 @@ class MellatProvider extends AbstractProvider
         try {
             $soapClient = $this->getSoapClient(self::URL_TOKEN);
 
-            if ($this->getParameters('cumulative')) {
+            if (config('shaparak.providers.mellat.cumulative')) {
                 $response = $soapClient->bpCumulativeDynamicPayRequest($sendParams);
             } else {
                 $response = $soapClient->bpPayRequest($sendParams);
