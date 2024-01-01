@@ -126,7 +126,6 @@ abstract class AbstractProvider implements ProviderContract
     public function setParameters(array $parameters = []): ProviderContract
     {
         $parameters = array_change_key_case($parameters);
-        $parameters = array_map('trim', $parameters);
 
         $this->parameters = array_merge($this->parameters, $parameters);
 
