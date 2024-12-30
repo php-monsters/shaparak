@@ -7,6 +7,7 @@ use Illuminate\Support\Manager;
 use InvalidArgumentException;
 use PhpMonsters\Shaparak\Contracts\Provider;
 use PhpMonsters\Shaparak\Contracts\Transaction;
+use PhpMonsters\Shaparak\Enums\ProviderName;
 use PhpMonsters\Shaparak\Provider\AsanPardakhtProvider;
 use PhpMonsters\Shaparak\Provider\MellatProvider;
 use PhpMonsters\Shaparak\Provider\MelliProvider;
@@ -66,33 +67,6 @@ class ShaparakManager extends Manager implements Contracts\Factory
     }
 
     /**
-     * Create an instance of the specified driver.
-     *
-     * @return Provider
-     */
-    protected function createSamanDriver()
-    {
-        $config = $this->getConfig('saman');
-
-        return $this->buildProvider(
-            SamanProvider::class,
-            $config
-        );
-    }
-
-    /**
-     * get provider configuration runtime array or config based configuration
-     */
-    protected function getConfig(string $driver): array
-    {
-        if (empty($this->runtimeConfig)) {
-            return $this->container['config']["shaparak.providers.{$driver}"];
-        }
-
-        return $this->runtimeConfig;
-    }
-
-    /**
      * Build a Shaparak provider instance.
      */
     public function buildProvider(string $provider, array $config): Provider
@@ -106,13 +80,40 @@ class ShaparakManager extends Manager implements Contracts\Factory
     }
 
     /**
+     * get provider configuration runtime array or config based configuration
+     */
+    protected function getConfig(ProviderName $driver): array
+    {
+        if (empty($this->runtimeConfig)) {
+            return $this->container['config']["shaparak.providers.{$driver->value}"];
+        }
+
+        return $this->runtimeConfig;
+    }
+
+    /**
+     * Create an instance of the specified driver.
+     *
+     * @return Provider
+     */
+    protected function createSamanDriver()
+    {
+        $config = $this->getConfig(ProviderName::SAMAN);
+
+        return $this->buildProvider(
+            SamanProvider::class,
+            $config
+        );
+    }
+
+    /**
      * Create an instance of the specified driver.
      *
      * @return Provider
      */
     protected function createParsianDriver()
     {
-        $config = $this->getConfig('parsian');
+        $config = $this->getConfig(ProviderName::PARSIAN);
 
         return $this->buildProvider(
             ParsianProvider::class,
@@ -127,7 +128,7 @@ class ShaparakManager extends Manager implements Contracts\Factory
      */
     protected function createPasargadDriver()
     {
-        $config = $this->getConfig('pasargad');
+        $config = $this->getConfig(ProviderName::PASARGAD);
 
         return $this->buildProvider(
             PasargadProvider::class,
@@ -142,7 +143,7 @@ class ShaparakManager extends Manager implements Contracts\Factory
      */
     protected function createMellatDriver()
     {
-        $config = $this->getConfig('mellat');
+        $config = $this->getConfig(ProviderName::MELLAT);
 
         return $this->buildProvider(
             MellatProvider::class,
@@ -157,7 +158,7 @@ class ShaparakManager extends Manager implements Contracts\Factory
      */
     protected function createMelliDriver()
     {
-        $config = $this->getConfig('melli');
+        $config = $this->getConfig(ProviderName::MELLI);
 
         return $this->buildProvider(
             MelliProvider::class,
@@ -172,7 +173,7 @@ class ShaparakManager extends Manager implements Contracts\Factory
      */
     protected function createSaderatDriver()
     {
-        $config = $this->getConfig('saderat');
+        $config = $this->getConfig(ProviderName::SADERAT);
 
         return $this->buildProvider(
             SaderatProvider::class,
@@ -187,7 +188,7 @@ class ShaparakManager extends Manager implements Contracts\Factory
      */
     protected function createAsanPardakhtDriver()
     {
-        $config = $this->getConfig('asanpardakht');
+        $config = $this->getConfig(ProviderName::ASAN_PARDAKHT);
 
         return $this->buildProvider(
             AsanPardakhtProvider::class,
@@ -202,7 +203,7 @@ class ShaparakManager extends Manager implements Contracts\Factory
      */
     protected function createZarinpalDriver()
     {
-        $config = $this->getConfig('zarinpal');
+        $config = $this->getConfig(ProviderName::ZARINPAL);
 
         return $this->buildProvider(
             ZarinpalProvider::class,
