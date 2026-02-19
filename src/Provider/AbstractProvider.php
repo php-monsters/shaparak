@@ -33,6 +33,8 @@ abstract class AbstractProvider implements ProviderContract
 
     public const URL_MULTIPLEX = 'multiplex';
 
+    public const AUTH = 'auth';
+
     protected bool $provideTransactionResult = true;
 
     /**
@@ -183,9 +185,6 @@ abstract class AbstractProvider implements ProviderContract
         return $this->refundSupport;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function settlementSupport(): bool
     {
         return $this->settlementSupport;
