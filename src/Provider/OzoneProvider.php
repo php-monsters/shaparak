@@ -48,8 +48,8 @@ class OzoneProvider extends AbstractProvider
         $response = Http::acceptJson()
             ->withToken($this->getJwtToken())
             ->post($this->getUrlFor(self::URL_TOKEN), [
-                'mobileNumber' => $this->getParameters('user_mobile'),
-                'invoiceNumber' => $this->getGatewayOrderId(),
+                'mobileNumber' => (string) $this->getParameters('user_mobile'),
+                'invoiceNumber' => (string) $this->getGatewayOrderId(),
                 'amount' => $this->getAmount(),
                 'redirectUrl' => $this->getCallbackUrl(),
                 'isVerificationNeeded' => true,
