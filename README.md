@@ -1,3 +1,5 @@
+![State Machine](https://f005.backblazeb2.com/file/docs-images/shaparak-statemachine.png?123)
+
 # Shaparak :: Laravel Online Payment Component
 Online Payment Component for Laravel 5+ known as Shaparak component completely compatible with [BankTest](http://banktest.ir) simulator.
 Shaparak integrated all Iranian/Shetab payment gateways to one component.
