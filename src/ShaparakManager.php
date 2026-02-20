@@ -11,6 +11,7 @@ use PhpMonsters\Shaparak\Enums\ProviderName;
 use PhpMonsters\Shaparak\Provider\AsanPardakhtProvider;
 use PhpMonsters\Shaparak\Provider\MellatProvider;
 use PhpMonsters\Shaparak\Provider\MelliProvider;
+use PhpMonsters\Shaparak\Provider\OzoneProvider;
 use PhpMonsters\Shaparak\Provider\ParsianProvider;
 use PhpMonsters\Shaparak\Provider\PasargadProvider;
 use PhpMonsters\Shaparak\Provider\SaderatProvider;
@@ -207,6 +208,21 @@ class ShaparakManager extends Manager implements Contracts\Factory
 
         return $this->buildProvider(
             ZarinpalProvider::class,
+            $config
+        );
+    }
+
+    /**
+     * Create an instance of the specified driver.
+     *
+     * @return Provider
+     */
+    protected function createOzoneDriver()
+    {
+        $config = $this->getConfig(ProviderName::OZONE);
+
+        return $this->buildProvider(
+            OzoneProvider::class,
             $config
         );
     }

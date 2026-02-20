@@ -12,4 +12,5 @@ enum ProviderName: string
     case SADERAT = 'saderat';
     case ASAN_PARDAKHT = 'asanpardakht';
     case ZARINPAL = 'zarinpal';
+    case OZONE = 'ozone';
 }
