@@ -135,7 +135,9 @@ class OzoneProvider extends AbstractProvider
             'PaymentGatewayCode',
         ]);
 
-        $response = Http::acceptJson()->post($this->getUrlFor(self::URL_VERIFY), [
+        $response = Http::acceptJson()
+            ->withToken($this->getJwtToken())
+            ->post($this->getUrlFor(self::URL_VERIFY), [
             'PaymentGatewayCode' => $this->getTransaction()->getGatewayToken(),
         ]);
 
@@ -165,7 +167,9 @@ class OzoneProvider extends AbstractProvider
             'InvoiceNumber',
         ]);
 
-        $response = Http::acceptJson()->post($this->getUrlFor(self::URL_REFUND), [
+        $response = Http::acceptJson()
+            ->withToken($this->getJwtToken())
+            ->post($this->getUrlFor(self::URL_REFUND), [
             'PaymentGatewayCode' => $this->getTransaction()->getGatewayToken(),
             'InvoiceNumber' => $this->getGatewayReferenceId(),
         ]);
