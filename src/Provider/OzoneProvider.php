@@ -142,7 +142,7 @@ class OzoneProvider extends AbstractProvider
         ]);
 
         if ($response->successful()) {
-            if ((int)$response->json('referenceCode') === $this->getParameters('ReferenceCode')) {
+            if ($response->json('referenceCode') == $this->getParameters('ReferenceCode')) {
                 $this->getTransaction()->setVerified(); // save()
 
                 return true;
@@ -175,7 +175,7 @@ class OzoneProvider extends AbstractProvider
         ]);
 
         if ($response->successful()) {
-            if ((int)$response->json('referenceCode') === $this->getParameters('ReferenceCode')) {
+            if ($response->json('referenceCode') == $this->getParameters('ReferenceCode')) {
                 $this->getTransaction()->setRefunded(); // save()
 
                 return true;
